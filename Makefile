@@ -15,7 +15,7 @@ CFLAGS += -O0 -g3
 endif
 
 TARGET = drow-engine
-HEADERS = err.h parser.h
+HEADERS = err.h parser.h types.h
 OBJECTS = main.o parser.o
 INCS = -I.
 
