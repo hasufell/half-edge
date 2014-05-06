@@ -32,7 +32,7 @@
 /*
  * static function declarations
  */
-static char *read_file(char *filename);
+static char *read_file(char const * const filename);
 
 
 /**
@@ -42,7 +42,7 @@ static char *read_file(char *filename);
  * @param filename .obj file
  * @return the HE_face array that represents the object
  */
-HE_face *parse_obj(char *filename)
+HE_face *parse_obj(char const * const filename)
 {
 	unsigned int vc;
 	char *string,
@@ -110,7 +110,7 @@ HE_face *parse_obj(char *filename)
  * @param filename file to open
  * @return newly allocated string, must be freed by the caller
  */
-static char *read_file(char *filename)
+static char *read_file(char const * const filename)
 {
 	char buf[STD_FILE_BUF],
 		 *string = malloc(STD_FILE_BUF);
