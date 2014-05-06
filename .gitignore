@@ -1,0 +1,20 @@
+# youcompleteme
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
+
+# doxygen
+html/
+latex/
+
+# objects, targets, etc
+*.o
+*.so
+*.la
+*.a
+drow-engine
+main
+
+# junk
+core
+.cproject#
+vgcore*
