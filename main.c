@@ -18,7 +18,20 @@
 
 #include "parser.h"
 
-int main(void)
+#include <stdio.h>
+
+/**
+ * Program help text.
+ */
+char const * const helptext = "Usage: drow-engine <file.obj>\n";
+
+
+int main(int argc, char *argv[])
 {
-	parse_obj("testcube_mitSpitze.obj");
+	if (argc > 1)
+		parse_obj(argv[1]);
+	else
+		printf("%s", helptext);
+
+	return 0;
 }
