@@ -50,7 +50,9 @@ HE_face *parse_obj(char const * const filename)
 		 *str_ptr_newline = NULL,
 		 *str_tmp_ptr = NULL;
 	const size_t vert_size = sizeof(HE_vert);
-	HE_vert *vertices = malloc(vert_size);
+	HE_vert *vertices = malloc(vert_size),
+			*vert_tmp;
+	FACE face_v = NULL;
 
 	/* read the whole file into string */
 	string = read_file(filename);
@@ -60,6 +62,7 @@ HE_face *parse_obj(char const * const filename)
 	printf("file content\n%s\n\n", string);
 
 	vc = 1;
+	fc = 1;
 	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
 	while (str_tmp_ptr && *str_tmp_ptr) {
 
@@ -93,8 +96,27 @@ HE_face *parse_obj(char const * const filename)
 			/* exceeds 3 dimensions, malformed vertice */
 			if (strtok_r(NULL, " ", &str_ptr_space))
 				return NULL;
+
 		} else if (!strcmp(str_tmp_ptr, "f")) { /* parse faces */
-			/* TODO */
+			char *myint = NULL;
+			unsigned int i = 0;
+			FACE tmp_ptr = NULL;
+
+			/* fill both HE_edge and HE_face */
+			tmp_ptr = realloc(face_v, sizeof(FACE*) * fc);
+			CHECK_PTR_VAL(tmp_ptr);
+			face_v = tmp_ptr;
+			face_v[fc - 1] = NULL;
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				unsigned int *tmp_ptr = NULL;
+				i++;
+				tmp_ptr = realloc(face_v[fc - 1], sizeof(FACE**) * (i + 1));
+				CHECK_PTR_VAL(tmp_ptr);
+				tmp_ptr[i - 1] = (unsigned int) atoi(myint);
+				tmp_ptr[i] = 0; /* so we can iterate over it */
+				face_v[fc - 1] = tmp_ptr;
+			}
+			fc++;
 		}
 
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);

@@ -25,6 +25,7 @@
  */
 #define STD_FILE_BUF 4096
 
+typedef unsigned int** FACE;
 
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
