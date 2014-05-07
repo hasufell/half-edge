@@ -33,6 +33,10 @@
  * static function declarations
  */
 static char *read_file(char const * const filename);
+static void print_edges(HE_obj *obj);
+static void print_vertices(HE_obj *obj);
+static void print_faces(HE_obj *obj);
+static void print_plain_faces(FACE face, uint8_t fc);
 
 
 /**
@@ -52,6 +56,7 @@ HE_face *parse_obj(char const * const filename)
 	const size_t vert_size = sizeof(HE_vert);
 	HE_vert *vertices = malloc(vert_size),
 			*vert_tmp;
+	HE_obj *obj = malloc(sizeof(HE_obj));
 	FACE face_v = NULL;
 
 	/* read the whole file into string */
@@ -122,13 +127,11 @@ HE_face *parse_obj(char const * const filename)
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
 
-	printf("vertices:\n");
-	for (unsigned int i = 0; i < vc - 1; i++) {
-		printf("x[%d]: %f\n", i, vertices[i].x);
-		printf("y[%d]: %f\n", i, vertices[i].y);
-		printf("z[%d]: %f\n", i, vertices[i].z);
-		printf("\n");
-	}
+	obj->vertices = vertices;
+	obj->vc = vc - 1; /* vc exceeds 1 after the loop */
+
+	print_plain_faces(face_v, fc);
+	print_vertices(obj);
 
 	return NULL;
 }
@@ -175,4 +178,40 @@ static char *read_file(char const * const filename)
 	} else {
 		return NULL;
 	}
+}
+
+static void print_edges(HE_obj *obj)
+{
+
+}
+
+static void print_vertices(HE_obj *obj)
+{
+	printf("vertices: %d\n", obj->vc);
+	for (unsigned int i = 0; i < obj->vc; i++) {
+		printf("x[%d]: %f\n", i, obj->vertices[i].x);
+		printf("y[%d]: %f\n", i, obj->vertices[i].y);
+		printf("z[%d]: %f\n", i, obj->vertices[i].z);
+		printf("\n");
+	}
+}
+
+static void print_faces(HE_obj *obj)
+{
+
+}
+
+static void print_plain_faces(FACE face, uint8_t fc)
+{
+	printf("plain faces:\n");
+	for (uint8_t i = 0; i < fc - 1; i++) {
+		uint8_t j = 0;
+		printf("f:");
+		while (face[i][j]) {
+			printf(" %d", face[i][j]);
+			j++;
+		}
+		printf("\n");
+	}
+	printf("\n");
 }

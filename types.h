@@ -20,6 +20,9 @@
 #define _DROW_ENGINE_TYPES_H
 
 
+#include <stdint.h>
+
+
 /**
  * Standard file buffer
  */
@@ -30,6 +33,7 @@ typedef unsigned int** FACE;
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_face HE_face;
+typedef struct HE_obj HE_obj;
 
 /**
  * Represents a half-edge.
@@ -76,6 +80,38 @@ struct HE_face {
 	 * One of the half-edges bordering the face.
 	 */
 	HE_edge *edge;
+};
+
+/**
+ * Represents a collection of HE_edge, HE_vert and HE_face
+ * which are all attached to one object. This is useful
+ * for algorithms that need to iterate over one or another.
+ */
+struct HE_obj {
+	/**
+	 * Array of edges.
+	 */
+	HE_edge *edges;
+	/**
+	 * Array of vertices.
+	 */
+	HE_vert *vertices;
+	/**
+	 * Array of faces.
+	 */
+	HE_face *faces;
+	/**
+	 * Count of edges.
+	 */
+	uint8_t ec;
+	/**
+	 * Count of vertices.
+	 */
+	uint8_t vc;
+	/**
+	 * Count of faces.
+	 */
+	uint8_t fc;
 };
 
 
