@@ -53,7 +53,8 @@ HE_face *parse_obj(char const * const filename)
 	HE_vert *vertices = malloc(vert_size);
 
 	/* read the whole file into string */
-	if (!filename || !*filename || !(string = read_file(filename)))
+	string = read_file(filename);
+	if (!filename || !*filename || !string || !*string)
 		return NULL;
 
 	printf("file content\n%s\n\n", string);
