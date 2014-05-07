@@ -44,11 +44,11 @@ static char *read_file(char const * const filename);
  */
 HE_face *parse_obj(char const * const filename)
 {
-	unsigned int vc;
-	char *string,
-		 *str_ptr_space,
-		 *str_ptr_newline,
-		 *str_tmp_ptr;
+	unsigned int vc, fc;
+	char *string = NULL,
+		 *str_ptr_space = NULL,
+		 *str_ptr_newline = NULL,
+		 *str_tmp_ptr = NULL;
 	const size_t vert_size = sizeof(HE_vert);
 	HE_vert *vertices = malloc(vert_size);
 
