@@ -67,6 +67,7 @@ HE_face *parse_obj(char const * const filename)
 
 		if (!strcmp(str_tmp_ptr, "v")) { /* parse vertices */
 			char *myfloat = NULL;
+			HE_vert *tmp_ptr;
 
 			/* fill x */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
@@ -84,9 +85,14 @@ HE_face *parse_obj(char const * const filename)
 			vertices[vc - 1].z = atof(myfloat);
 
 			vc++;
-			vertices = realloc(vertices,
+			tmp_ptr = realloc(vertices,
 					vert_size * vc);
-			CHECK_PTR_VAL(vertices);
+			CHECK_PTR_VAL(tmp_ptr);
+			vertices = tmp_ptr;
+
+			/* exceeds 3 dimensions, malformed vertice */
+			if (strtok_r(NULL, " ", &str_ptr_space))
+				return NULL;
 		} else if (!strcmp(str_tmp_ptr, "f")) { /* parse faces */
 			/* TODO */
 		}
