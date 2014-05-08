@@ -28,7 +28,7 @@
  */
 #define STD_FILE_BUF 4096
 
-typedef unsigned int** FACE;
+typedef uint32_t** FACE;
 
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
@@ -103,15 +103,15 @@ struct HE_obj {
 	/**
 	 * Count of edges.
 	 */
-	uint8_t ec;
+	uint32_t ec;
 	/**
 	 * Count of vertices.
 	 */
-	uint8_t vc;
+	uint32_t vc;
 	/**
 	 * Count of faces.
 	 */
-	uint8_t fc;
+	uint32_t fc;
 };
 
 
