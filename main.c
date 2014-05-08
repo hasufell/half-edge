@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "draw.h"
+#include "gl_draw.h"
 #include "filereader.h"
 #include "print.h"
 #include "types.h"
