@@ -48,7 +48,7 @@ uninstall:
 	rm "$(DESTDIR)$(INSTALL_BINDIR)/$(TARGET)"
 
 clean:
-	rm -f *.o $(TARGET)
+	rm -f *.o $(TARGET) core vgcore*
 
 doc:
 	doxygen
