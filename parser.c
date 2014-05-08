@@ -46,17 +46,19 @@ static void print_plain_faces(FACE face, uint8_t fc);
  * @param filename .obj file
  * @return the HE_face array that represents the object
  */
-HE_face *parse_obj(char const * const filename)
+HE_obj *parse_obj(char const * const filename)
 {
-	unsigned int vc, fc;
-	char *string = NULL,
-		 *str_ptr_space = NULL,
-		 *str_ptr_newline = NULL,
-		 *str_tmp_ptr = NULL;
-	const size_t vert_size = sizeof(HE_vert);
-	HE_vert *vertices = malloc(vert_size),
-			*vert_tmp;
-	HE_obj *obj = malloc(sizeof(HE_obj));
+	uint32_t vc = 0, /* vertices count */
+			 fc = 0, /* face count */
+			 ec = 0; /* edge count */
+	char *string = NULL, /* file content */
+		 *str_ptr_space = NULL, /* for strtok */
+		 *str_ptr_newline = NULL, /* for strtok */
+		 *str_tmp_ptr = NULL; /* for strtok */
+	HE_vert *vertices = NULL;
+	HE_edge *edges = NULL;
+	HE_face *faces = NULL;
+	HE_obj *obj = NULL;
 	FACE face_v = NULL;
 
 	/* read the whole file into string */
@@ -66,60 +68,67 @@ HE_face *parse_obj(char const * const filename)
 
 	printf("file content\n%s\n\n", string);
 
-	vc = 1;
-	fc = 1;
 	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
 	while (str_tmp_ptr && *str_tmp_ptr) {
 
 		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
 
-		if (!strcmp(str_tmp_ptr, "v")) { /* parse vertices */
+		/* parse vertices */
+		if (!strcmp(str_tmp_ptr, "v")) {
 			char *myfloat = NULL;
 			HE_vert *tmp_ptr;
+
+			tmp_ptr = (HE_vert*) realloc(vertices,
+					sizeof(HE_vert) * (vc + 1));
+			CHECK_PTR_VAL(tmp_ptr);
+			vertices = tmp_ptr;
 
 			/* fill x */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc - 1].x = atof(myfloat);
+			vertices[vc].x = atof(myfloat);
 
 			/* fill y */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc - 1].y = atof(myfloat);
+			vertices[vc].y = atof(myfloat);
 
 			/* fill z */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc - 1].z = atof(myfloat);
+			vertices[vc].z = atof(myfloat);
+
+			/* set edge NULL */
+			vertices[vc].edge = NULL;
 
 			vc++;
-			tmp_ptr = realloc(vertices,
-					vert_size * vc);
-			CHECK_PTR_VAL(tmp_ptr);
-			vertices = tmp_ptr;
 
 			/* exceeds 3 dimensions, malformed vertice */
 			if (strtok_r(NULL, " ", &str_ptr_space))
 				return NULL;
 
-		} else if (!strcmp(str_tmp_ptr, "f")) { /* parse faces */
+		/* parse faces */
+		} else if (!strcmp(str_tmp_ptr, "f")) {
 			char *myint = NULL;
-			unsigned int i = 0;
+			uint8_t i = 0;
 			FACE tmp_ptr = NULL;
 
-			/* fill both HE_edge and HE_face */
-			tmp_ptr = realloc(face_v, sizeof(FACE*) * fc);
+			/* fill FACE */
+			tmp_ptr = (FACE) realloc(face_v, sizeof(FACE*) * (fc + 1));
 			CHECK_PTR_VAL(tmp_ptr);
 			face_v = tmp_ptr;
-			face_v[fc - 1] = NULL;
+			face_v[fc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				unsigned int *tmp_ptr = NULL;
+				uint32_t *tmp_ptr = NULL;
+
 				i++;
-				tmp_ptr = realloc(face_v[fc - 1], sizeof(FACE**) * (i + 1));
+
+				tmp_ptr = (uint32_t*) realloc(face_v[fc],
+						sizeof(FACE**) * (i + 1));
 				CHECK_PTR_VAL(tmp_ptr);
-				tmp_ptr[i - 1] = (unsigned int) atoi(myint);
+				tmp_ptr[i - 1] = (uint32_t) atoi(myint);
 				tmp_ptr[i] = 0; /* so we can iterate over it */
-				face_v[fc - 1] = tmp_ptr;
+				face_v[fc] = tmp_ptr;
 			}
 			fc++;
 		}
@@ -128,7 +137,7 @@ HE_face *parse_obj(char const * const filename)
 	}
 
 	obj->vertices = vertices;
-	obj->vc = vc - 1; /* vc exceeds 1 after the loop */
+	obj->vc = vc;
 
 	print_plain_faces(face_v, fc);
 	print_vertices(obj);
@@ -159,7 +168,7 @@ static char *read_file(char const * const filename)
 
 			str_size += n; /* count total bytes read */
 
-			tmp_ptr = realloc( /* allocate correct size */
+			tmp_ptr = (char*) realloc( /* allocate correct size */
 					string, /* pointer to realloc */
 					str_size /* total bytes read */
 					+ 1); /* space for trailing NULL byte */

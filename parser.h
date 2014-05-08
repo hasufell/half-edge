@@ -20,7 +20,10 @@
 #define _DROW_ENGINE_PARSER_H
 
 
-void parse_obj(char const * const filename);
+#include "types.h"
+
+
+HE_obj *parse_obj(char const * const filename);
 
 
 #endif /* _DROW_ENGINE_PARSER_H */
