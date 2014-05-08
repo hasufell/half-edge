@@ -38,7 +38,7 @@ HE_obj *parse_obj(char const * const obj_string)
 	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0; /* edge count */
-	char *string = malloc(sizeof(char) * strlen(obj_string)),
+	char *string = malloc(sizeof(char) * strlen(obj_string) + 1),
 		 *str_ptr_space = NULL, /* for strtok */
 		 *str_ptr_newline = NULL, /* for strtok */
 		 *str_tmp_ptr = NULL; /* for strtok */
@@ -104,6 +104,7 @@ HE_obj *parse_obj(char const * const obj_string)
 				uint32_t *tmp_ptr = NULL;
 
 				i++;
+				ec++;
 
 				tmp_ptr = (uint32_t*) realloc(face_v[fc],
 						sizeof(FACE**) * (i + 1));
@@ -118,22 +119,22 @@ HE_obj *parse_obj(char const * const obj_string)
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
 
-	faces = (HE_face*) malloc(fc);
-	CHECK_PTR_VAL(faces);
+	printf("edge count: %d\n", ec);
 
+	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
+	CHECK_PTR_VAL(faces);
+	edges = (HE_edge*) malloc(sizeof(HE_edge) * ec);
+	CHECK_PTR_VAL(edges);
+
+	printf("resulting size: %lu\n", sizeof(HE_edge) * ec);
+
+	ec = 0;
 	/* create HE_edges and real HE_faces */
 	for (uint32_t i = 0; i < fc; i++) {
 		uint32_t j = 0;
 
 		/* for all vertices of the face */
 		while (face_v[i][j]) {
-			HE_edge *tmp_edge_ptr = NULL;
-
-			tmp_edge_ptr = (HE_edge*) realloc(edges,
-					sizeof(HE_edge) * (ec + 1));
-			CHECK_PTR_VAL(tmp_edge_ptr);
-			edges = tmp_edge_ptr;
-
 			edges[ec].vert = &(vertices[face_v[i][j] - 1]);
 			edges[ec].face = &(faces[j]);
 			edges[ec].pair = NULL; /* preliminary */
@@ -152,10 +153,10 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	/* find pairs */
 	/* TODO: acceleration */
-	for (uint32_t i = 0; i < fc; i++) {
+	for (uint32_t i = 0; i < ec; i++) {
 		HE_vert *next_vert = edges[i].next->vert;
 
-		for (uint32_t j = 0; j < fc; j++)
+		for (uint32_t j = 0; j < ec; j++)
 			if (next_vert == edges[j].vert)
 				edges[i].pair = &(edges[j]);
 	}
