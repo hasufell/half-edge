@@ -36,7 +36,7 @@ static char *read_file(char const * const filename);
 static void print_edges(HE_obj *obj);
 static void print_vertices(HE_obj *obj);
 static void print_faces(HE_obj *obj);
-static void print_plain_faces(FACE face, uint8_t fc);
+static void print_plain_faces(FACE face, uint32_t fc);
 
 
 /**
@@ -197,7 +197,7 @@ static void print_edges(HE_obj *obj)
 static void print_vertices(HE_obj *obj)
 {
 	printf("vertices: %d\n", obj->vc);
-	for (unsigned int i = 0; i < obj->vc; i++) {
+	for (uint32_t i = 0; i < obj->vc; i++) {
 		printf("x[%d]: %f\n", i, obj->vertices[i].x);
 		printf("y[%d]: %f\n", i, obj->vertices[i].y);
 		printf("z[%d]: %f\n", i, obj->vertices[i].z);
@@ -210,11 +210,11 @@ static void print_faces(HE_obj *obj)
 
 }
 
-static void print_plain_faces(FACE face, uint8_t fc)
+static void print_plain_faces(FACE face, uint32_t fc)
 {
 	printf("plain faces:\n");
-	for (uint8_t i = 0; i < fc - 1; i++) {
-		uint8_t j = 0;
+	for (uint32_t i = 0; i < fc - 1; i++) {
+		uint32_t j = 0;
 		printf("f:");
 		while (face[i][j]) {
 			printf(" %d", face[i][j]);
