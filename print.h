@@ -16,30 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "filereader.h"
-#include "print.h"
+#ifndef _DROW_ENGINE_PRINT_H
+#define _DROW_ENGINE_PRINT_H
+
+
 #include "types.h"
 
-#include <stdio.h>
 
-/**
- * Program help text.
- */
-char const * const helptext = "Usage: drow-engine <file.obj>\n";
+void print_edges(HE_obj *obj);
+void print_vertices(HE_obj *obj);
+void print_faces(HE_obj *obj);
+void print_plain_faces(FACE face, uint32_t fc);
 
 
-int main(int argc, char *argv[])
-{
-	HE_obj *obj;
-
-	if (argc > 1) {
-		obj = read_obj_file(argv[1]);
-		print_vertices(obj);
-		print_edges(obj);
-		print_faces(obj);
-	} else {
-		printf("%s", helptext);
-	}
-
-	return 0;
-}
+#endif /* _DROW_ENGINE_PRINT_H */

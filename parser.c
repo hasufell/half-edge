@@ -17,41 +17,28 @@
  */
 
 #include "err.h"
+#include "filereader.h"
 #include "types.h"
 
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-
-/*
- * static function declarations
- */
-static char *read_file(char const * const filename);
-static void print_edges(HE_obj *obj);
-static void print_vertices(HE_obj *obj);
-static void print_faces(HE_obj *obj);
-static void print_plain_faces(FACE face, uint32_t fc);
 
 
 /**
- * Parse an .obj file and return a NULL terminated
- * HE_face array that represents the object.
+ * Parse an .obj string and return a HE_obj
+ * that represents the whole object.
  *
- * @param filename .obj file
+ * @param obj_string the whole string from the .obj file
  * @return the HE_face array that represents the object
  */
-HE_obj *parse_obj(char const * const filename)
+HE_obj *parse_obj(char const * const obj_string)
 {
 	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0; /* edge count */
-	char *string = NULL, /* file content */
+	char *string = malloc(sizeof(char) * strlen(obj_string)),
 		 *str_ptr_space = NULL, /* for strtok */
 		 *str_ptr_newline = NULL, /* for strtok */
 		 *str_tmp_ptr = NULL; /* for strtok */
@@ -61,12 +48,7 @@ HE_obj *parse_obj(char const * const filename)
 	HE_obj *obj = NULL;
 	FACE face_v = NULL;
 
-	/* read the whole file into string */
-	string = read_file(filename);
-	if (!filename || !*filename || !string || !*string)
-		return NULL;
-
-	printf("file content\n%s\n\n", string);
+	strcpy(string, obj_string);
 
 	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
 	while (str_tmp_ptr && *str_tmp_ptr) {
@@ -153,7 +135,6 @@ HE_obj *parse_obj(char const * const filename)
 			edges = tmp_edge_ptr;
 
 			edges[ec].vert = &(vertices[face_v[i][j] - 1]);
-			faces[j].edge = &(edges[ec]); /* last one will win */
 			edges[ec].face = &(faces[j]);
 			edges[ec].pair = NULL; /* preliminary */
 
@@ -165,8 +146,9 @@ HE_obj *parse_obj(char const * const filename)
 			ec++;
 			j++;
 		}
-	}
 
+		faces[i].edge = &(edges[ec - 1]); /* "last" edge */
+	}
 
 	/* find pairs */
 	/* TODO: acceleration */
@@ -177,6 +159,7 @@ HE_obj *parse_obj(char const * const filename)
 			if (next_vert == edges[j].vert)
 				edges[i].pair = &(edges[j]);
 	}
+
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
 	CHECK_PTR_VAL(obj);
 
@@ -187,103 +170,7 @@ HE_obj *parse_obj(char const * const filename)
 	obj->faces = faces;
 	obj->fc = fc;
 
-	print_plain_faces(face_v, fc);
-	print_vertices(obj);
-	print_edges(obj);
-
 	free(string);
 
-	return NULL;
-}
-
-/**
- * Reads a file and returns a newly allocated string.
- *
- * @param filename file to open
- * @return newly allocated string, must be freed by the caller
- */
-static char *read_file(char const * const filename)
-{
-	char buf[STD_FILE_BUF],
-		 *string = NULL;
-	int objfile = 0;
-	size_t str_size = 0;
-	ssize_t n;
-
-	objfile = open(filename, O_RDONLY);
-
-	if (objfile) {
-		/* read and copy chunks */
-		while ((n = read(objfile, buf, STD_FILE_BUF)) > 0) {
-			char *tmp_ptr = NULL;
-
-			str_size += n; /* count total bytes read */
-
-			tmp_ptr = (char*) realloc( /* allocate correct size */
-					string, /* pointer to realloc */
-					str_size /* total bytes read */
-					+ 1); /* space for trailing NULL byte */
-			CHECK_PTR_VAL(tmp_ptr);
-			string = tmp_ptr;
-
-			/* append buffer to string */
-			memcpy(string + (str_size - n), buf, n);
-		}
-		/* add trailing NULL byte */
-		string[str_size] = '\0';
-
-		close(objfile);
-
-		return string;
-	} else {
-		return NULL;
-	}
-}
-
-static void print_edges(HE_obj *obj)
-{
-	for (uint32_t i = 0; i < obj->ec; i++) {
-		printf("edge vertices %i:\n", i);
-		printf("  x: %f\n", obj->edges[i].vert->x);
-		printf("  y: %f\n", obj->edges[i].vert->y);
-		printf("  z: %f\n", obj->edges[i].vert->z);
-		printf("\n");
-	}
-}
-
-static void print_vertices(HE_obj *obj)
-{
-	printf("vertices: %d\n", obj->vc);
-	for (uint32_t i = 0; i < obj->vc; i++) {
-		printf("x[%d]: %f\n", i, obj->vertices[i].x);
-		printf("y[%d]: %f\n", i, obj->vertices[i].y);
-		printf("z[%d]: %f\n", i, obj->vertices[i].z);
-		printf("\n");
-	}
-}
-
-static void print_faces(HE_obj *obj)
-{
-	for (uint32_t i = 0; i < obj->fc; i++) {
-		printf("face edge vertices %i:\n", i);
-		printf("  x: %f\n", obj->faces[i].edge->vert->x);
-		printf("  y: %f\n", obj->faces[i].edge->vert->y);
-		printf("  z: %f\n", obj->faces[i].edge->vert->z);
-		printf("\n");
-	}
-}
-
-static void print_plain_faces(FACE face, uint32_t fc)
-{
-	printf("plain faces:\n");
-	for (uint32_t i = 0; i < fc - 1; i++) {
-		uint32_t j = 0;
-		printf("f:");
-		while (face[i][j]) {
-			printf(" %d", face[i][j]);
-			j++;
-		}
-		printf("\n");
-	}
-	printf("\n");
+	return obj;
 }
