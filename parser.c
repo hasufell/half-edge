@@ -136,11 +136,62 @@ HE_obj *parse_obj(char const * const filename)
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
 
+	faces = (HE_face*) malloc(fc);
+	CHECK_PTR_VAL(faces);
+
+	/* create HE_edges and real HE_faces */
+	for (uint32_t i = 0; i < fc; i++) {
+		uint32_t j = 0;
+
+		/* for all vertices of the face */
+		while (face_v[i][j]) {
+			HE_edge *tmp_edge_ptr = NULL;
+
+			tmp_edge_ptr = (HE_edge*) realloc(edges,
+					sizeof(HE_edge) * (ec + 1));
+			CHECK_PTR_VAL(tmp_edge_ptr);
+			edges = tmp_edge_ptr;
+
+			edges[ec].vert = &(vertices[face_v[i][j] - 1]);
+			faces[j].edge = &(edges[ec]); /* last one will win */
+			edges[ec].face = &(faces[j]);
+			edges[ec].pair = NULL; /* preliminary */
+
+			if (face_v[i][j + 1])
+				edges[ec].next = &(edges[ec + 1]);
+			else
+				edges[ec].next = &(edges[ec - j]);
+
+			ec++;
+			j++;
+		}
+	}
+
+
+	/* find pairs */
+	/* TODO: acceleration */
+	for (uint32_t i = 0; i < fc; i++) {
+		HE_vert *next_vert = edges[i].next->vert;
+
+		for (uint32_t j = 0; j < fc; j++)
+			if (next_vert == edges[j].vert)
+				edges[i].pair = &(edges[j]);
+	}
+	obj = (HE_obj*) malloc(sizeof(HE_obj));
+	CHECK_PTR_VAL(obj);
+
 	obj->vertices = vertices;
 	obj->vc = vc;
+	obj->edges = edges;
+	obj->ec = ec;
+	obj->faces = faces;
+	obj->fc = fc;
 
 	print_plain_faces(face_v, fc);
 	print_vertices(obj);
+	print_edges(obj);
+
+	free(string);
 
 	return NULL;
 }
