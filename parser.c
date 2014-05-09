@@ -173,6 +173,9 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->fc = fc;
 
 	free(string);
+	for (uint32_t i = 0; i < fc; i++)
+		free(face_v[i]);
+	free(face_v);
 
 	return obj;
 }
