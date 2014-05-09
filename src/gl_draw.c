@@ -91,7 +91,7 @@ static HE_vert *find_center(HE_obj const * const obj)
  *
  * @param obj the object of which we will draw the vertices
  */
-static void draw_vertices(HE_obj *obj)
+static void draw_vertices(HE_obj const * const obj)
 {
 	for (uint32_t i = 0; i < obj->fc; i++) { /* for all faces */
 		HE_edge *tmp_edge = obj->faces[i].edge;
@@ -111,7 +111,9 @@ static void draw_vertices(HE_obj *obj)
  * @param myyrot rotation increment around x-axis
  * @param myzrot rotation increment around x-axis
  */
-static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
+static void draw_obj(uint32_t const myxrot,
+		const uint32_t myyrot,
+		const uint32_t myzrot)
 {
 	static uint32_t xrot = 0,
 					yrot = 0,
