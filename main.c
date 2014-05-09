@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	int windowY;
 	int screenX;
 	int screenY;
-	float factor = 0.80; // percent of screen
+	float factor = 0.80; /* percent of screen */
 
 	if (argc == 1) {
 		printf("%s", helptext);
