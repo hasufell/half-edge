@@ -119,14 +119,11 @@ HE_obj *parse_obj(char const * const obj_string)
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
 
-	printf("edge count: %d\n", ec);
 
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);
 	edges = (HE_edge*) malloc(sizeof(HE_edge) * ec);
 	CHECK_PTR_VAL(edges);
-
-	printf("resulting size: %lu\n", sizeof(HE_edge) * ec);
 
 	ec = 0;
 	/* create HE_edges and real HE_faces */
