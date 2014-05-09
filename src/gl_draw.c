@@ -52,6 +52,38 @@ static void draw_obj(uint32_t xrot, uint32_t yrot, uint32_t zrot);
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
+static HE_vert *find_center(HE_obj const * const obj);
+
+
+/**
+ * Find the center of an object and store the coordinates
+ * in a HE_vert struct.
+ *
+ * @param obj the object we want to find the center of
+ * @return newly allocated HE_vert with empty edge member
+ * and coordinates which represent the middle of the object
+ */
+static HE_vert *find_center(HE_obj const * const obj)
+{
+	float x = 0,
+		  y = 0,
+		  z = 0;
+	uint32_t i;
+	HE_vert *newvert = malloc(sizeof(HE_vert));
+
+	for (i = 0; i < obj->vc; i++) {
+		x += obj->vertices[i].x;
+		y += obj->vertices[i].y;
+		z += obj->vertices[i].z;
+	}
+
+	newvert->x = x / i;
+	newvert->y = y / i;
+	newvert->z = z / i;
+	newvert->edge = NULL;
+
+	return newvert;
+}
 
 /**
  * Call glVertex3f on all of the vertices of the object,
@@ -84,6 +116,7 @@ static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
 	static uint32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
+	HE_vert *center_vert = find_center(obj);
 
 	xrot += myxrot;
 	yrot += myyrot;
@@ -99,9 +132,9 @@ static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
 
 	/* pull into middle of universe */
-	glTranslatef(-obj->faces->edge->vert->x,
-			-obj->faces->edge->vert->y,
-			-obj->faces->edge->vert->z + SYSTEM_POS_Z);
+	glTranslatef(-center_vert->x,
+			-center_vert->y,
+			-center_vert->z + SYSTEM_POS_Z);
 
 	glBegin(GL_POLYGON);
 	glColor3f(0.0f, 1.0f, 0.0f);
@@ -109,6 +142,8 @@ static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
 	glEnd();
 
 	glPopMatrix();
+
+	free(center_vert);
 }
 
 /**
