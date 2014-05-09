@@ -17,7 +17,6 @@
  */
 
 #include "gl_draw.h"
-#include "filereader.h"
 #include "print.h"
 #include "types.h"
 
@@ -37,21 +36,15 @@ char const * const helptext = "Usage: drow-engine <file.obj>\n";
 
 int main(int argc, char *argv[])
 {
-	HE_obj *obj = NULL;
-
 	int windowX;
 	int windowY;
 	int screenX;
 	int screenY;
 	float factor = 0.80; // percent of screen
 
-	if (argc > 1) {
-		obj = read_obj_file(argv[1]);
-		print_vertices(obj);
-		print_edges(obj);
-		print_faces(obj);
-	} else {
+	if (argc == 1) {
 		printf("%s", helptext);
+		return 1;
 	}
 
 	glutInit(&argc, argv);
@@ -65,7 +58,7 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(windowX, windowY);
 	glutCreateWindow(filename);
 
-	init(obj);
+	init(argv[1]);
 
 	glutKeyboardFunc(keyboard);
 	glutReshapeFunc(reshape);

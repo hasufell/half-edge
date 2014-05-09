@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "err.h"
+#include "filereader.h"
 #include "types.h"
 
 #include <GL/glut.h>
@@ -28,7 +30,6 @@
 
 #include <stdio.h>
 
-#define filename __FILE__
 #define XY_WIRE_COUNT 10.0f
 
 #define ROT_FACTOR_PLANET_SUN (360.0 / yearabs)
@@ -47,17 +48,36 @@ HE_obj *obj;
 /*
  * static function declaration
  */
-static void draw_Sun(void);
+static void draw_obj(uint32_t xrot, uint32_t yrot, uint32_t zrot);
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 
 
 /**
- * Draws a sun which changes its color randomly.
+ * Draws an object.
+ *
+ * @param myxrot rotation increment around x-axis
+ * @param myyrot rotation increment around x-axis
+ * @param myzrot rotation increment around x-axis
  */
-static void draw_Sun(void)
+static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
 {
+	static uint32_t xrot = 0,
+					yrot = 0,
+					zrot = 0;
+
+	xrot += myxrot;
+	yrot += myyrot;
+	zrot += myzrot;
+
 	glPushMatrix();
+
+	/* rotate according to static members */
+	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
 
 	/* pull into middle of universe */
 	glTranslatef(-obj->faces->edge->vert->x,
@@ -74,7 +94,6 @@ static void draw_Sun(void)
 			glVertex3f(tmp_edge->vert->x,
 					tmp_edge->vert->y,
 					tmp_edge->vert->z);
-
 		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
 	}
 
@@ -96,7 +115,7 @@ static void draw_Planet_1(void)
 
 	glPushMatrix();
 
-	//Rotate around the sun
+	/* Rotate around the sun */
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
 	glRotatef(90, 1.0f, 0.0f, 0.0f);
 	glRotatef((ROT_FACTOR_PLANET_SUN * day), 0.0f, 0.0f, 1.0f);
@@ -106,12 +125,13 @@ static void draw_Planet_1(void)
 
 	glColor3f(1.0f, 0.0f, 0.0f);
 
-	//A rotation (full 360°) once a day is much too fast you woulden'd see a thing
+	/* A rotation (full 360°) once a day is much
+	 * too fast you woulden'd see a thing */
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, 1.0f);
 	glutWireSphere(1.0f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, -1.0f);
 
-	//Center axis
+	/* Center axis */
 	glPushMatrix();
 	glLineWidth(3);
 	glColor3f(1.0, 1.0, 1.0);
@@ -121,33 +141,33 @@ static void draw_Planet_1(void)
 	glEnd();
 	glPopMatrix();
 
-	//circle1
+	/* circle1 */
 	glPushMatrix();
 	glColor3f(0.8f, 0.0f, 0.2f);
-	//glRotatef(90, 0.0f, 1.0f, 0.0f); //"senkrecht zur Planetenachse"
+	/* glRotatef(90, 0.0f, 1.0f, 0.0f); [> "senkrecht zur Planetenachse" <] */
 	gluDisk(quadric, 1.2f, 1.3f, 32, 1);
 	glPopMatrix();
 
-	//circle2
+	/* circle2 */
 	glPushMatrix();
 	glColor3f(0.0f, 1.0f, 0.0f);
-	//glRotatef(90, 0.0f, 1.0f, 0.0f); //"senkrecht zur Planetenachse"
+	/* glRotatef(90, 0.0f, 1.0f, 0.0f); [> "senkrecht zur Planetenachse" <] */
 	gluDisk(quadric, 1.4f, 1.7f, 32, 1);
 	glPopMatrix();
 
-	//Moon1
+	/* Moon1 */
 	glPushMatrix();
 	glColor3f(0.0f, 0.0f, 1.0f);
-	//glRotatef((ROT_FACTOR_MOON * day), 1.0f, 0.0f, 0.0f); //"senkrecht zur Planetenachse"
+	/* glRotatef((ROT_FACTOR_MOON * day), 1.0f, 0.0f, 0.0f); [> "senkrecht zur Planetenachse" <] */
 	glRotatef((ROT_FACTOR_MOON * day), 0.0f, 0.0f, 1.0f);
 	glTranslatef(0.0f, 2.0f, 0.0f);
 	glutWireSphere(0.1f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glPopMatrix();
 
-	//Moon2
+	/* Moon2 */
 	glPushMatrix();
 	glColor3f(0.0f, 1.0f, 1.0f);
-	//glRotatef((ROT_FACTOR_MOON * day), 1.0f, 0.0f, 0.0f); //"senkrecht zur Planetenachse"
+	/* glRotatef((ROT_FACTOR_MOON * day), 1.0f, 0.0f, 0.0f); [> "senkrecht zur Planetenachse" <] */
 	glRotatef((ROT_FACTOR_MOON * day), 0.0f, 0.0f, 1.0f);
 	glTranslatef(0.0f, -2.0f, 0.0f);
 	glutWireSphere(0.1f, XY_WIRE_COUNT, XY_WIRE_COUNT);
@@ -167,7 +187,7 @@ static void draw_Planet_2(void)
 	glPushMatrix();
 	const float moon_pos_fac = 2.5;
 
-	//Rotate around the sun
+	/* Rotate around the sun */
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
 	glRotatef(90, 1.0f, 0.0f, 0.0f);
 	glRotatef((ROT_FACTOR_PLANET_SUN * day), 0.0f, 0.0f, 1.0f);
@@ -175,13 +195,14 @@ static void draw_Planet_2(void)
 
 	glColor3f(0.0f, 0.0f, 1.0f);
 
-	//A rotation (full 360°) once a day is much too fast you woulden'd see a thing
+	/* A rotation (full 360°) once a day is much
+	 * too fast you woulden'd see a thing */
 	const int rot_fac_day = 15;
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, 1.0f);
 	glutWireSphere(1.3f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, -1.0f);
 
-	//Moon3
+	/* Moon3 */
 	glPushMatrix();
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glRotatef((ROT_FACTOR_MOON * day), 0.0f, 0.0f, 1.0f);
@@ -190,7 +211,7 @@ static void draw_Planet_2(void)
 	glutWireSphere(0.1f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glPopMatrix();
 
-	//Moon4
+	/* Moon4 */
 	glPushMatrix();
 	glColor3f(1.0f, 0.0f, 1.0f);
 	glRotatef((ROT_FACTOR_MOON * day), 0.0f, 0.0f, 1.0f);
@@ -199,7 +220,7 @@ static void draw_Planet_2(void)
 	glutWireSphere(0.1f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glPopMatrix();
 
-	//Moon5
+	/* Moon5 */
 	glPushMatrix();
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glRotatef((ROT_FACTOR_MOON * day), 0.0f, 0.0f, 1.0f);
@@ -219,7 +240,7 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 
-	draw_Sun();
+	draw_obj(0, 0, 0);
 	draw_Planet_1();
 	draw_Planet_2();
 
@@ -245,9 +266,11 @@ void display(void)
 /**
  * Sets the initial values to start the program.
  */
-void init(HE_obj *myobj)
+void init(char const * const filename)
 {
-	obj = myobj;
+	obj = read_obj_file(filename);
+	if (!obj)
+		ABORT("Failed to read object file \"%s\"!", filename);
 	day = 0;
 	year = 0;
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -303,12 +326,9 @@ void animate()
  * press T to decrease the day
  * press j to increase the year
  * press J to decrease the year
- * press x to rotate the whole scene in x direction
- * press X to rotate the whole scene in -x direction
- * press y to rotate the whole scene in y direction
- * press Y to rotate the whole scene in -y direction
- * press c to rotate the whole scene in z direction
- * press C to rotate the whole scene in -z direction
+ * press x to rotate the middle object in x direction
+ * press y to rotate the middle object in y direction
+ * press c to rotate the middle object in z direction
  * press w to translate the whole scene in y direction
  * press s to translate the whole scene in -y direction
  * press a to translate the whole scene in -x direction
@@ -340,39 +360,15 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, 1.0f, 0.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
+		draw_obj(1, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'y':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, 0.0f, 1.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
+		draw_obj(0, 1, 0);
 		glutPostRedisplay();
 		break;
 	case 'c':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, 0.0f, 0.0f, 1.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
-		glutPostRedisplay();
-		break;
-	case 'X':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, -1.0f, 0.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
-		glutPostRedisplay();
-		break;
-	case 'Y':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, 0.0f, -1.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
-		glutPostRedisplay();
-		break;
-	case 'C':
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-		glRotatef(1, 0.0f, 0.0f, -1.0f);
-		glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
+		draw_obj(0, 0, 1);
 		glutPostRedisplay();
 		break;
 	case 'w':

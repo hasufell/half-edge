@@ -27,7 +27,7 @@
 #include <GL/glu.h>
 
 
-void init(HE_obj *myobj);
+void init(char const * const filename);
 void display(void);
 void reshape(GLsizei w, GLsizei h);
 void animate();
