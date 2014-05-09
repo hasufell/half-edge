@@ -51,7 +51,20 @@ HE_obj *obj;
 static void draw_obj(uint32_t xrot, uint32_t yrot, uint32_t zrot);
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
+static void gl_destroy(void);
 
+static void draw_vertices(HE_obj *obj)
+{
+	for (uint32_t i = 0; i < obj->fc; i++) { /* for all faces */
+		HE_edge *tmp_edge = obj->faces[i].edge;
+
+		do { /* for all edges of the face */
+			glVertex3f(tmp_edge->vert->x,
+					tmp_edge->vert->y,
+					tmp_edge->vert->z);
+		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
+	}
+}
 
 /**
  * Draws an object.
@@ -85,18 +98,8 @@ static void draw_obj(uint32_t myxrot, uint32_t myyrot, uint32_t myzrot)
 			-obj->faces->edge->vert->z + SYSTEM_POS_Z);
 
 	glBegin(GL_POLYGON);
-
 	glColor3f(0.0f, 1.0f, 0.0f);
-	for (uint32_t i = 0; i < obj->fc; i++) { /* for all faces */
-		HE_edge *tmp_edge = obj->faces[i].edge;
-
-		do { /* for all edges of the face */
-			glVertex3f(tmp_edge->vert->x,
-					tmp_edge->vert->y,
-					tmp_edge->vert->z);
-		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
-	}
-
+	draw_vertices(obj);
 	glEnd();
 
 	glPopMatrix();
