@@ -140,9 +140,9 @@ HE_obj *parse_obj(char const * const obj_string)
 			edges[ec].pair = NULL; /* preliminary */
 			vertices[face_v[i][j] - 1].edge = &(edges[ec]); /* last one wins */
 
-			if (face_v[i][j + 1])
+			if (face_v[i][j + 1]) /* connect to next vertice */
 				edges[ec].next = &(edges[ec + 1]);
-			else
+			else /* no vertices left, connect to first vertice */
 				edges[ec].next = &(edges[ec - j]);
 
 			ec++;
