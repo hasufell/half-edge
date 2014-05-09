@@ -277,7 +277,8 @@ static void draw_Planet_2(void)
 }
 
 /**
- * Displays the whole setup with the sun, planet one, planet two and the frame rate
+ * Displays the whole setup with the sun, planet one,
+ * planet two and the frame rate
  */
 void display(void)
 {
