@@ -38,6 +38,7 @@
 
 #define SYSTEM_POS_Z -15.0f
 #define SYSTEM_POS_Z_BACK 15.0f
+#define VISIBILITY_FACTOR 5.0f
 
 int year;
 int yearabs = 365;
@@ -54,6 +55,38 @@ static void draw_Planet_2(void);
 static void gl_destroy(void);
 static HE_vert *find_center(HE_obj const * const obj);
 
+
+/**
+ * Scales down the object to the size of 1.
+ *
+ * @param the object we want to scale
+ */
+static float scale_object_normalized(HE_obj const * const obj)
+{
+	float max = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
+	float min = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
+
+	uint32_t i;
+
+	for (i = 0; i < obj->vc; i++) {
+		if ((obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z) > max)
+			max = obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z;
+		else if ((obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z) < min)
+			min = obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z;
+	}
+
+	return 1 / (max - min);
+}
 
 /**
  * Find the center of an object and store the coordinates
@@ -119,6 +152,7 @@ static void draw_obj(uint32_t const myxrot,
 					yrot = 0,
 					zrot = 0;
 	HE_vert *center_vert = find_center(obj);
+	float scalefactor = scale_object_normalized(obj) * VISIBILITY_FACTOR;
 
 	xrot += myxrot;
 	yrot += myyrot;
@@ -128,6 +162,9 @@ static void draw_obj(uint32_t const myxrot,
 
 	/* rotate according to static members */
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
+	glScalef(scalefactor,
+			scalefactor,
+			scalefactor);
 	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
 	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
