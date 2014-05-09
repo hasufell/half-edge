@@ -67,7 +67,7 @@ char *read_file(char const * const filename)
 
 	objfile = open(filename, O_RDONLY);
 
-	if (objfile) {
+	if (objfile != -1) {
 		/* read and copy chunks */
 		while ((n = read(objfile, buf, STD_FILE_BUF)) > 0) {
 			char *tmp_ptr = NULL;
