@@ -138,6 +138,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			edges[ec].vert = &(vertices[face_v[i][j] - 1]);
 			edges[ec].face = &(faces[j]);
 			edges[ec].pair = NULL; /* preliminary */
+			vertices[face_v[i][j] - 1].edge = &(edges[ec]); /* last one wins */
 
 			if (face_v[i][j + 1])
 				edges[ec].next = &(edges[ec + 1]);
