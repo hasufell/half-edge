@@ -393,5 +393,19 @@ void keyboard(unsigned char key, int x, int y)
 		glTranslatef(0.0f, 0.0f, -1.0f);
 		break;
 	case 'q':
+		gl_destroy();
+		break;
 	}
+}
+
+/**
+ * Destroy the gl session/window.
+ */
+static void gl_destroy(void)
+{
+	free(obj->edges);
+	free(obj->vertices);
+	free(obj->faces);
+	free(obj);
+	glutDestroyWindow(glutGetWindow());
 }
