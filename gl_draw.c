@@ -53,6 +53,12 @@ static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
 
+/**
+ * Call glVertex3f on all of the vertices of the object,
+ * in appropriate order.
+ *
+ * @param obj the object of which we will draw the vertices
+ */
 static void draw_vertices(HE_obj *obj)
 {
 	for (uint32_t i = 0; i < obj->fc; i++) { /* for all faces */
