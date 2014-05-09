@@ -57,9 +57,11 @@ static HE_vert *find_center(HE_obj const * const obj);
 
 
 /**
- * Scales down the object to the size of 1.
+ * Calculates the factor that can be used to scaled down the object
+ * to the size of 1.
  *
- * @param the object we want to scale
+ * @param obj the object we want to scale
+ * @return the corresponding scale factor
  */
 static float scale_object_normalized(HE_obj const * const obj)
 {
