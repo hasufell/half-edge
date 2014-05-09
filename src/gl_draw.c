@@ -54,6 +54,7 @@ static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
 static HE_vert *find_center(HE_obj const * const obj);
+static float get_normalized_scale_factor(HE_obj const * const obj);
 
 
 /**
@@ -63,7 +64,7 @@ static HE_vert *find_center(HE_obj const * const obj);
  * @param obj the object we want to scale
  * @return the corresponding scale factor
  */
-static float scale_object_normalized(HE_obj const * const obj)
+static float get_normalized_scale_factor(HE_obj const * const obj)
 {
 	float max = obj->vertices[0].x +
 		obj->vertices[0].y + obj->vertices[0].z;
@@ -154,7 +155,7 @@ static void draw_obj(uint32_t const myxrot,
 					yrot = 0,
 					zrot = 0;
 	HE_vert *center_vert = find_center(obj);
-	float scalefactor = scale_object_normalized(obj) * VISIBILITY_FACTOR;
+	float scalefactor = get_normalized_scale_factor(obj) * VISIBILITY_FACTOR;
 
 	xrot += myxrot;
 	yrot += myyrot;
