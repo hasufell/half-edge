@@ -386,11 +386,12 @@ void keyboard(unsigned char key, int x, int y)
 	case 'd':
 		glTranslatef(1.0f, 0.0f, 0.0f);
 		break;
-	case 'q':
+	case '+':
 		glTranslatef(0.0f, 0.0f, 1.0f);
 		break;
-	case 'e':
+	case '-':
 		glTranslatef(0.0f, 0.0f, -1.0f);
 		break;
+	case 'q':
 	}
 }
