@@ -47,7 +47,7 @@ bool vector_product(vector *a, vector *b, vector *c)
 	vector a_tmp,
 		   b_tmp;
 
-	if (!a || !b)
+	if (!a || !b || !c)
 		return false;
 
 	copy_vector(a, &a_tmp);
@@ -75,7 +75,7 @@ bool add_vectors(vector *a, vector *b, vector *c)
 	vector a_tmp,
 		   b_tmp;
 
-	if (!a || !b)
+	if (!a || !b || !c)
 		return false;
 
 	copy_vector(a, &a_tmp);
@@ -103,7 +103,7 @@ bool sub_vectors(vector *a, vector *b, vector *c)
 	vector a_tmp,
 		   b_tmp;
 
-	if (!a || !b)
+	if (!a || !b || !c)
 		return false;
 
 	copy_vector(a, &a_tmp);
