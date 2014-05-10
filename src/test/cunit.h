@@ -35,3 +35,6 @@ void test_parse_obj1(void);
 void test_parse_obj2(void);
 void test_parse_obj3(void);
 void test_parse_obj4(void);
+
+void test_find_center1(void);
+void test_find_center2(void);
