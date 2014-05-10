@@ -16,18 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DROW_ENGINE_PRINT_H
-#define _DROW_ENGINE_PRINT_H
+#ifndef _DROW_ENGINE_VEC_MATH_H
+#define _DROW_ENGINE_VEC_MATH_H
 
 
 #include "types.h"
 
-
-void print_edges(HE_obj *obj);
-void print_vertices(HE_obj *obj);
-void print_faces(HE_obj *obj);
-void print_plain_faces(FACE face, uint32_t fc);
-void print_vector(vector *vec);
+#include <stdbool.h>
 
 
-#endif /* _DROW_ENGINE_PRINT_H */
+bool vector_product(vector *a, vector *b, vector *c);
+
+
+#endif /* _DROW_ENGINE_VEC_MATH_H */

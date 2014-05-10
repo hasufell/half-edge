@@ -16,18 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DROW_ENGINE_PRINT_H
-#define _DROW_ENGINE_PRINT_H
-
-
+#include "err.h"
 #include "types.h"
 
-
-void print_edges(HE_obj *obj);
-void print_vertices(HE_obj *obj);
-void print_faces(HE_obj *obj);
-void print_plain_faces(FACE face, uint32_t fc);
-void print_vector(vector *vec);
+#include <stdbool.h>
+#include <stdlib.h>
 
 
-#endif /* _DROW_ENGINE_PRINT_H */
+/**
+ * Calculate the vector product of a and b
+ * and store it in c.
+ *
+ * @param a vector
+ * @param b vector
+ * @param c vector [out]
+ * @return true/false for success/failure
+ */
+bool vector_product(vector *a, vector *b, vector *c)
+{
+	if (!a || !b)
+		return false;
+
+	c->x = a->y * b->z - a->z * b->y;
+	c->y = a->z * b->x - a->x * b->z;
+	c->z = a->x * b->y - a->y * b->x;
+
+	return true;
+}

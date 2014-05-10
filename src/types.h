@@ -30,10 +30,20 @@
 
 typedef uint32_t** FACE;
 
+typedef struct vector vector;
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
+
+/**
+ * Represents a vector with x, y, z coordinates.
+ */
+struct vector {
+	float x;
+	float y;
+	float z;
+};
 
 /**
  * Represents a half-edge.

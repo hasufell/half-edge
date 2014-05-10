@@ -92,3 +92,19 @@ void print_plain_faces(FACE face, uint32_t fc)
 	}
 	printf("\n");
 }
+
+/**
+ * Print all coordinates of a vector.
+ *
+ * @param the vector we want to print
+ */
+void print_vector(vector *vec)
+{
+	printf("vector:\n"
+			"x %f\n"
+			"y %f\n"
+			"z %f\n\n",
+			vec->x,
+			vec->y,
+			vec->z);
+}
