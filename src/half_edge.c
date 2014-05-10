@@ -85,16 +85,21 @@ HE_vert *find_center(HE_obj const * const obj)
  * to the size of 1.
  *
  * @param obj the object we want to scale
- * @return the corresponding scale factor
+ * @return the corresponding scale factor, -1 on error
  */
 float get_normalized_scale_factor(HE_obj const * const obj)
 {
-	float max = obj->vertices[0].x +
-		obj->vertices[0].y + obj->vertices[0].z;
-	float min = obj->vertices[0].x +
-		obj->vertices[0].y + obj->vertices[0].z;
-
+	float max;
+	float min;
 	uint32_t i;
+
+	if (!obj)
+		return -1;
+
+	max = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
+	min = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
 
 	for (i = 0; i < obj->vc; i++) {
 		if ((obj->vertices[i].x +
