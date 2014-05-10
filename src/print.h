@@ -16,12 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file print.h
+ * Header for the external API of print.c.
+ * @brief header of print.c
+ */
+
 #ifndef _DROW_ENGINE_PRINT_H
 #define _DROW_ENGINE_PRINT_H
 
 
 #include "half_edge.h"
-#include "parser.h"
 #include "vector.h"
 
 

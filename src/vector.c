@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file vector.c
+ * Various operations on the vector struct defined
+ * in vector.h, including simple maths.
+ * @brief vector operations
+ */
+
 #include "err.h"
 #include "vector.h"
 

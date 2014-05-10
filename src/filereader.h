@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file filereader.h
+ * Header for the external API of filereader.c
+ * @brief header of filereader.c
+ */
+
 #ifndef _DROW_ENGINE_FILEREADER_H
 #define _DROW_ENGINE_FILEREADER_H
 

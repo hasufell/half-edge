@@ -16,16 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DROW_ENGINE_ERR_H
-#define _DROW_ENGINE_ERR_H
-
-#include <stdio.h>
-
 /**
  * @file err.h
  * Holds error handling macros.
  * @brief error handling
  */
+
+#ifndef _DROW_ENGINE_ERR_H
+#define _DROW_ENGINE_ERR_H
+
+#include <stdio.h>
+
 
 /**
  * Abort the program with a given error message.

@@ -15,8 +15,8 @@ CFLAGS += -O0 -g3
 endif
 
 TARGET = drow-engine
-HEADERS = err.h parser.h common.h print.h filereader.h gl_draw.h vector.h half_edge.h
-OBJECTS = main.o parser.o print.o filereader.o gl_draw.o vector.o half_edge.o
+HEADERS = err.h common.h print.h filereader.h gl_draw.h vector.h half_edge.h
+OBJECTS = main.o print.o filereader.o gl_draw.o vector.o half_edge.o
 INCS = -I.
 
 CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0)

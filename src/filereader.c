@@ -16,9 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file filereader.c
+ * Reading of arbitrary files into strings as well as
+ * reading specific ones via various parsers.
+ * @brief reading of different filetypes
+ */
+
 #include "err.h"
 #include "filereader.h"
-#include "parser.h"
+#include "half_edge.h"
 #include "common.h"
 
 #include <fcntl.h>

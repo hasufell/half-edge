@@ -16,8 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file print.c
+ * Various verbose print functions that help
+ * debugging code or provide more detailed
+ * error messages.
+ * @brief various print functions
+ */
+
 #include "half_edge.h"
-#include "parser.h"
 #include "vector.h"
 
 #include <stdio.h>

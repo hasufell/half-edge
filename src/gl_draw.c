@@ -16,6 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file gl_draw.c
+ * This file does the actual OpenGL and GLUT logic,
+ * drawing the objects, handling keyboard input and
+ * various GLUT-related callback functions.
+ * @brief OpenGL drawing
+ */
+
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"

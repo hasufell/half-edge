@@ -16,12 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file half_edge.h
+ * Header for the external API of half_edge.c,
+ * primarily holding the common half-edge data
+ * structures.
+ * @brief header of half_edge.c
+ */
+
 #ifndef _DROW_ENGINE_HE_OPERATIONS_H
 #define _DROW_ENGINE_HE_OPERATIONS_H
 
 
 #include <stdint.h>
 
+
+/**
+ * Typedef for the plain faces
+ * that are not yet converted to real HE_face.
+ */
+typedef uint32_t** FACE;
 
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
@@ -110,6 +124,7 @@ struct HE_obj {
 
 
 HE_edge **get_all_emanating_edges(HE_vert *vertice);
+HE_obj *parse_obj(char const * const filename);
 
 
 #endif /* _DROW_ENGINE_HE_OPERATIONS_H */

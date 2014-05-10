@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file gl_draw.h
+ * Header for the external API of gl_draw.c
+ * @brief header of gl_draw.c
+ */
+
 #ifndef _DROW_ENGINE_DRAW_H
 #define _DROW_ENGINE_DRAW_H
 

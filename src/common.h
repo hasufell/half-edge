@@ -20,7 +20,7 @@
  * @file common.h
  * Header for common types, macros and constants
  * shared amongst the codebase. Error macros go in err.h.
- * @brief common.h common types, macros, constants
+ * @brief common types, macros, constants
  */
 
 #ifndef _DROW_ENGINE_TYPES_H

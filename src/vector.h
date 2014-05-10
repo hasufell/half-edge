@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file vector.h
+ * Header for the external API of vector.c,
+ * also holding the vector data structure.
+ * @brief header of vector.c
+ */
+
 #ifndef _DROW_ENGINE_VEC_MATH_H
 #define _DROW_ENGINE_VEC_MATH_H
 
