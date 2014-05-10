@@ -20,6 +20,9 @@
 #include "types.h"
 #include "vec_math.h"
 
+#include <errno.h>
+#include <fenv.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -47,6 +50,37 @@ bool vector_product(vector *a, vector *b, vector *c)
 	c->x = a_tmp.y * b_tmp.z - a_tmp.z * b_tmp.y;
 	c->y = a_tmp.z * b_tmp.x - a_tmp.x * b_tmp.z;
 	c->z = a_tmp.x * b_tmp.y - a_tmp.y * b_tmp.x;
+
+	return true;
+}
+
+/**
+ * Normalize a vector into a unit vector
+ * of length 1. This function is aliasing safe.
+ *
+ * @param a vector
+ * @param b vector
+ * @return true/false for success/failure
+ */
+bool normalize_vector(vector *a, vector *b)
+{
+	if (!a || !b)
+		return false;
+
+	vector a_tmp;
+	float vector_length;
+
+	copy_vector(a, &a_tmp);
+
+	vector_length = sqrt((a_tmp.x * a_tmp.x) +
+			(a_tmp.y * a_tmp.y) + (a_tmp.z * a_tmp.z));
+
+	if (errno == EDOM)
+		return false;
+
+	b->x = a_tmp.x / vector_length;
+	b->y = a_tmp.y / vector_length;
+	b->z = a_tmp.z / vector_length;
 
 	return true;
 }

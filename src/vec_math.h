@@ -26,6 +26,7 @@
 
 
 bool vector_product(vector *a, vector *b, vector *c);
+bool normalize_vector(vector *a, vector *b);
 bool copy_vector(vector *a, vector *b);
 
 
