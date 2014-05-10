@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "types.h"
+#include "half_edge.h"
+#include "parser.h"
+#include "vector.h"
 
 #include <stdio.h>
 

@@ -19,7 +19,7 @@
 #include "err.h"
 #include "filereader.h"
 #include "parser.h"
-#include "types.h"
+#include "common.h"
 
 #include <fcntl.h>
 #include <stdlib.h>

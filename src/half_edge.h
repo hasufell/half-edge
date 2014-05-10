@@ -16,34 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DROW_ENGINE_TYPES_H
-#define _DROW_ENGINE_TYPES_H
+#ifndef _DROW_ENGINE_HE_OPERATIONS_H
+#define _DROW_ENGINE_HE_OPERATIONS_H
 
 
 #include <stdint.h>
 
 
-/**
- * Standard file buffer
- */
-#define STD_FILE_BUF 4096
-
-typedef uint32_t** FACE;
-
-typedef struct vector vector;
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 
-/**
- * Represents a 3-dimensional vector.
- */
-struct vector {
-	float x;
-	float y;
-	float z;
-};
 
 /**
  * Represents a half-edge.
@@ -125,4 +109,7 @@ struct HE_obj {
 };
 
 
-#endif /* _DROW_ENGINE_TYPES_H */
+HE_edge **get_all_emanating_edges(HE_vert *vertice);
+
+
+#endif /* _DROW_ENGINE_HE_OPERATIONS_H */

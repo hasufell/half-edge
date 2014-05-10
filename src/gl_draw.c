@@ -18,7 +18,7 @@
 
 #include "err.h"
 #include "filereader.h"
-#include "types.h"
+#include "half_edge.h"
 
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -363,6 +363,17 @@ void init(char const * const filename)
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
+
+	/* vector *array = malloc(sizeof(vector) * obj->vc); */
+	/* vector vec; */
+
+	/* vec.x = obj->vertices->x; */
+	/* vec.y = obj->vertices->y; */
+	/* vec.z = obj->vertices->z; */
+
+	/* for (uint32_t i = 0; i < obj->vc; i++) { */
+
+	/* } */
 }
 
 /**

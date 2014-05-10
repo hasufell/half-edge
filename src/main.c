@@ -17,8 +17,9 @@
  */
 
 #include "gl_draw.h"
+#include "half_edge.h"
 #include "print.h"
-#include "types.h"
+#include "vector.h"
 
 #include <GL/glut.h>
 #include <GL/gl.h>

@@ -20,9 +20,20 @@
 #define _DROW_ENGINE_VEC_MATH_H
 
 
-#include "types.h"
-
 #include <stdbool.h>
+
+
+typedef struct vector vector;
+
+
+/**
+ * Represents a 3-dimensional vector.
+ */
+struct vector {
+	float x;
+	float y;
+	float z;
+};
 
 
 bool vector_product(vector *a, vector *b, vector *c);

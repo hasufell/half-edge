@@ -19,9 +19,16 @@
 #ifndef _DROW_ENGINE_PARSER_H
 #define _DROW_ENGINE_PARSER_H
 
+#include "half_edge.h"
 
-#include "types.h"
+#include <stdint.h>
 
+
+/**
+ * Typedef for the plain faces
+ * that are not yet converted to real HE_face.
+ */
+typedef uint32_t** FACE;
 
 HE_obj *parse_obj(char const * const filename);
 

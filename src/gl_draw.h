@@ -20,8 +20,6 @@
 #define _DROW_ENGINE_DRAW_H
 
 
-#include "types.h"
-
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>

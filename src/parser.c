@@ -18,7 +18,7 @@
 
 #include "err.h"
 #include "filereader.h"
-#include "types.h"
+#include "parser.h"
 
 #include <stdint.h>
 #include <stdio.h>

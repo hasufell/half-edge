@@ -17,8 +17,7 @@
  */
 
 #include "err.h"
-#include "types.h"
-#include "vec_math.h"
+#include "vector.h"
 
 #include <errno.h>
 #include <fenv.h>

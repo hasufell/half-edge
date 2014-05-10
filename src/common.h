@@ -16,15 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DROW_ENGINE_FILEREADER_H
-#define _DROW_ENGINE_FILEREADER_H
+/**
+ * @file common.h
+ * Header for common types, macros and constants
+ * shared amongst the codebase. Error macros go in err.h.
+ * @brief common.h common types, macros, constants
+ */
+
+#ifndef _DROW_ENGINE_TYPES_H
+#define _DROW_ENGINE_TYPES_H
 
 
-#include "half_edge.h"
+#include <stdint.h>
 
 
-HE_obj *read_obj_file(char const * const filename);
-char *read_file(char const * const filename);
+/**
+ * Standard file buffer
+ */
+#define STD_FILE_BUF 4096
 
 
-#endif /* _DROW_ENGINE_FILEREADER_H */
+#endif /* _DROW_ENGINE_TYPES_H */

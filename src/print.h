@@ -20,7 +20,9 @@
 #define _DROW_ENGINE_PRINT_H
 
 
-#include "types.h"
+#include "half_edge.h"
+#include "parser.h"
+#include "vector.h"
 
 
 void print_edges(HE_obj *obj);
