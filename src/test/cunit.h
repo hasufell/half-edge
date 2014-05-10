@@ -41,3 +41,36 @@ void test_find_center2(void);
 
 void test_get_normalized_scale_factor1(void);
 void test_get_normalized_scale_factor2(void);
+
+/*
+ * vector tests
+ */
+void test_vector_product1(void);
+void test_vector_product2(void);
+void test_vector_product3(void);
+void test_vector_product4(void);
+void test_vector_product5(void);
+void test_vector_product6(void);
+
+void test_add_vectors1(void);
+void test_add_vectors2(void);
+void test_add_vectors3(void);
+void test_add_vectors4(void);
+void test_add_vectors5(void);
+void test_add_vectors6(void);
+
+void test_sub_vectors1(void);
+void test_sub_vectors2(void);
+void test_sub_vectors3(void);
+void test_sub_vectors4(void);
+void test_sub_vectors5(void);
+void test_sub_vectors6(void);
+
+void test_normalize_vector1(void);
+void test_normalize_vector2(void);
+void test_normalize_vector3(void);
+void test_normalize_vector4(void);
+
+void test_copy_vector1(void);
+void test_copy_vector2(void);
+void test_copy_vector3(void);

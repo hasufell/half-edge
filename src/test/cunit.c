@@ -110,6 +110,73 @@ int main(void)
 		return CU_get_error();
 	}
 
+	/* add a suite to the registry */
+	pSuite = CU_add_suite("vector tests",
+		init_suite,
+		clean_suite);
+	if (NULL == pSuite) {
+		CU_cleanup_registry();
+		return CU_get_error();
+	}
+
+	/* add the tests to the suite */
+	if (
+		(NULL == CU_add_test(pSuite, "test1 calculating vector product",
+							 test_vector_product1)) ||
+		(NULL == CU_add_test(pSuite, "test2 calculating vector product",
+							 test_vector_product2)) ||
+		(NULL == CU_add_test(pSuite, "test3 calculating vector product",
+							 test_vector_product3)) ||
+		(NULL == CU_add_test(pSuite, "test4 calculating vector product",
+							 test_vector_product4)) ||
+		(NULL == CU_add_test(pSuite, "test5 calculating vector product",
+							 test_vector_product5)) ||
+		(NULL == CU_add_test(pSuite, "test6 calculating vector product",
+							 test_vector_product6)) ||
+		(NULL == CU_add_test(pSuite, "test1 adding vectors",
+							 test_add_vectors1)) ||
+		(NULL == CU_add_test(pSuite, "test2 adding vectors",
+							 test_add_vectors2)) ||
+		(NULL == CU_add_test(pSuite, "test3 adding vectors",
+							 test_add_vectors3)) ||
+		(NULL == CU_add_test(pSuite, "test4 adding vectors",
+							 test_add_vectors4)) ||
+		(NULL == CU_add_test(pSuite, "test5 adding vectors",
+							 test_add_vectors5)) ||
+		(NULL == CU_add_test(pSuite, "test6 adding vectors",
+							 test_add_vectors6)) ||
+		(NULL == CU_add_test(pSuite, "test1 substracting vectors",
+							 test_sub_vectors1)) ||
+		(NULL == CU_add_test(pSuite, "test2 substracting vectors",
+							 test_sub_vectors2)) ||
+		(NULL == CU_add_test(pSuite, "test3 substracting vectors",
+							 test_sub_vectors3)) ||
+		(NULL == CU_add_test(pSuite, "test4 substracting vectors",
+							 test_sub_vectors4)) ||
+		(NULL == CU_add_test(pSuite, "test5 substracting vectors",
+							 test_sub_vectors5)) ||
+		(NULL == CU_add_test(pSuite, "test6 substracting vectors",
+							 test_sub_vectors6)) ||
+		(NULL == CU_add_test(pSuite, "test1 normalizing vector",
+							 test_normalize_vector1)) ||
+		(NULL == CU_add_test(pSuite, "test2 normalizing vector",
+							 test_normalize_vector2)) ||
+		(NULL == CU_add_test(pSuite, "test3 normalizing vector",
+							 test_normalize_vector3)) ||
+		(NULL == CU_add_test(pSuite, "test4 normalizing vector",
+							 test_normalize_vector4)) ||
+		(NULL == CU_add_test(pSuite, "test1 copying vector",
+							 test_copy_vector1)) ||
+		(NULL == CU_add_test(pSuite, "test2 copying vector",
+							 test_copy_vector2)) ||
+		(NULL == CU_add_test(pSuite, "test3 copying vector",
+							 test_copy_vector3))
+		) {
+
+		CU_cleanup_registry();
+		return CU_get_error();
+	}
+
 	/* save stderr stream and close it */
 	my_stderr = dup(STDERR_FILENO);
 	close(STDERR_FILENO);

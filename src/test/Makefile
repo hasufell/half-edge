@@ -16,7 +16,7 @@ endif
 
 TARGET = test
 HEADERS = cunit.h
-OBJECTS = cunit.o cunit_filereader.o cunit_half_edge.o
+OBJECTS = cunit.o cunit_filereader.o cunit_half_edge.o cunit_vector.o
 INCS = -I. -I..
 
 CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0)
