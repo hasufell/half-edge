@@ -59,7 +59,12 @@ HE_vert *find_center(HE_obj const * const obj)
 		  y = 0,
 		  z = 0;
 	uint32_t i;
-	HE_vert *newvert = malloc(sizeof(HE_vert));
+	HE_vert *newvert;
+
+	if (!obj)
+		return NULL;
+
+	newvert = malloc(sizeof(HE_vert));
 
 	for (i = 0; i < obj->vc; i++) {
 		x += obj->vertices[i].x;
