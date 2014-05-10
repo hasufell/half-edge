@@ -105,7 +105,7 @@ void print_plain_faces(FACE face, uint32_t fc)
 /**
  * Print all coordinates of a vector.
  *
- * @param the vector we want to print
+ * @param vec the vector we want to print
  */
 void print_vector(vector *vec)
 {
