@@ -16,6 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file main.c
+ * Takes argv[1] as parameter and passes
+ * it to the glut functions for drawing the file
+ * in a predefined scene.
+ * @brief program entry point
+ */
+
 #include "gl_draw.h"
 #include "half_edge.h"
 #include "print.h"
