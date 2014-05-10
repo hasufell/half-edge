@@ -16,7 +16,7 @@ endif
 
 TARGET = drow-engine
 HEADERS = err.h parser.h types.h print.h filereader.h gl_draw.h
-OBJECTS = main.o parser.o print.o filereader.o gl_draw.c
+OBJECTS = main.o parser.o print.o filereader.o gl_draw.o
 INCS = -I.
 
 CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0)
