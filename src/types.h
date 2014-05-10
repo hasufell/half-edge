@@ -37,7 +37,7 @@ typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 
 /**
- * Represents a vector with x, y, z coordinates.
+ * Represents a 3-dimensional vector.
  */
 struct vector {
 	float x;
