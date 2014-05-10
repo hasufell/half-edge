@@ -1,6 +1,9 @@
 all:
 	$(MAKE) -C src all
 
+test:
+	$(MAKE) -C src test
+
 doc:
 	doxygen
 
@@ -9,7 +12,7 @@ doc-pdf: doc
 
 clean:
 	$(MAKE) -C src clean
-	rm -rf drown-engine
+	rm -rf drown-engine test
 
 install:
 	$(MAKE) -C install
@@ -18,4 +21,4 @@ uninstall:
 	$(MAKE) -C uninstall
 
 
-.PHONY: all doc doc-pdf clean install uninstall
+.PHONY: all doc doc-pdf clean install test uninstall

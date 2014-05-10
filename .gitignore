@@ -11,8 +11,9 @@ latex/
 *.so
 *.la
 *.a
-drow-engine
-main
+/drow-engine
+/main
+/test
 
 # junk
 core

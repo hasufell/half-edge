@@ -14,13 +14,13 @@ ifndef NODEBUG
 CFLAGS += -O0 -g3
 endif
 
-TARGET = drow-engine
-HEADERS = err.h common.h print.h filereader.h gl_draw.h vector.h half_edge.h
-OBJECTS = print.o filereader.o gl_draw.o vector.o half_edge.o
-INCS = -I.
+TARGET = test
+HEADERS = cunit.h
+OBJECTS = cunit.o cunit_filereader.o cunit_half_edge.o
+INCS = -I. -I..
 
 CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0)
-LIBS = $(shell $(PKG_CONFIG) --libs gl glu glib-2.0) -lglut -lm
+LIBS = $(shell $(PKG_CONFIG) --libs gl glu glib-2.0) -lglut -lm -lcunit
 CPPFLAGS += -D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED -D_GNU_SOURCE
 
 # install variables
@@ -37,27 +37,16 @@ INSTALL_LIBDIR = $(PREFIX)/$(LIBDIR)
 
 all: $(TARGET)
 
-drow-engine.a: $(OBJECTS)
-	$(AR) rcu $@ $^
+drow-engine.a:
+	$(MAKE) -C .. $@
 
-test: drow-engine.a
-	$(MAKE) -C test
-
-$(TARGET): $(HEADERS) drow-engine.a main.o
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCS) \
-		-o ../$(TARGET) \
-		main.o drow-engine.a $(LDFLAGS) $(LIBS)
-
-install: $(TARGET)
-	$(INSTALL_DIR) "$(DESTDIR)$(INSTALL_BINDIR)"
-	$(INSTALL_BIN) $(TARGET) "$(DESTDIR)$(INSTALL_BINDIR)"
-
-uninstall:
-	rm "$(DESTDIR)$(INSTALL_BINDIR)/$(TARGET)"
+$(TARGET): $(HEADERS) $(OBJECTS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCS) -o ../../$(TARGET) \
+		$(OBJECTS) ../drow-engine.a $(LDFLAGS) $(LIBS)
 
 clean:
-	$(MAKE) -C test clean
-	rm -f *.o drow-engine.a $(TARGET) core vgcore*
+	rm -f *.o $(TARGET) core vgcore*
 
 
-.PHONY: all clean install test uninstall
+.PHONY: all clean drow-engine.a install uninstall
+
