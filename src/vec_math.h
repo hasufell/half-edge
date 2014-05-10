@@ -26,6 +26,7 @@
 
 
 bool vector_product(vector *a, vector *b, vector *c);
+bool copy_vector(vector *a, vector *b);
 
 
 #endif /* _DROW_ENGINE_VEC_MATH_H */

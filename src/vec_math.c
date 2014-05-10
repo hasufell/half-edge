@@ -18,6 +18,7 @@
 
 #include "err.h"
 #include "types.h"
+#include "vec_math.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -25,7 +26,7 @@
 
 /**
  * Calculate the vector product of a and b
- * and store it in c.
+ * and store it in c. This function is aliasing safe.
  *
  * @param a vector
  * @param b vector
@@ -34,12 +35,37 @@
  */
 bool vector_product(vector *a, vector *b, vector *c)
 {
+	vector a_tmp,
+		   b_tmp;
+
 	if (!a || !b)
 		return false;
 
-	c->x = a->y * b->z - a->z * b->y;
-	c->y = a->z * b->x - a->x * b->z;
-	c->z = a->x * b->y - a->y * b->x;
+	copy_vector(a, &a_tmp);
+	copy_vector(b, &b_tmp);
+
+	c->x = a_tmp.y * b_tmp.z - a_tmp.z * b_tmp.y;
+	c->y = a_tmp.z * b_tmp.x - a_tmp.x * b_tmp.z;
+	c->z = a_tmp.x * b_tmp.y - a_tmp.y * b_tmp.x;
+
+	return true;
+}
+
+/**
+ * Copy coordinates from vector a to vector b.
+ *
+ * @param a vector
+ * @param b vector [out]
+ * @return true/false for success/failure
+ */
+bool copy_vector(vector *a, vector *b)
+{
+	if (!a || !b)
+		return false;
+
+	b->x = a->x;
+	b->y = a->y;
+	b->z = a->z;
 
 	return true;
 }
