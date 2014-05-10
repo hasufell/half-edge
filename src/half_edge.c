@@ -46,6 +46,70 @@ HE_edge **get_all_emanating_edges(HE_vert *vertice)
 }
 
 /**
+ * Find the center of an object and store the coordinates
+ * in a HE_vert struct.
+ *
+ * @param obj the object we want to find the center of
+ * @return newly allocated HE_vert with empty edge member
+ * and coordinates which represent the middle of the object
+ */
+HE_vert *find_center(HE_obj const * const obj)
+{
+	float x = 0,
+		  y = 0,
+		  z = 0;
+	uint32_t i;
+	HE_vert *newvert = malloc(sizeof(HE_vert));
+
+	for (i = 0; i < obj->vc; i++) {
+		x += obj->vertices[i].x;
+		y += obj->vertices[i].y;
+		z += obj->vertices[i].z;
+	}
+
+	newvert->x = x / i;
+	newvert->y = y / i;
+	newvert->z = z / i;
+	newvert->edge = NULL;
+
+	return newvert;
+}
+
+/**
+ * Calculates the factor that can be used to scaled down the object
+ * to the size of 1.
+ *
+ * @param obj the object we want to scale
+ * @return the corresponding scale factor
+ */
+float get_normalized_scale_factor(HE_obj const * const obj)
+{
+	float max = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
+	float min = obj->vertices[0].x +
+		obj->vertices[0].y + obj->vertices[0].z;
+
+	uint32_t i;
+
+	for (i = 0; i < obj->vc; i++) {
+		if ((obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z) > max)
+			max = obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z;
+		else if ((obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z) < min)
+			min = obj->vertices[i].x +
+				obj->vertices[i].y +
+				obj->vertices[i].z;
+	}
+
+	return 1 / (max - min);
+}
+
+/**
  * Parse an .obj string and return a HE_obj
  * that represents the whole object.
  *
