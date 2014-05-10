@@ -59,7 +59,7 @@ bool vector_product(vector *a, vector *b, vector *c)
  * of length 1. This function is aliasing safe.
  *
  * @param a vector
- * @param b vector
+ * @param b vector [out]
  * @return true/false for success/failure
  */
 bool normalize_vector(vector *a, vector *b)
