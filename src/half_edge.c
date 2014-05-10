@@ -76,7 +76,7 @@ HE_vert *find_center(HE_obj const * const obj)
 }
 
 /**
- * Calculates the factor that can be used to scaled down the object
+ * Calculates the factor that can be used to scale down the object
  * to the size of 1.
  *
  * @param obj the object we want to scale
