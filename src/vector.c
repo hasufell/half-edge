@@ -61,6 +61,62 @@ bool vector_product(vector *a, vector *b, vector *c)
 }
 
 /**
+ * Add vector a to vector b and store the result in c,
+ * such as: c = a + b.
+ * This function is aliasing safe.
+ *
+ * @param a vector
+ * @param b vector
+ * @param c vector [out]
+ * @return true/false for success/failure
+ */
+bool add_vectors(vector *a, vector *b, vector *c)
+{
+	vector a_tmp,
+		   b_tmp;
+
+	if (!a || !b)
+		return false;
+
+	copy_vector(a, &a_tmp);
+	copy_vector(b, &b_tmp);
+
+	c->x = a_tmp.x + b_tmp.x;
+	c->y = a_tmp.y + b_tmp.y;
+	c->z = a_tmp.z + b_tmp.z;
+
+	return true;
+}
+
+/**
+ * Substract vector b from vector a and store the result in c,
+ * such as: c = a - b.
+ * This function is aliasing safe.
+ *
+ * @param a vector
+ * @param b vector
+ * @param c vector [out]
+ * @return true/false for success/failure
+ */
+bool sub_vectors(vector *a, vector *b, vector *c)
+{
+	vector a_tmp,
+		   b_tmp;
+
+	if (!a || !b)
+		return false;
+
+	copy_vector(a, &a_tmp);
+	copy_vector(b, &b_tmp);
+
+	c->x = a_tmp.x - b_tmp.x;
+	c->y = a_tmp.y - b_tmp.y;
+	c->z = a_tmp.z - b_tmp.z;
+
+	return true;
+}
+
+/**
  * Normalize a vector into a unit vector
  * of length 1. This function is aliasing safe.
  *
