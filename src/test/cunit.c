@@ -99,7 +99,11 @@ int main(void)
 		(NULL == CU_add_test(pSuite, "test1 finding center ob obj",
 							 test_find_center1)) ||
 		(NULL == CU_add_test(pSuite, "test2 finding center ob obj",
-							 test_find_center2))
+							 test_find_center2)) ||
+		(NULL == CU_add_test(pSuite, "test1 getting normalized scale factor",
+							 test_get_normalized_scale_factor1)) ||
+		(NULL == CU_add_test(pSuite, "test2 getting normalized scale factor",
+							 test_get_normalized_scale_factor2))
 		) {
 
 		CU_cleanup_registry();

@@ -462,3 +462,36 @@ void test_find_center2(void)
 
 	CU_ASSERT_PTR_NULL(newvert);
 }
+
+void test_get_normalized_scale_factor1(void)
+{
+	char const * const string = ""
+		"v 9.0 10.0 11.0\n"
+		"v 11.0 10.0 11.0\n"
+		"v 9.0 11.0 11.0\n"
+		"v 11.0 11.0 11.0\n"
+		"v 9.0 11.0 9.0\n"
+		"v 11.0 11.0 9.0\n"
+		"v 9.0 10.0 9.0\n"
+		"v 11.0 10.0 9.0\n"
+		"f 1 2 4 3\n"
+		"f 3 4 6 5\n"
+		"f 5 6 8 7\n"
+		"f 7 8 2 1\n"
+		"f 2 8 6 4\n"
+		"f 7 1 3 5\n";
+
+	HE_obj *obj = parse_obj(string);
+	HE_vert *newvert = find_center(obj);
+	float factor = get_normalized_scale_factor(obj);
+
+	CU_ASSERT_PTR_NOT_NULL(obj);
+	CU_ASSERT_EQUAL(factor, 0.2f);
+}
+
+void test_get_normalized_scale_factor2(void)
+{
+	float factor = get_normalized_scale_factor(NULL);
+
+	CU_ASSERT_EQUAL(factor, -1);
+}
