@@ -121,7 +121,7 @@ HE_obj *parse_obj(char const * const obj_string)
 	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0; /* edge count */
-	char *string = malloc(sizeof(char) * strlen(obj_string) + 1),
+	char *string,
 		 *str_ptr_space = NULL, /* for strtok */
 		 *str_ptr_newline = NULL, /* for strtok */
 		 *str_tmp_ptr = NULL; /* for strtok */
@@ -131,6 +131,10 @@ HE_obj *parse_obj(char const * const obj_string)
 	HE_obj *obj = NULL;
 	FACE face_v = NULL;
 
+	if (!obj_string || !*obj_string)
+		return NULL;
+
+	string = malloc(sizeof(char) * strlen(obj_string) + 1);
 	strcpy(string, obj_string);
 
 	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
