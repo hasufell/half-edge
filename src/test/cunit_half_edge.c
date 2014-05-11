@@ -435,6 +435,9 @@ void test_parse_obj4(void)
 	CU_ASSERT_PTR_NULL(obj);
 }
 
+/**
+ * Test finding the center of an object.
+ */
 void test_find_center1(void)
 {
 	char const * const string = ""
@@ -463,6 +466,9 @@ void test_find_center1(void)
 	CU_ASSERT_EQUAL(newvert->z, 10.0);
 }
 
+/**
+ * Test error handling by passing a NULL pointer.
+ */
 void test_find_center2(void)
 {
 	HE_vert *newvert = find_center(NULL);
@@ -470,6 +476,10 @@ void test_find_center2(void)
 	CU_ASSERT_PTR_NULL(newvert);
 }
 
+/**
+ * Test getting correct normalized scale factor of
+ * an object.
+ */
 void test_get_normalized_scale_factor1(void)
 {
 	char const * const string = ""
@@ -496,6 +506,9 @@ void test_get_normalized_scale_factor1(void)
 	CU_ASSERT_EQUAL(factor, 0.2f);
 }
 
+/**
+ * Test error handling by passing a NULL pointer.
+ */
 void test_get_normalized_scale_factor2(void)
 {
 	float factor = get_normalized_scale_factor(NULL);
