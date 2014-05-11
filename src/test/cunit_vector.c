@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file cunit_vector.c
+ * Test functions for the vector data structure
+ * and operations based on it.
+ * @brief vector test functions
+ */
+
 #include "vector.h"
 
 #include <CUnit/Basic.h>

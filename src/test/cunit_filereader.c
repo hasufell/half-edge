@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file cunit_filereader.c
+ * Test functions for the filereader,
+ * including various file formats.
+ * @brief file reader test functions
+ */
+
 #include "filereader.h"
 #include "half_edge.h"
 

@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file cunit.h
+ * Main cunit header, containing declarations
+ * of all test functions.
+ * @brief test function declarations
+ */
+
 /*
  * filereader tests
  */

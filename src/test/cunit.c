@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file cunit.c
+ * Main cunit file, registering the test suites.
+ * @brief test suite registration
+ */
+
 #include "cunit.h"
 
 #include <CUnit/Basic.h>

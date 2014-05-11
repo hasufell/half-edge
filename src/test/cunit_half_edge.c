@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file cunit_half_edge.c
+ * Test functions for the half edge data structure
+ * and operations based on it.
+ * @brief half-edge test functions
+ */
+
 #include "half_edge.h"
 
 #include <CUnit/Basic.h>
