@@ -457,13 +457,15 @@ void test_find_center1(void)
 		"f 7 1 3 5\n";
 
 	HE_obj *obj = parse_obj(string);
-	HE_vert *newvert = find_center(obj);
+	vector newvec;
+	bool retval = find_center(obj, &newvec);
 
 	CU_ASSERT_PTR_NOT_NULL(obj);
+	CU_ASSERT_EQUAL(retval, true);
 
-	CU_ASSERT_EQUAL(newvert->x, 10.0);
-	CU_ASSERT_EQUAL(newvert->y, 10.5);
-	CU_ASSERT_EQUAL(newvert->z, 10.0);
+	CU_ASSERT_EQUAL(newvec.x, 10.0);
+	CU_ASSERT_EQUAL(newvec.y, 10.5);
+	CU_ASSERT_EQUAL(newvec.z, 10.0);
 }
 
 /**
@@ -471,9 +473,37 @@ void test_find_center1(void)
  */
 void test_find_center2(void)
 {
-	HE_vert *newvert = find_center(NULL);
+	vector newvec;
+	bool retval = find_center(NULL, &newvec);
 
-	CU_ASSERT_PTR_NULL(newvert);
+	CU_ASSERT_EQUAL(retval, false);
+}
+
+/**
+ * Test error handling by passing a NULL pointer.
+ */
+void test_find_center3(void)
+{
+	char const * const string = ""
+		"v 9.0 10.0 11.0\n"
+		"v 11.0 10.0 11.0\n"
+		"v 9.0 11.0 11.0\n"
+		"v 11.0 11.0 11.0\n"
+		"v 9.0 11.0 9.0\n"
+		"v 11.0 11.0 9.0\n"
+		"v 9.0 10.0 9.0\n"
+		"v 11.0 10.0 9.0\n"
+		"f 1 2 4 3\n"
+		"f 3 4 6 5\n"
+		"f 5 6 8 7\n"
+		"f 7 8 2 1\n"
+		"f 2 8 6 4\n"
+		"f 7 1 3 5\n";
+
+	HE_obj *obj = parse_obj(string);
+	bool retval = find_center(obj, NULL);
+
+	CU_ASSERT_EQUAL(retval, false);
 }
 
 /**
@@ -499,7 +529,6 @@ void test_get_normalized_scale_factor1(void)
 		"f 7 1 3 5\n";
 
 	HE_obj *obj = parse_obj(string);
-	HE_vert *newvert = find_center(obj);
 	float factor = get_normalized_scale_factor(obj);
 
 	CU_ASSERT_PTR_NOT_NULL(obj);

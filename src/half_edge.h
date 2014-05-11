@@ -28,6 +28,9 @@
 #define _DROW_ENGINE_HE_OPERATIONS_H
 
 
+#include "vector.h"
+
+#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -124,7 +127,7 @@ struct HE_obj {
 
 
 HE_edge **get_all_emanating_edges(HE_vert *vertice);
-HE_vert *find_center(HE_obj const * const obj);
+bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
 HE_obj *parse_obj(char const * const filename);
 

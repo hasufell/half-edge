@@ -45,6 +45,7 @@ void test_parse_obj4(void);
 
 void test_find_center1(void);
 void test_find_center2(void);
+void test_find_center3(void);
 
 void test_get_normalized_scale_factor1(void);
 void test_get_normalized_scale_factor2(void);

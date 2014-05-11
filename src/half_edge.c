@@ -27,7 +27,9 @@
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
+#include "vector.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,21 +52,19 @@ HE_edge **get_all_emanating_edges(HE_vert *vertice)
  * in a HE_vert struct.
  *
  * @param obj the object we want to find the center of
- * @return newly allocated HE_vert with empty edge member
- * and coordinates which represent the middle of the object
+ * @param vec the vector to store the result in [out]
+ * @return true/false for success/failure
  */
-HE_vert *find_center(HE_obj const * const obj)
+bool find_center(HE_obj const * const obj, vector *vec)
 {
 	float x = 0,
 		  y = 0,
 		  z = 0;
 	uint32_t i;
-	HE_vert *newvert;
 
-	if (!obj)
-		return NULL;
+	if (!obj || !vec)
+		return false;
 
-	newvert = malloc(sizeof(HE_vert));
 
 	for (i = 0; i < obj->vc; i++) {
 		x += obj->vertices[i].x;
@@ -72,12 +72,11 @@ HE_vert *find_center(HE_obj const * const obj)
 		z += obj->vertices[i].z;
 	}
 
-	newvert->x = x / i;
-	newvert->y = y / i;
-	newvert->z = z / i;
-	newvert->edge = NULL;
+	vec->x = x / i;
+	vec->y = y / i;
+	vec->z = z / i;
 
-	return newvert;
+	return true;
 }
 
 /**

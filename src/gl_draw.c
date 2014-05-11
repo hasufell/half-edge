@@ -96,8 +96,11 @@ static void draw_obj(uint32_t const myxrot,
 	static uint32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
-	HE_vert *center_vert = find_center(obj);
+	vector center_vert;
 	float scalefactor = get_normalized_scale_factor(obj) * VISIBILITY_FACTOR;
+
+	if (!find_center(obj, &center_vert))
+		return; /* TODO: better error handling */
 
 	xrot += myxrot;
 	yrot += myyrot;
@@ -116,9 +119,9 @@ static void draw_obj(uint32_t const myxrot,
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
 
 	/* pull into middle of universe */
-	glTranslatef(-center_vert->x,
-			-center_vert->y,
-			-center_vert->z + SYSTEM_POS_Z);
+	glTranslatef(-center_vert.x,
+			-center_vert.y,
+			-center_vert.z + SYSTEM_POS_Z);
 
 	glBegin(GL_POLYGON);
 	glColor3f(0.0f, 1.0f, 0.0f);
@@ -126,8 +129,6 @@ static void draw_obj(uint32_t const myxrot,
 	glEnd();
 
 	glPopMatrix();
-
-	free(center_vert);
 }
 
 /**
