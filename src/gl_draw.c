@@ -338,22 +338,14 @@ void init(char const * const filename)
 	obj = read_obj_file(filename);
 	if (!obj)
 		ABORT("Failed to read object file \"%s\"!", filename);
+
+	normalize_object(obj);
+
 	day = 0;
 	year = 0;
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
-
-	/* vector *array = malloc(sizeof(vector) * obj->vc); */
-	/* vector vec; */
-
-	/* vec.x = obj->vertices->x; */
-	/* vec.y = obj->vertices->y; */
-	/* vec.z = obj->vertices->z; */
-
-	/* for (uint32_t i = 0; i < obj->vc; i++) { */
-
-	/* } */
 }
 
 /**
@@ -392,8 +384,7 @@ void animate()
 		day = 0;
 	}
 
-	/* cout << day << endl; */
-	usleep(30000); // some very basic VScny to see the movement better
+	usleep(30000); /* some very basic VScny to see the movement better */
 	glutPostRedisplay();
 }
 
