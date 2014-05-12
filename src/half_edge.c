@@ -24,6 +24,7 @@
  * @brief operations on half-edge data structs
  */
 
+
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
@@ -36,15 +37,133 @@
 #include <string.h>
 
 
+/*
+ * static declarations
+ */
+static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
+		uint32_t *ec_out);
+
+
 /**
- * Get all edges that emanate from vertice.
+ * Get all edges that emanate from vertice and return a pointer
+ * to that array with the size of ec_out.
  *
  * @param vertice the vertice to get the emanating edges of
- * @return pointer to a NULL-terminated array of half-edges
+ * @param ec the edge counter is saved here [out]
+ * @return pointer to an array of half-edges, size ec_out
  */
-HE_edge **get_all_emanating_edges(HE_vert *vertice)
+static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
+		uint32_t *ec_out)
 {
-	return NULL;
+	uint32_t ec = 0, /* edge count */
+			 rc = 0; /* realloc count */
+	uint32_t const approx_ec = 20; /* allocation chunk */
+	HE_edge **edge_array = malloc(sizeof(HE_edge*) * approx_ec);
+	HE_edge **tmp_ptr;
+
+	if (!vert)
+		return NULL;
+
+	HE_edge *edge = vert->edge;
+
+	/* build an array of emanating edges */
+	do {
+		edge_array[ec] = edge;
+
+		edge = edge->pair->next;
+		ec++;
+
+		/* allocate more chunks */
+		if (ec >= approx_ec) {
+			tmp_ptr = realloc(edge_array, sizeof(HE_edge*)
+						* approx_ec * (rc + 2));
+			CHECK_PTR_VAL(tmp_ptr);
+			edge_array = tmp_ptr;
+			rc++;
+		}
+
+	} while (edge != vert->edge);
+
+	/* this is the real size, not the x[ec] value */
+	*ec_out = ec;
+
+	return edge_array;
+}
+
+/**
+ * Calculate the approximated normal of a vertex.
+ *
+ * @param vert the vertex
+ * @param vec the vector to store the result in [out]
+ * @return true/false for success/failure
+ */
+bool vec_normal(HE_vert const * const vert, vector *vec)
+{
+	HE_edge **edge_array;
+	uint32_t ec,
+			 vc = 0,
+			 j;
+	vector he_base;
+
+	if (!vert || !vec)
+		return false;
+
+	/* get all emanating edges */
+	if (!(edge_array = get_all_emanating_edges(vert, &ec)))
+		return false;
+
+	copy_vector(edge_array[0]->vert->vec, &he_base);
+
+	vector vec_array[ec];
+
+	/* iterate over all unique(!)
+	 * tuples and calculate their product */
+	for (uint32_t i = 0; i < ec; i++) {
+		j = (i + 1) % ec;
+
+		/* printf("\nTUPLE %d\n", vc + 1); */
+		vector he_vec1,
+			   he_vec2,
+			   new_vec;
+
+		copy_vector(edge_array[i]->next->vert->vec, &he_vec1);
+		copy_vector(edge_array[j]->next->vert->vec, &he_vec2);
+
+		if (!(set_null_vector(&new_vec)))
+			return false;
+
+		/* calculate vector between vertices */
+		sub_vectors(&he_vec1, &he_base, &he_vec1);
+		sub_vectors(&he_vec2, &he_base, &he_vec2);
+
+		/* calculate vector product */
+		if (!(vector_product(&he_vec2, &he_vec1, &new_vec)))
+		/* if (!(vector_product(&he_vec1, &he_vec2, &new_vec))) */
+			return false;
+
+		/* normalize vector */
+		if (!(normalize_vector(&new_vec, &new_vec)))
+			return false;
+
+		/* save into array */
+		copy_vector(&new_vec, &(vec_array[vc]));
+		vc++;
+	}
+
+	/* avoid side effects due to junk data */
+	if (!(set_null_vector(vec)))
+		return false;
+
+	/* now add all the vectors up */
+	for (uint32_t i = 0; i < vc; i++)
+		if (!(add_vectors(vec, &(vec_array[i]), vec)))
+			return false;
+
+	/* normalize the result */
+	if (!(normalize_vector(vec, vec)))
+		return false;
+
+	return true;
 }
 
 /**
@@ -116,6 +235,24 @@ float get_normalized_scale_factor(HE_obj const * const obj)
 	}
 
 	return 1 / (max - min);
+}
+
+/**
+ * Scales down the object to the size of 1. The parameter
+ * is modified!
+ *
+ * @param obj the object we want to scale [mod]
+ */
+void normalize_object(HE_obj *obj)
+{
+	float scale_factor;
+	scale_factor = get_normalized_scale_factor(obj);
+
+	for (uint32_t i = 0; i < obj->vc; i++) {
+		obj->vertices[i].vec->x = obj->vertices[i].vec->x * scale_factor;
+		obj->vertices[i].vec->y = obj->vertices[i].vec->y * scale_factor;
+		obj->vertices[i].vec->z = obj->vertices[i].vec->z * scale_factor;
+	}
 }
 
 /**
@@ -218,7 +355,6 @@ HE_obj *parse_obj(char const * const obj_string)
 
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
-
 
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);

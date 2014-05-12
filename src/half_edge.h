@@ -128,9 +128,10 @@ struct HE_obj {
 };
 
 
-HE_edge **get_all_emanating_edges(HE_vert *vertice);
+bool vec_normal(HE_vert const * const vert, vector *vec);
 bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
+void normalize_object(HE_obj *obj);
 HE_obj *parse_obj(char const * const filename);
 
 

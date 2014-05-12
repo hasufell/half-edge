@@ -53,6 +53,7 @@ int yearabs = 365;
 int day;
 int dayabs = 30;
 HE_obj *obj;
+bool show_normals = false;
 
 /*
  * static function declaration
@@ -63,7 +64,36 @@ static void draw_obj(int32_t const myxrot,
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
+static void draw_normals(HE_obj const * const obj);
 
+
+static void draw_normals(HE_obj const * const obj)
+{
+	vector vec;
+
+	for (uint32_t i = 0; i < obj->vc; i++) {
+		if ((vec_normal(&(obj->vertices[i]), &vec))) {
+			glPushMatrix();
+
+			glLineWidth(3);
+			glColor3f(1.0, 1.0, 1.0);
+
+			glBegin(GL_LINES);
+			glVertex3f(obj->vertices[i].vec->x,
+					obj->vertices[i].vec->y,
+					obj->vertices[i].vec->z);
+			glVertex3f(obj->vertices[i].vec->x + (vec.x),
+					obj->vertices[i].vec->y + (vec.y),
+					obj->vertices[i].vec->z + (vec.z));
+			glEnd();
+
+			glPopMatrix();
+		} else {
+			fprintf(stderr, "Failed drawing the normals!\n");
+			return;
+		}
+	}
+}
 
 /**
  * Call glVertex3f on all of the vertices of the object,
@@ -99,10 +129,11 @@ static void draw_obj(int32_t const myxrot,
 					yrot = 0,
 					zrot = 0;
 	vector center_vert;
-	float scalefactor = get_normalized_scale_factor(obj) * VISIBILITY_FACTOR;
 
-	if (!find_center(obj, &center_vert))
-		return; /* TODO: better error handling */
+	if (!find_center(obj, &center_vert)) {
+		fprintf(stderr, "Failed drawing the object!\n");
+		return;
+	}
 
 	xrot += myxrot;
 	yrot += myyrot;
@@ -112,23 +143,27 @@ static void draw_obj(int32_t const myxrot,
 
 	/* rotate according to static members */
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
-	glScalef(scalefactor,
-			scalefactor,
-			scalefactor);
+	glScalef(VISIBILITY_FACTOR,
+			VISIBILITY_FACTOR,
+			VISIBILITY_FACTOR);
 	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
 	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
+
 
 	/* pull into middle of universe */
 	glTranslatef(-center_vert.x,
 			-center_vert.y,
 			-center_vert.z + SYSTEM_POS_Z);
 
+	if (show_normals)
+		draw_normals(obj);
 	glBegin(GL_POLYGON);
 	glColor3f(0.0f, 1.0f, 0.0f);
 	draw_vertices(obj);
 	glEnd();
+
 
 	glPopMatrix();
 }
@@ -437,6 +472,12 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'd':
 		glTranslatef(1.0f, 0.0f, 0.0f);
+		break;
+	case 'n':
+		if (show_normals)
+			show_normals = false;
+		else
+			show_normals = true;
 		break;
 	case '+':
 		glTranslatef(0.0f, 0.0f, 1.0f);
