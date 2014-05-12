@@ -73,9 +73,11 @@ struct HE_edge {
  * hald-edge.
  */
 struct HE_vert {
-	float x;
-	float y;
-	float z;
+	/**
+	 * A vector pointing
+	 * to the coordinates of the vertex.
+	 */
+	vector *vec;
 
 	/**
 	 * One of the half-edges emanating from the vertex.

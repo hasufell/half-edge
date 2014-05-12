@@ -75,9 +75,9 @@ static void draw_vertices(HE_obj const * const obj)
 		HE_edge *tmp_edge = obj->faces[i].edge;
 
 		do { /* for all edges of the face */
-			glVertex3f(tmp_edge->vert->x,
-					tmp_edge->vert->y,
-					tmp_edge->vert->z);
+			glVertex3f(tmp_edge->vert->vec->x,
+					tmp_edge->vert->vec->y,
+					tmp_edge->vert->vec->z);
 		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
 	}
 }

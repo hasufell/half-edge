@@ -90,37 +90,37 @@ void test_read_obj_file1(void)
 
 	CU_ASSERT_PTR_NOT_NULL(obj);
 
-	CU_ASSERT_EQUAL(obj->vertices[0].x, 9.0);
-	CU_ASSERT_EQUAL(obj->vertices[0].y, 10.0);
-	CU_ASSERT_EQUAL(obj->vertices[0].z, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[0].vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[0].vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->vertices[0].vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[1].x, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[1].y, 10.0);
-	CU_ASSERT_EQUAL(obj->vertices[1].z, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[1].vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[1].vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->vertices[1].vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[2].x, 9.0);
-	CU_ASSERT_EQUAL(obj->vertices[2].y, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[2].z, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[2].vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[2].vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[2].vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[3].x, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[3].y, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[3].z, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[3].vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[3].vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[3].vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[4].x, 9.0);
-	CU_ASSERT_EQUAL(obj->vertices[4].y, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[4].z, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[4].vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[4].vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[4].vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[5].x, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[5].y, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[5].z, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[5].vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[5].vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[5].vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[6].x, 9.0);
-	CU_ASSERT_EQUAL(obj->vertices[6].y, 10.0);
-	CU_ASSERT_EQUAL(obj->vertices[6].z, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[6].vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[6].vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->vertices[6].vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->vertices[7].x, 11.0);
-	CU_ASSERT_EQUAL(obj->vertices[7].y, 10.0);
-	CU_ASSERT_EQUAL(obj->vertices[7].z, 9.0);
+	CU_ASSERT_EQUAL(obj->vertices[7].vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->vertices[7].vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->vertices[7].vec->z, 9.0);
 
 	CU_ASSERT_EQUAL(obj->vc, 8);
 
@@ -128,125 +128,125 @@ void test_read_obj_file1(void)
 	 * The following relies on faces always saving the
 	 * last listed vertice as their edge member.
 	 */
-	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[0].edge->next->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[1].edge->next->next->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[2].edge->next->next->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[3].edge->next->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->x, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->vec->x, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[4].edge->next->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->vert->vec->z, 9.0);
 
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->y, 10.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->vec->y, 10.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->z, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->vert->vec->z, 11.0);
 
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->x, 9.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->y, 11.0);
-	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->z, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->vec->x, 9.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->vec->y, 11.0);
+	CU_ASSERT_EQUAL(obj->faces[5].edge->next->next->next->next->vert->vec->z, 9.0);
 
 	CU_ASSERT_EQUAL(obj->fc, 6);
 

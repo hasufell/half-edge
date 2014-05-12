@@ -40,9 +40,9 @@ void print_edges(HE_obj *obj)
 {
 	for (uint32_t i = 0; i < obj->ec; i++) {
 		printf("edge vertices %i:\n", i);
-		printf("  x: %f\n", obj->edges[i].vert->x);
-		printf("  y: %f\n", obj->edges[i].vert->y);
-		printf("  z: %f\n", obj->edges[i].vert->z);
+		printf("  x: %f\n", obj->edges[i].vert->vec->x);
+		printf("  y: %f\n", obj->edges[i].vert->vec->y);
+		printf("  z: %f\n", obj->edges[i].vert->vec->z);
 		printf("\n");
 	}
 }
@@ -56,9 +56,9 @@ void print_vertices(HE_obj *obj)
 {
 	printf("vertices: %d\n", obj->vc);
 	for (uint32_t i = 0; i < obj->vc; i++) {
-		printf("x[%d]: %f\n", i, obj->vertices[i].x);
-		printf("y[%d]: %f\n", i, obj->vertices[i].y);
-		printf("z[%d]: %f\n", i, obj->vertices[i].z);
+		printf("x[%d]: %f\n", i, obj->vertices[i].vec->x);
+		printf("y[%d]: %f\n", i, obj->vertices[i].vec->y);
+		printf("z[%d]: %f\n", i, obj->vertices[i].vec->z);
 		printf("\n");
 	}
 }
@@ -73,9 +73,9 @@ void print_faces(HE_obj *obj)
 {
 	for (uint32_t i = 0; i < obj->fc; i++) {
 		printf("face edge vertice %i:\n", i);
-		printf("  x: %f\n", obj->faces[i].edge->vert->x);
-		printf("  y: %f\n", obj->faces[i].edge->vert->y);
-		printf("  z: %f\n", obj->faces[i].edge->vert->z);
+		printf("  x: %f\n", obj->faces[i].edge->vert->vec->x);
+		printf("  y: %f\n", obj->faces[i].edge->vert->vec->y);
+		printf("  z: %f\n", obj->faces[i].edge->vert->vec->z);
 		printf("\n");
 	}
 }

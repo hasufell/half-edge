@@ -67,9 +67,9 @@ bool find_center(HE_obj const * const obj, vector *vec)
 
 
 	for (i = 0; i < obj->vc; i++) {
-		x += obj->vertices[i].x;
-		y += obj->vertices[i].y;
-		z += obj->vertices[i].z;
+		x += obj->vertices[i].vec->x;
+		y += obj->vertices[i].vec->y;
+		z += obj->vertices[i].vec->z;
 	}
 
 	vec->x = x / i;
@@ -95,24 +95,24 @@ float get_normalized_scale_factor(HE_obj const * const obj)
 	if (!obj)
 		return -1;
 
-	max = obj->vertices[0].x +
-		obj->vertices[0].y + obj->vertices[0].z;
-	min = obj->vertices[0].x +
-		obj->vertices[0].y + obj->vertices[0].z;
+	max = obj->vertices[0].vec->x +
+		obj->vertices[0].vec->y + obj->vertices[0].vec->z;
+	min = obj->vertices[0].vec->x +
+		obj->vertices[0].vec->y + obj->vertices[0].vec->z;
 
 	for (i = 0; i < obj->vc; i++) {
-		if ((obj->vertices[i].x +
-				obj->vertices[i].y +
-				obj->vertices[i].z) > max)
-			max = obj->vertices[i].x +
-				obj->vertices[i].y +
-				obj->vertices[i].z;
-		else if ((obj->vertices[i].x +
-				obj->vertices[i].y +
-				obj->vertices[i].z) < min)
-			min = obj->vertices[i].x +
-				obj->vertices[i].y +
-				obj->vertices[i].z;
+		if ((obj->vertices[i].vec->x +
+				obj->vertices[i].vec->y +
+				obj->vertices[i].vec->z) > max)
+			max = obj->vertices[i].vec->x +
+				obj->vertices[i].vec->y +
+				obj->vertices[i].vec->z;
+		else if ((obj->vertices[i].vec->x +
+				obj->vertices[i].vec->y +
+				obj->vertices[i].vec->z) < min)
+			min = obj->vertices[i].vec->x +
+				obj->vertices[i].vec->y +
+				obj->vertices[i].vec->z;
 	}
 
 	return 1 / (max - min);
@@ -155,6 +155,8 @@ HE_obj *parse_obj(char const * const obj_string)
 		if (!strcmp(str_tmp_ptr, "v")) {
 			char *myfloat = NULL;
 			HE_vert *tmp_ptr;
+			vector *tmp_vec = malloc(sizeof(vector));
+			CHECK_PTR_VAL(tmp_vec);
 
 			tmp_ptr = (HE_vert*) realloc(vertices,
 					sizeof(HE_vert) * (vc + 1));
@@ -164,17 +166,19 @@ HE_obj *parse_obj(char const * const obj_string)
 			/* fill x */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc].x = atof(myfloat);
+			tmp_vec->x = atof(myfloat);
 
 			/* fill y */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc].y = atof(myfloat);
+			tmp_vec->y = atof(myfloat);
 
 			/* fill z */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
 			CHECK_PTR_VAL(myfloat);
-			vertices[vc].z = atof(myfloat);
+			tmp_vec->z = atof(myfloat);
+
+			vertices[vc].vec = tmp_vec;
 
 			/* set edge NULL */
 			vertices[vc].edge = NULL;
