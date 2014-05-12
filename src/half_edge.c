@@ -251,7 +251,8 @@ HE_obj *parse_obj(char const * const obj_string)
 		HE_vert *next_vert = edges[i].next->vert;
 
 		for (uint32_t j = 0; j < ec; j++)
-			if (next_vert == edges[j].vert)
+			if (next_vert == edges[j].vert
+					&& edges[j].next->vert == edges[i].vert)
 				edges[i].pair = &(edges[j]);
 	}
 
