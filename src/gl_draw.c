@@ -125,9 +125,11 @@ static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
 		int32_t const myzrot)
 {
+	/* rotation */
 	static int32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
+
 	/* color */
 	static float red = 90,
 				 blue = 90,
@@ -150,6 +152,7 @@ static void draw_obj(int32_t const myxrot,
 		return;
 	}
 
+	/* increment rotation, if any */
 	xrot += myxrot;
 	yrot += myyrot;
 	zrot += myzrot;
@@ -180,7 +183,6 @@ static void draw_obj(int32_t const myxrot,
 			sin(green * (M_PI / 180)));
 	draw_vertices(obj);
 	glEnd();
-
 
 	glPopMatrix();
 }
