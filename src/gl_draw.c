@@ -169,7 +169,6 @@ static void draw_obj(int32_t const myxrot,
 	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
 	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
 
-
 	/* pull into middle of universe */
 	glTranslatef(-center_vert.x,
 			-center_vert.y,

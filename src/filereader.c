@@ -62,7 +62,8 @@ HE_obj *read_obj_file(char const * const filename)
  * Reads a file and returns a newly allocated string.
  *
  * @param filename file to open
- * @return newly allocated string, must be freed by the caller
+ * @return a newly allocated string which must be freed by the caller
+ * or NULL on failure
  */
 char *read_file(char const * const filename)
 {
