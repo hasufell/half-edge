@@ -48,6 +48,7 @@ bool add_vectors(vector *a, vector *b, vector *c);
 bool sub_vectors(vector *a, vector *b, vector *c);
 bool normalize_vector(vector *a, vector *b);
 bool copy_vector(vector *a, vector *b);
+bool set_null_vector(vector *a);
 
 
 #endif /* _DROW_ENGINE_VEC_MATH_H */

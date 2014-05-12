@@ -165,3 +165,22 @@ bool copy_vector(vector *a, vector *b)
 
 	return true;
 }
+
+/**
+ * Set the vector to a null vector.
+ *
+ * @param a vector [out]
+ * @return true/false for success/failure
+ */
+bool set_null_vector(vector *a)
+{
+	if (!a)
+		return false;
+
+	a->x = 0;
+	a->y = 0;
+	a->z = 0;
+
+	return true;
+
+}
