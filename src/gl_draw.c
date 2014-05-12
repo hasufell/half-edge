@@ -484,10 +484,7 @@ void keyboard(unsigned char key, int x, int y)
 		glTranslatef(1.0f, 0.0f, 0.0f);
 		break;
 	case 'n':
-		if (show_normals)
-			show_normals = false;
-		else
-			show_normals = true;
+		show_normals = !show_normals;
 		break;
 	case '+':
 		glTranslatef(0.0f, 0.0f, 1.0f);
