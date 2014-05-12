@@ -121,7 +121,6 @@ bool vec_normal(HE_vert const * const vert, vector *vec)
 	for (uint32_t i = 0; i < ec; i++) {
 		j = (i + 1) % ec;
 
-		/* printf("\nTUPLE %d\n", vc + 1); */
 		vector he_vec1,
 			   he_vec2,
 			   new_vec;
