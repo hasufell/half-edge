@@ -48,8 +48,8 @@ static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
  * Get all edges that emanate from vertice and return a pointer
  * to that array with the size of ec_out.
  *
- * @param vertice the vertice to get the emanating edges of
- * @param ec the edge counter is saved here [out]
+ * @param vert the vertice to get the emanating edges of
+ * @param ec_out the edge counter is saved here [out]
  * @return pointer to an array of half-edges, size ec_out
  */
 static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
