@@ -24,7 +24,6 @@
  * @brief operations on half-edge data structs
  */
 
-
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
@@ -91,6 +90,43 @@ static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
 }
 
 /**
+ * Calculate the normal of a face that corresponds
+ * to edge.
+ *
+ * @param edge to align the normalization
+ * @param vec the vector to store the result in [out]
+ * @return true/false for success/failure
+ */
+bool face_normal(HE_edge const * const edge,
+		vector *vec)
+{
+	vector he_vec1,
+		   he_vec2,
+		   he_base;
+
+	if (!(copy_vector(edge->next->vert->vec, &he_base)))
+		return false;
+
+	/* calculate vector between vertices */
+	if (!(sub_vectors(edge->next->next->vert->vec, &he_base, &he_vec1)))
+		return false;
+	if (!(sub_vectors(edge->vert->vec, &he_base, &he_vec2)))
+		return false;
+
+	/* vector product */
+	if (!(vector_product(&he_vec1,
+					&he_vec2,
+					vec)))
+		return false;
+
+	/* normalize vector */
+	if (!(normalize_vector(vec, vec)))
+		return false;
+
+	return true;
+}
+
+/**
  * Calculate the approximated normal of a vertex.
  *
  * @param vert the vertex
@@ -100,9 +136,7 @@ static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
 bool vec_normal(HE_vert const * const vert, vector *vec)
 {
 	HE_edge **edge_array;
-	uint32_t ec,
-			 vc = 0,
-			 j;
+	uint32_t ec;
 	vector he_base;
 
 	if (!vert || !vec)
@@ -112,55 +146,31 @@ bool vec_normal(HE_vert const * const vert, vector *vec)
 	if (!(edge_array = get_all_emanating_edges(vert, &ec)))
 		return false;
 
-	copy_vector(edge_array[0]->vert->vec, &he_base);
-
-	vector vec_array[ec];
-
-	/* iterate over all unique(!)
-	 * tuples and calculate their product */
-	for (uint32_t i = 0; i < ec; i++) {
-		j = (i + 1) % ec;
-
-		vector he_vec1,
-			   he_vec2,
-			   new_vec;
-
-		copy_vector(edge_array[i]->next->vert->vec, &he_vec1);
-		copy_vector(edge_array[j]->next->vert->vec, &he_vec2);
-
-		if (!(set_null_vector(&new_vec)))
-			return false;
-
-		/* calculate vector between vertices */
-		sub_vectors(&he_vec1, &he_base, &he_vec1);
-		sub_vectors(&he_vec2, &he_base, &he_vec2);
-
-		/* calculate vector product */
-		if (!(vector_product(&he_vec2, &he_vec1, &new_vec)))
-		/* if (!(vector_product(&he_vec1, &he_vec2, &new_vec))) */
-			return false;
-
-		/* normalize vector */
-		if (!(normalize_vector(&new_vec, &new_vec)))
-			return false;
-
-		/* save into array */
-		copy_vector(&new_vec, &(vec_array[vc]));
-		vc++;
-	}
+	if (!(copy_vector(edge_array[0]->vert->vec, &he_base)))
+		return false;
 
 	/* avoid side effects due to junk data */
 	if (!(set_null_vector(vec)))
 		return false;
 
-	/* now add all the vectors up */
-	for (uint32_t i = 0; i < vc; i++)
-		if (!(add_vectors(vec, &(vec_array[i]), vec)))
+	/* iterate over all edges, get the normalized
+	 * face vector and add those up */
+	for (uint32_t i = 0; i < ec; i++) {
+		vector new_vec;
+
+		/* get face normal */
+		if (!(face_normal(edge_array[i], &new_vec)))
 			return false;
+
+		if (!(add_vectors(vec, &new_vec, vec)))
+			return false;
+	}
 
 	/* normalize the result */
 	if (!(normalize_vector(vec, vec)))
 		return false;
+
+	free(edge_array);
 
 	return true;
 }
@@ -411,4 +421,18 @@ HE_obj *parse_obj(char const * const obj_string)
 	free(face_v);
 
 	return obj;
+}
+
+/**
+ * Free the inner structures of an object.
+ *
+ * @param obj the object to free
+ */
+void delete_object(HE_obj *obj)
+{
+	for (uint32_t i = 0; i < obj->vc; i++)
+		free(obj->vertices[i].vec);
+	free(obj->edges);
+	free(obj->vertices);
+	free(obj->faces);
 }

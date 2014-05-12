@@ -506,9 +506,7 @@ void keyboard(unsigned char key, int x, int y)
  */
 static void gl_destroy(void)
 {
-	free(obj->edges);
-	free(obj->vertices);
-	free(obj->faces);
+	delete_object(obj);
 	free(obj);
 	glutDestroyWindow(glutGetWindow());
 }

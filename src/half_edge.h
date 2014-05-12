@@ -128,11 +128,14 @@ struct HE_obj {
 };
 
 
+bool face_normal(HE_edge const * const edge,
+		vector *vec);
 bool vec_normal(HE_vert const * const vert, vector *vec);
 bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
 void normalize_object(HE_obj *obj);
 HE_obj *parse_obj(char const * const filename);
+void delete_object(HE_obj *obj);
 
 
 #endif /* _DROW_ENGINE_HE_OPERATIONS_H */
