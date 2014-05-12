@@ -57,7 +57,9 @@ HE_obj *obj;
 /*
  * static function declaration
  */
-static void draw_obj(uint32_t xrot, uint32_t yrot, uint32_t zrot);
+static void draw_obj(int32_t const myxrot,
+		int32_t const myyrot,
+		int32_t const myzrot);
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
@@ -89,11 +91,11 @@ static void draw_vertices(HE_obj const * const obj)
  * @param myyrot rotation increment around x-axis
  * @param myzrot rotation increment around x-axis
  */
-static void draw_obj(uint32_t const myxrot,
-		const uint32_t myyrot,
-		const uint32_t myzrot)
+static void draw_obj(int32_t const myxrot,
+		int32_t const myyrot,
+		int32_t const myzrot)
 {
-	static uint32_t xrot = 0,
+	static int32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
 	vector center_vert;
@@ -401,15 +403,27 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		draw_obj(1, 0, 0);
+		draw_obj(2, 0, 0);
+		glutPostRedisplay();
+		break;
+	case 'X':
+		draw_obj(-2, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'y':
-		draw_obj(0, 1, 0);
+		draw_obj(0, 2, 0);
+		glutPostRedisplay();
+		break;
+	case 'Y':
+		draw_obj(0, -2, 0);
 		glutPostRedisplay();
 		break;
 	case 'c':
-		draw_obj(0, 0, 1);
+		draw_obj(0, 0, 2);
+		glutPostRedisplay();
+		break;
+	case 'C':
+		draw_obj(0, 0, -2);
 		glutPostRedisplay();
 		break;
 	case 'w':
