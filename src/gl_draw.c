@@ -128,6 +128,21 @@ static void draw_obj(int32_t const myxrot,
 	static int32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
+	/* color */
+	static float red = 90,
+				 blue = 90,
+				 green = 90;
+
+	/* add random values */
+	red += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+	blue += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+	green += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+
+	/* values above 180 will cause negative color values */
+	red = fmodf(red, 181.0f);
+	blue = fmodf(blue, 181.0f);
+	green = fmodf(green, 181.0f);
+
 	vector center_vert;
 
 	if (!find_center(obj, &center_vert)) {
@@ -160,7 +175,9 @@ static void draw_obj(int32_t const myxrot,
 	if (show_normals)
 		draw_normals(obj);
 	glBegin(GL_POLYGON);
-	glColor3f(0.0f, 1.0f, 0.0f);
+	glColor3f(sin(red * (M_PI / 180)),
+			sin(blue * (M_PI / 180)),
+			sin(green * (M_PI / 180)));
 	draw_vertices(obj);
 	glEnd();
 
