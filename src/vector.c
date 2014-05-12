@@ -156,7 +156,7 @@ bool normalize_vector(vector *a, vector *b)
  */
 bool copy_vector(vector *a, vector *b)
 {
-	if (!a || !b)
+	if (!a || !b || (a == b))
 		return false;
 
 	b->x = a->x;
