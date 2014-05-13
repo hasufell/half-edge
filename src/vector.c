@@ -184,3 +184,24 @@ bool set_null_vector(vector *a)
 	return true;
 
 }
+
+/**
+ * Check if vector a is a null vector,
+ * so all coordinates are 0.
+ *
+ * @param a vector
+ * @return true if vector is a null vector, false
+ * otherwise, -1 on failure
+ */
+int is_null_vector(vector *a)
+{
+	if (!a)
+		return -1;
+
+	if (a->x == 0 &&
+			a->y == 0 &&
+			a->z == 0)
+		return true;
+	else
+		return false;
+}
