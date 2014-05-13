@@ -417,11 +417,11 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
 	CHECK_PTR_VAL(obj);
 
-	obj->vertices = vertices;
-	obj->vc = vc;
 	obj->edges = edges;
-	obj->ec = ec;
+	obj->vertices = vertices;
 	obj->faces = faces;
+	obj->ec = ec;
+	obj->vc = vc;
 	obj->fc = fc;
 
 	free(string);
