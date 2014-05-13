@@ -439,10 +439,10 @@ HE_obj *parse_obj(char const * const obj_string)
 	}
 
 	/* find pairs */
-	for (uint32_t i = 0; i < ec; i++) {
+	for (uint32_t i = 0; i < ec; i++) { /* for all edges */
 		uint32_t eac = edges[i].vert->eac;
 
-		for (uint32_t j = 0; j < eac; j++) {
+		for (uint32_t j = 0; j < eac; j++) { /* for all potential pairs */
 			if (edges[i].vert->edge_array[j] &&
 					(edges[i].next->vert ==
 					 edges[i].vert->edge_array[j]->vert)) {
