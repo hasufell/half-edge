@@ -391,7 +391,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			uint32_t fv_arr_id = fv_id - 1; /* fv_id starts at 1 */
 
 			edges[ec].vert = &(vertices[fv_arr_id]);
-			edges[ec].face = &(faces[j]);
+			edges[ec].face = &(faces[i]);
 			edges[ec].pair = NULL; /* preliminary */
 			vertices[fv_arr_id].edge = &(edges[ec]); /* last one wins */
 
