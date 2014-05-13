@@ -144,6 +144,19 @@ struct HE_vert {
 	 * One of the half-edges emanating from the vertex.
 	 */
 	HE_edge *edge;
+
+	/**
+	 * Acceleration structure which saves all
+	 * edges that point TO this vertex. It is used
+	 * for finding the pairs when assembling
+	 * the HE_edge struct.
+	 */
+	HE_edge **edge_array;
+
+	/**
+	 * Element count of the edge_array.
+	 */
+	uint32_t eac;
 };
 
 /**

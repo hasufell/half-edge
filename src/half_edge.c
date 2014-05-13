@@ -305,7 +305,7 @@ HE_obj *parse_obj(char const * const obj_string)
 
 		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
 
-		/* parse vertices */
+		/* parse vertices and fill them */
 		if (!strcmp(str_tmp_ptr, "v")) {
 			char *myfloat = NULL;
 			HE_vert *tmp_ptr;
@@ -334,8 +334,10 @@ HE_obj *parse_obj(char const * const obj_string)
 
 			vertices[vc].vec = tmp_vec;
 
-			/* set edge NULL */
+			/* set edge and edge_array NULL */
 			vertices[vc].edge = NULL;
+			vertices[vc].edge_array = NULL;
+			vertices[vc].eac = 0;
 
 			vc++;
 
@@ -344,13 +346,12 @@ HE_obj *parse_obj(char const * const obj_string)
 				ABORT("Failure in parse_obj(),\n"
 						"malformed vertice, exceeds 2 dimensions!\n");
 
-		/* parse faces */
+		/* parse plain faces and fill them (not HE_face!) */
 		} else if (!strcmp(str_tmp_ptr, "f")) {
 			char *myint = NULL;
 			uint8_t i = 0;
 			FACE tmp_ptr = NULL;
 
-			/* fill FACE */
 			tmp_ptr = (FACE) realloc(face_v, sizeof(FACE*) * (fc + 1));
 			CHECK_PTR_VAL(tmp_ptr);
 			face_v = tmp_ptr;
@@ -381,20 +382,54 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	ec = 0;
 	/* create HE_edges and real HE_faces */
-	for (uint32_t i = 0; i < fc; i++) {
-		uint32_t j = 0;
+	for (uint32_t i = 0; i < fc; i++) { /* for all faces */
+		uint32_t j = 0,
+				 fv_id; /* reference of the face vertex */
 
 		/* for all vertices of the face */
-		while (face_v[i][j]) {
-			edges[ec].vert = &(vertices[face_v[i][j] - 1]);
+		while ((fv_id = face_v[i][j])) {
+			uint32_t fv_arr_id = fv_id - 1; /* fv_id starts at 1 */
+
+			edges[ec].vert = &(vertices[fv_arr_id]);
 			edges[ec].face = &(faces[j]);
 			edges[ec].pair = NULL; /* preliminary */
-			vertices[face_v[i][j] - 1].edge = &(edges[ec]); /* last one wins */
+			vertices[fv_arr_id].edge = &(edges[ec]); /* last one wins */
 
-			if (face_v[i][j + 1]) /* connect to next vertice */
-				edges[ec].next = &(edges[ec + 1]);
-			else /* no vertices left, connect to first vertice */
-				edges[ec].next = &(edges[ec - j]);
+			/* Skip j == 0 here, so we don't underrun the arrays,
+			 * since we always look one edge back. The first edge
+			 * element is taken care of below as well. */
+			if (j > 0 ) {
+				HE_edge **tmp_ptr = NULL;
+				uint32_t *eac = &(edges[ec].vert->eac);
+
+				/* connect previous edge to current edge */
+				edges[ec - 1].next = &(edges[ec]);
+
+				/* add previous edge to edge_array of current
+				 * vertice */
+				tmp_ptr = realloc(edges[ec].vert->edge_array,
+						sizeof(HE_edge*) * (*eac + 1));
+				CHECK_PTR_VAL(tmp_ptr);
+				edges[ec].vert->edge_array = tmp_ptr;
+				edges[ec].vert->edge_array[*eac] = &(edges[ec - 1]);
+				(*eac)++;
+
+				if (!face_v[i][j + 1]) { /* no vertice left */
+					uint32_t *eac;
+					/* connect last edge to first edge */
+					edges[ec].next = &(edges[ec - j]);
+					eac = &(edges[ec].next->vert->eac);
+
+					/* add last edge to edge_array element of
+					 * first vertice */
+					tmp_ptr = realloc(edges[ec].next->vert->edge_array,
+							sizeof(HE_edge*) * (*eac + 1));
+					CHECK_PTR_VAL(tmp_ptr);
+					edges[ec].next->vert->edge_array = tmp_ptr;
+					edges[ec].next->vert->edge_array[*eac] = &(edges[ec]);
+					(*eac)++;
+				}
+			}
 
 			ec++;
 			j++;
@@ -404,14 +439,18 @@ HE_obj *parse_obj(char const * const obj_string)
 	}
 
 	/* find pairs */
-	/* TODO: acceleration */
 	for (uint32_t i = 0; i < ec; i++) {
-		HE_vert *next_vert = edges[i].next->vert;
+		uint32_t eac = edges[i].vert->eac;
 
-		for (uint32_t j = 0; j < ec; j++)
-			if (next_vert == edges[j].vert
-					&& edges[j].next->vert == edges[i].vert)
-				edges[i].pair = &(edges[j]);
+		for (uint32_t j = 0; j < eac; j++) {
+			if (edges[i].vert->edge_array[j] &&
+					(edges[i].next->vert ==
+					 edges[i].vert->edge_array[j]->vert)) {
+				edges[i].pair = edges[i].vert->edge_array[j];
+				edges[i].vert->edge_array[j] = NULL;
+				break;
+			}
+		}
 	}
 
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
