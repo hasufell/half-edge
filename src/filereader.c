@@ -48,9 +48,13 @@ HE_obj *read_obj_file(char const * const filename)
 	char *string = NULL; /* file content */
 	HE_obj *obj = NULL;
 
+	if (!filename || !*filename)
+		return NULL;
+
 	/* read the whole file into string */
 	string = read_file(filename);
-	if (!filename || !*filename || !string || !*string)
+
+	if (!string)
 		return NULL;
 
 	obj = parse_obj(string);

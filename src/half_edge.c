@@ -77,7 +77,7 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 	HE_edge **edge_array;
 	HE_edge **tmp_ptr;
 
-	if (!vert)
+	if (!edge_array_out || !vert || !ec_out)
 		return false;
 
 	edge_array = malloc(sizeof(HE_edge*) * approx_ec);
@@ -254,9 +254,13 @@ float get_normalized_scale_factor(HE_obj const * const obj)
  *
  * @param obj the object we want to scale [mod]
  */
-void normalize_object(HE_obj *obj)
+bool normalize_object(HE_obj *obj)
 {
 	float scale_factor;
+
+	if (!obj)
+		return false;
+
 	scale_factor = get_normalized_scale_factor(obj);
 
 	for (uint32_t i = 0; i < obj->vc; i++) {
@@ -264,6 +268,8 @@ void normalize_object(HE_obj *obj)
 		obj->vertices[i].vec->y = obj->vertices[i].vec->y * scale_factor;
 		obj->vertices[i].vec->z = obj->vertices[i].vec->z * scale_factor;
 	}
+
+	return true;
 }
 
 /**
@@ -335,7 +341,8 @@ HE_obj *parse_obj(char const * const obj_string)
 
 			/* exceeds 3 dimensions, malformed vertice */
 			if (strtok_r(NULL, " ", &str_ptr_space))
-				return NULL;
+				ABORT("Failure in parse_obj(),\n"
+						"malformed vertice, exceeds 2 dimensions!\n");
 
 		/* parse faces */
 		} else if (!strcmp(str_tmp_ptr, "f")) {
@@ -432,6 +439,9 @@ HE_obj *parse_obj(char const * const obj_string)
  */
 void delete_object(HE_obj *obj)
 {
+	if (!obj)
+		return;
+
 	for (uint32_t i = 0; i < obj->vc; i++)
 		free(obj->vertices[i].vec);
 	free(obj->edges);

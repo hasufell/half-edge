@@ -82,6 +82,18 @@
 	} \
 }
 
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define NORMALIZE_OBJECT(...) \
+{ \
+	if (!normalize_object(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in normalize_object()!\n"); \
+		abort(); \
+	} \
+}
+
 
 /**
  * Typedef for the plain faces
@@ -182,7 +194,7 @@ bool face_normal(HE_edge const * const edge,
 bool vec_normal(HE_vert const * const vert, vector *vec);
 bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
-void normalize_object(HE_obj *obj);
+bool normalize_object(HE_obj *obj);
 HE_obj *parse_obj(char const * const filename);
 void delete_object(HE_obj *obj);
 

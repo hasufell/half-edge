@@ -351,7 +351,7 @@ void init(char const * const filename)
 	if (!obj)
 		ABORT("Failed to read object file \"%s\"!", filename);
 
-	normalize_object(obj);
+	NORMALIZE_OBJECT(obj);
 
 	day = 0;
 	year = 0;
