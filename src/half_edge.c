@@ -334,7 +334,7 @@ HE_obj *parse_obj(char const * const obj_string)
 
 			vertices[vc].vec = tmp_vec;
 
-			/* set edge and edge_array NULL */
+			/* set unused/unknown values to NULL */
 			vertices[vc].edge = NULL;
 			vertices[vc].edge_array = NULL;
 			vertices[vc].eac = 0;
@@ -405,8 +405,8 @@ HE_obj *parse_obj(char const * const obj_string)
 				/* connect previous edge to current edge */
 				edges[ec - 1].next = &(edges[ec]);
 
-				/* add previous edge to edge_array of current
-				 * vertice */
+				/* Acceleration struct:
+				 * add previous edge to edge_array of current vertice */
 				tmp_ptr = realloc(edges[ec].vert->edge_array,
 						sizeof(HE_edge*) * (*eac + 1));
 				CHECK_PTR_VAL(tmp_ptr);
@@ -420,8 +420,8 @@ HE_obj *parse_obj(char const * const obj_string)
 					edges[ec].next = &(edges[ec - j]);
 					eac = &(edges[ec].next->vert->eac);
 
-					/* add last edge to edge_array element of
-					 * first vertice */
+					/* Acceleration struct:
+					 * add last edge to edge_array element of first vertice */
 					tmp_ptr = realloc(edges[ec].next->vert->edge_array,
 							sizeof(HE_edge*) * (*eac + 1));
 					CHECK_PTR_VAL(tmp_ptr);
