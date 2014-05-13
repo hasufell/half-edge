@@ -481,8 +481,10 @@ void delete_object(HE_obj *obj)
 	if (!obj)
 		return;
 
-	for (uint32_t i = 0; i < obj->vc; i++)
+	for (uint32_t i = 0; i < obj->vc; i++) {
 		free(obj->vertices[i].vec);
+		free(obj->vertices[i].edge_array);
+	}
 	free(obj->edges);
 	free(obj->vertices);
 	free(obj->faces);
