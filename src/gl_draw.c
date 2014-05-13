@@ -72,26 +72,23 @@ static void draw_normals(HE_obj const * const obj)
 	vector vec;
 
 	for (uint32_t i = 0; i < obj->vc; i++) {
-		if ((vec_normal(&(obj->vertices[i]), &vec))) {
-			glPushMatrix();
+		VEC_NORMAL(&(obj->vertices[i]), &vec);
 
-			glLineWidth(3);
-			glColor3f(1.0, 0.0, 0.0);
+		glPushMatrix();
 
-			glBegin(GL_LINES);
-			glVertex3f(obj->vertices[i].vec->x,
-					obj->vertices[i].vec->y,
-					obj->vertices[i].vec->z);
-			glVertex3f(obj->vertices[i].vec->x + (vec.x),
-					obj->vertices[i].vec->y + (vec.y),
-					obj->vertices[i].vec->z + (vec.z));
-			glEnd();
+		glLineWidth(3);
+		glColor3f(1.0, 0.0, 0.0);
 
-			glPopMatrix();
-		} else {
-			fprintf(stderr, "Failed drawing the normals!\n");
-			return;
-		}
+		glBegin(GL_LINES);
+		glVertex3f(obj->vertices[i].vec->x,
+				obj->vertices[i].vec->y,
+				obj->vertices[i].vec->z);
+		glVertex3f(obj->vertices[i].vec->x + (vec.x),
+				obj->vertices[i].vec->y + (vec.y),
+				obj->vertices[i].vec->z + (vec.z));
+		glEnd();
+
+		glPopMatrix();
 	}
 }
 
@@ -147,10 +144,7 @@ static void draw_obj(int32_t const myxrot,
 
 	vector center_vert;
 
-	if (!find_center(obj, &center_vert)) {
-		fprintf(stderr, "Failed drawing the object!\n");
-		return;
-	}
+	FIND_CENTER(obj, &center_vert);
 
 	/* increment rotation, if any */
 	xrot += myxrot;

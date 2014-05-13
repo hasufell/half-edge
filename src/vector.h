@@ -28,6 +28,80 @@
 
 
 #include <stdbool.h>
+#include <stdio.h>
+
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define VECTOR_PRODUCT(...) \
+{ \
+	if (!vector_product(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in vector_product()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define ADD_VECTORS(...) \
+{ \
+	if (!add_vectors(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in add_vectors()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define SUB_VECTORS(...) \
+{ \
+	if (!sub_vectors(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in sub_vectors()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define NORMALIZE_VECTOR(...) \
+{ \
+	if (!normalize_vector(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in normalize_vector()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define COPY_VECTOR(...) \
+{ \
+	if (!copy_vector(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in copy_vector()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define SET_NULL_VECTOR(...) \
+{ \
+	if (!set_null_vector(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in set_null_vector()!\n"); \
+		abort(); \
+	} \
+}
 
 
 typedef struct vector vector;

@@ -36,10 +36,24 @@
 #include <string.h>
 
 
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define GET_ALL_EMANATING_EDGES(...) \
+{ \
+	if (!get_all_emanating_edges(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in get_all_emanating_edges()!\n"); \
+		abort(); \
+	} \
+}
+
+
 /*
  * static declarations
  */
-static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
+static bool get_all_emanating_edges(HE_vert const * const vert,
+		HE_edge ***edge_array_out,
 		uint32_t *ec_out);
 
 
@@ -48,20 +62,26 @@ static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
  * to that array with the size of ec_out.
  *
  * @param vert the vertice to get the emanating edges of
+ * @param edge_array_out address of the 2d edge array to save
+ * the result in [out]
  * @param ec_out the edge counter is saved here [out]
  * @return pointer to an array of half-edges, size ec_out
  */
-static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
+static bool get_all_emanating_edges(HE_vert const * const vert,
+		HE_edge ***edge_array_out,
 		uint32_t *ec_out)
 {
 	uint32_t ec = 0, /* edge count */
 			 rc = 0; /* realloc count */
 	uint32_t const approx_ec = 20; /* allocation chunk */
-	HE_edge **edge_array = malloc(sizeof(HE_edge*) * approx_ec);
+	HE_edge **edge_array;
 	HE_edge **tmp_ptr;
 
 	if (!vert)
-		return NULL;
+		return false;
+
+	edge_array = malloc(sizeof(HE_edge*) * approx_ec);
+	CHECK_PTR_VAL(edge_array);
 
 	HE_edge *edge = vert->edge;
 
@@ -83,10 +103,11 @@ static HE_edge **get_all_emanating_edges(HE_vert const * const vert,
 
 	} while (edge != vert->edge);
 
-	/* this is the real size, not the x[ec] value */
-	*ec_out = ec;
+	/* set out-pointers */
+	*edge_array_out = edge_array;
+	*ec_out = ec; /* this is the real size, not the x[ec] value */
 
-	return edge_array;
+	return true;
 }
 
 /**
@@ -104,24 +125,18 @@ bool face_normal(HE_edge const * const edge,
 		   he_vec2,
 		   he_base;
 
-	if (!(copy_vector(edge->next->vert->vec, &he_base)))
+	if (!edge || !vec)
 		return false;
 
-	/* calculate vector between vertices */
-	if (!(sub_vectors(edge->next->next->vert->vec, &he_base, &he_vec1)))
-		return false;
-	if (!(sub_vectors(edge->vert->vec, &he_base, &he_vec2)))
-		return false;
+	COPY_VECTOR(edge->next->vert->vec, &he_base);
 
-	/* vector product */
-	if (!(vector_product(&he_vec1,
-					&he_vec2,
-					vec)))
-		return false;
+	/* calculate vectors between the vertices */
+	SUB_VECTORS(edge->next->next->vert->vec, &he_base, &he_vec1);
+	SUB_VECTORS(edge->vert->vec, &he_base, &he_vec2);
 
-	/* normalize vector */
-	if (!(normalize_vector(vec, vec)))
-		return false;
+	VECTOR_PRODUCT(&he_vec1, &he_vec2, vec);
+
+	NORMALIZE_VECTOR(vec, vec);
 
 	return true;
 }
@@ -135,43 +150,30 @@ bool face_normal(HE_edge const * const edge,
  */
 bool vec_normal(HE_vert const * const vert, vector *vec)
 {
-	HE_edge **edge_array;
+	HE_edge **edge_array = NULL;
 	uint32_t ec;
 	vector he_base;
 
 	if (!vert || !vec)
 		return false;
 
-	/* get all emanating edges */
-	if (!(edge_array = get_all_emanating_edges(vert, &ec)))
-		return false;
-
-	if (!(copy_vector(edge_array[0]->vert->vec, &he_base)))
-		return false;
-
-	/* avoid side effects due to junk data */
-	if (!(set_null_vector(vec)))
-		return false;
+	GET_ALL_EMANATING_EDGES(vert, &edge_array, &ec);
+	COPY_VECTOR(edge_array[0]->vert->vec, &he_base);
+	SET_NULL_VECTOR(vec); /* set to null for later summation */
 
 	/* iterate over all edges, get the normalized
 	 * face vector and add those up */
 	for (uint32_t i = 0; i < ec; i++) {
 		vector new_vec;
 
-		/* get face normal */
-		if (!(face_normal(edge_array[i], &new_vec)))
-			return false;
-
-		if (!(add_vectors(vec, &new_vec, vec)))
-			return false;
+		FACE_NORMAL(edge_array[i], &new_vec);
+		ADD_VECTORS(vec, &new_vec, vec);
 	}
 
 	/* normalize the result */
-	if (!(normalize_vector(vec, vec)))
-		return false;
+	NORMALIZE_VECTOR(vec, vec);
 
 	free(edge_array);
-
 	return true;
 }
 

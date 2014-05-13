@@ -35,6 +35,55 @@
 
 
 /**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define GET_ALL_EMANATING_EDGES(...) \
+{ \
+	if (!get_all_emanating_edges(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in get_all_emanating_edges()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define FACE_NORMAL(...) \
+{ \
+	if (!face_normal(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in face_normal()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define VEC_NORMAL(...) \
+{ \
+	if (!vec_normal(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in vec_normal()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
+#define FIND_CENTER(...) \
+{ \
+	if (!find_center(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in find_center()!\n"); \
+		abort(); \
+	} \
+}
+
+
+/**
  * Typedef for the plain faces
  * that are not yet converted to real HE_face.
  */
