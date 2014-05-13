@@ -102,6 +102,8 @@ int main(void)
 							 test_parse_obj3)) ||
 		(NULL == CU_add_test(pSuite, "test4 parsing .obj",
 							 test_parse_obj4)) ||
+		(NULL == CU_add_test(pSuite, "test5 parsing .obj",
+							 test_parse_obj5)) ||
 		(NULL == CU_add_test(pSuite, "test1 finding center ob obj",
 							 test_find_center1)) ||
 		(NULL == CU_add_test(pSuite, "test2 finding center ob obj",

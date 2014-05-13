@@ -437,6 +437,46 @@ void test_parse_obj4(void)
 }
 
 /**
+ * Test the whole object for consistency by walking
+ * through all faces and checking the respective half-edges
+ * ans pairs.
+ */
+void test_parse_obj5(void)
+{
+	char const * const string = ""
+		"v 9.0 10.0 11.0\n"
+		"v 11.0 10.0 11.0\n"
+		"v 9.0 11.0 11.0\n"
+		"v 11.0 11.0 11.0\n"
+		"v 9.0 11.0 9.0\n"
+		"v 11.0 11.0 9.0\n"
+		"v 9.0 10.0 9.0\n"
+		"v 11.0 10.0 9.0\n"
+		"f 1 2 4 3\n"
+		"f 3 4 6 5\n"
+		"f 5 6 8 7\n"
+		"f 7 8 2 1\n"
+		"f 2 8 6 4\n"
+		"f 7 1 3 5\n";
+
+	HE_obj *obj = parse_obj(string);
+
+	CU_ASSERT_PTR_NOT_NULL(obj);
+
+	for (uint32_t i = 0; i < obj->fc; i++) {
+		HE_edge *start_edge = &(obj->faces[i].edge[0]),
+				*next_edge = start_edge->next;
+		while(next_edge != start_edge) {
+			CU_ASSERT_PTR_NOT_NULL(next_edge);
+			CU_ASSERT_PTR_NOT_NULL(next_edge->pair->pair);
+			CU_ASSERT_EQUAL(next_edge->face, &(obj->faces[i]));
+			CU_ASSERT_EQUAL(next_edge->pair->pair, next_edge);
+			next_edge = next_edge->next;
+		}
+	}
+}
+
+/**
  * Test finding the center of an object.
  */
 void test_find_center1(void)
