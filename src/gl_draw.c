@@ -47,6 +47,9 @@
 #define SYSTEM_POS_Z -15.0f
 #define SYSTEM_POS_Z_BACK 15.0f
 #define VISIBILITY_FACTOR 5.0f
+#define FAR_CLIPPING_PLANE 60.0f
+#define NEAR_CLIPPING_PLANE 1.0f
+#define CAMERA_ANGLE 60.0f
 
 int year;
 int yearabs = 365;
@@ -54,6 +57,7 @@ int day;
 int dayabs = 30;
 HE_obj *obj;
 bool show_normals = false;
+bool shademodel = true;
 
 /*
  * static function declaration
@@ -64,32 +68,40 @@ static void draw_obj(int32_t const myxrot,
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
-static void draw_normals(HE_obj const * const obj);
+static void draw_normals(HE_obj const * const obj,
+		float const scale_inc);
+static void draw_vertices(HE_obj const * const obj,
+		bool disco);
 
 
-static void draw_normals(HE_obj const * const obj)
+static void draw_normals(HE_obj const * const obj,
+		float const scale_inc)
 {
+	static float normals_scale_factor = 0.3f;
+	static float line_width = 2;
 	vector vec;
 
+	normals_scale_factor += scale_inc;
+
+	glPushMatrix();
+
+	glLineWidth(line_width);
+	glColor3f(1.0, 0.0, 0.0);
+
+	glBegin(GL_LINES);
 	for (uint32_t i = 0; i < obj->vc; i++) {
 		VEC_NORMAL(&(obj->vertices[i]), &vec);
 
-		glPushMatrix();
-
-		glLineWidth(3);
-		glColor3f(1.0, 0.0, 0.0);
-
-		glBegin(GL_LINES);
 		glVertex3f(obj->vertices[i].vec->x,
 				obj->vertices[i].vec->y,
 				obj->vertices[i].vec->z);
-		glVertex3f(obj->vertices[i].vec->x + (vec.x),
-				obj->vertices[i].vec->y + (vec.y),
-				obj->vertices[i].vec->z + (vec.z));
-		glEnd();
+		glVertex3f(obj->vertices[i].vec->x + (vec.x * normals_scale_factor),
+				obj->vertices[i].vec->y + (vec.y * normals_scale_factor),
+				obj->vertices[i].vec->z + (vec.z * normals_scale_factor));
 
-		glPopMatrix();
 	}
+	glEnd();
+	glPopMatrix();
 }
 
 /**
@@ -97,19 +109,72 @@ static void draw_normals(HE_obj const * const obj)
  * in appropriate order.
  *
  * @param obj the object of which we will draw the vertices
+ * @param disco_set determines whether we are in disco mode
  */
-static void draw_vertices(HE_obj const * const obj)
+static void draw_vertices(HE_obj const * const obj,
+		bool disco_set)
 {
+	/* color */
+	static float red = 90,
+				 blue = 90,
+				 green = 90;
+	static bool disco = false;
+
+	if (disco_set)
+		disco = !disco;
+
+	glPushMatrix();
+
 	for (uint32_t i = 0; i < obj->fc; i++) { /* for all faces */
 		HE_edge *tmp_edge = obj->faces[i].edge;
 
+		/* add random values */
+		red += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+		blue += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+		green += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
+
+		/* values above 180 will cause negative color values */
+		red = fmodf(red, 181.0f);
+		blue = fmodf(blue, 181.0f);
+		green = fmodf(green, 181.0f);
+
+		if (disco) {
+			tmp_edge->vert->col->red =
+				(sin(red * i * (M_PI / 180)) / 2) + 0.5;
+			tmp_edge->vert->col->green =
+				(sin(green * i * (M_PI / 180)) / 2) + 0.5;
+			tmp_edge->vert->col->blue =
+				(sin(blue * i * (M_PI / 180)) / 2) + 0.5;
+		} else {
+			if (tmp_edge->vert->col->red == -1)
+				tmp_edge->vert->col->red =
+					(sin(red * i * (M_PI / 180)) / 2) + 0.5;
+
+			if (tmp_edge->vert->col->green == -1)
+				tmp_edge->vert->col->green =
+					(sin(green * i * (M_PI / 180)) / 2) + 0.5;
+
+			if (tmp_edge->vert->col->blue == -1)
+				tmp_edge->vert->col->blue =
+					(sin(blue * i * (M_PI / 180)) / 2) + 0.5;
+		}
+
+		glBegin(GL_POLYGON);
 		do { /* for all edges of the face */
+			glColor3f(tmp_edge->vert->col->red,
+					tmp_edge->vert->col->green,
+					tmp_edge->vert->col->blue);
+
 			glVertex3f(tmp_edge->vert->vec->x,
 					tmp_edge->vert->vec->y,
 					tmp_edge->vert->vec->z);
+
 		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
+		glEnd();
 	}
+	glPopMatrix();
 }
+
 
 /**
  * Draws an object.
@@ -126,21 +191,6 @@ static void draw_obj(int32_t const myxrot,
 	static int32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
-
-	/* color */
-	static float red = 90,
-				 blue = 90,
-				 green = 90;
-
-	/* add random values */
-	red += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
-	blue += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
-	green += rand() / (RAND_MAX / ((rand() % 11) / 10.0f));
-
-	/* values above 180 will cause negative color values */
-	red = fmodf(red, 181.0f);
-	blue = fmodf(blue, 181.0f);
-	green = fmodf(green, 181.0f);
 
 	vector center_vert;
 
@@ -169,13 +219,9 @@ static void draw_obj(int32_t const myxrot,
 			-center_vert.z + SYSTEM_POS_Z);
 
 	if (show_normals)
-		draw_normals(obj);
-	glBegin(GL_POLYGON);
-	glColor3f(sin(red * (M_PI / 180)),
-			sin(blue * (M_PI / 180)),
-			sin(green * (M_PI / 180)));
-	draw_vertices(obj);
-	glEnd();
+		draw_normals(obj, 0);
+
+	draw_vertices(obj, false);
 
 	glPopMatrix();
 }
@@ -357,7 +403,7 @@ void init(char const * const filename)
 	year = 0;
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
 }
 
 /**
@@ -372,7 +418,10 @@ void reshape(GLsizei w, GLsizei h)
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) w / (GLfloat) h, 1.0, 30.0);
+	gluPerspective(CAMERA_ANGLE,
+			(GLfloat) w / (GLfloat) h,
+			NEAR_CLIPPING_PLANE,
+			FAR_CLIPPING_PLANE);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.0, 0.0, -5.0);
@@ -424,6 +473,13 @@ void animate()
 void keyboard(unsigned char key, int x, int y)
 {
 	switch (key) {
+	case 'b':
+		if (glIsEnabled(GL_CULL_FACE))
+			glDisable(GL_CULL_FACE);
+		else
+			glEnable(GL_CULL_FACE);
+		glutPostRedisplay();
+		break;
 	case 't':
 		dayabs += 15;
 		glutPostRedisplay();
@@ -462,6 +518,28 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'C':
 		draw_obj(0, 0, -2);
+		glutPostRedisplay();
+		break;
+	case 'D':
+		draw_vertices(obj, true);
+		glutPostRedisplay();
+		break;
+	case 'S':
+		if (shademodel) {
+			glShadeModel(GL_FLAT);
+			shademodel = false;
+		} else {
+			glShadeModel(GL_SMOOTH);
+			shademodel = true;
+		}
+		glutPostRedisplay();
+		break;
+	case 'k':
+		draw_normals(obj, 0.02f);
+		glutPostRedisplay();
+		break;
+	case 'l':
+		draw_normals(obj, -0.02f);
 		glutPostRedisplay();
 		break;
 	case 'w':

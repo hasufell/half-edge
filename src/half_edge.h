@@ -105,6 +105,7 @@ typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
+typedef struct color color;
 
 
 /**
@@ -157,6 +158,11 @@ struct HE_vert {
 	 * Element count of the edge_array.
 	 */
 	uint32_t eac;
+
+	/**
+	 * Color of the vertex.
+	 */
+	color *col;
 };
 
 /**
@@ -199,6 +205,15 @@ struct HE_obj {
 	 * Count of faces.
 	 */
 	uint32_t fc;
+};
+
+/**
+ * Color.
+ */
+struct color {
+	float red;
+	float green;
+	float blue;
 };
 
 

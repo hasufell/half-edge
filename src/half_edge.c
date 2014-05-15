@@ -339,6 +339,11 @@ HE_obj *parse_obj(char const * const obj_string)
 			vertices[vc].edge_array = NULL;
 			vertices[vc].eac = 0;
 
+			/* allocate color struct and set preliminary colors */
+			vertices[vc].col = malloc(sizeof(color));
+			vertices[vc].col->red = -1;
+			vertices[vc].col->green = -1;
+			vertices[vc].col->blue = -1;
 			vc++;
 
 			/* exceeds 3 dimensions, malformed vertice */
@@ -483,6 +488,7 @@ void delete_object(HE_obj *obj)
 
 	for (uint32_t i = 0; i < obj->vc; i++) {
 		free(obj->vertices[i].vec);
+		free(obj->vertices[i].col);
 		free(obj->vertices[i].edge_array);
 	}
 	free(obj->edges);
