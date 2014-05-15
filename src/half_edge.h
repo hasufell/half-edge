@@ -83,11 +83,9 @@
 }
 
 
-/**
- * Typedef for the plain faces
- * that are not yet converted to real HE_face.
- */
-typedef uint32_t** FACE;
+typedef double** VERTICES;
+typedef double** FACES;
+typedef double** V_TEXTURES;
 
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;

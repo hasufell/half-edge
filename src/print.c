@@ -96,17 +96,17 @@ void print_faces(HE_obj *obj)
  * @param face the plain face struct
  * @param fc the count of faces
  */
-void print_plain_faces(FACE face, uint32_t fc)
+void print_plain_faces(FACES faces, uint32_t fc)
 {
-	if (!face || !fc)
+	if (!faces || !fc)
 		return;
 
 	printf("plain faces:\n");
 	for (uint32_t i = 0; i < fc - 1; i++) {
 		uint32_t j = 0;
 		printf("f:");
-		while (face[i][j]) {
-			printf(" %d", face[i][j]);
+		while (faces[i][j]) {
+			printf(" %f", faces[i][j]);
 			j++;
 		}
 		printf("\n");

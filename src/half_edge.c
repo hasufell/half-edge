@@ -28,6 +28,7 @@
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
+#include "print.c"
 #include "vector.h"
 
 #include <stdbool.h>
@@ -56,6 +57,12 @@
 static bool get_all_emanating_edges(HE_vert const * const vert,
 		HE_edge ***edge_array_out,
 		uint32_t *ec_out);
+static int32_t get_row_count(int32_t const **array);
+static int32_t get_face_count(FACES const faces);
+static int32_t get_edge_count(FACES const faces);
+static double **parse_2d_array(char const * const obj_string,
+		char *item);
+static FACES parse_face_array(char const * const obj_string);
 
 
 /**
@@ -97,6 +104,175 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 	*ec_out = ec; /* this is the real size, not the x[ec] value */
 
 	return true;
+}
+
+/**
+ * Get the row count of the 2d array.
+ *
+ * @param array the 2 dimensional array
+ * @return the row count
+ */
+static int32_t get_row_count(int32_t const **array)
+{
+	uint32_t rc = 0;
+
+	if (!array)
+		return -1;
+
+	while (array[rc])
+		rc++;
+
+	return rc;
+
+}
+
+/**
+ * Get the amount of faces as they are in the
+ * .obj file.
+ *
+ * @param faces the faces array
+ * @return the count of faces, -1 on failure
+ */
+static int32_t get_face_count(FACES const faces)
+{
+	if (!faces)
+		return 0;
+
+	return get_row_count((int32_t const**)faces);
+}
+
+/**
+ * Get the amount of edges.
+ *
+ * @param faces the faces array which will be used
+ * to calculate the amount of edges
+ * @return the count of edges, -1 on failure
+ */
+static int32_t get_edge_count(FACES const faces)
+{
+	uint32_t ec = 0;
+	uint32_t fc;
+
+	if (!faces)
+		return -1;
+
+	fc = get_face_count(faces);
+
+	for (uint32_t i = 0; i < fc; i++)
+		ec += faces[i][0];
+
+	return ec;
+}
+
+/**
+ * Parse a string which supposedly is a 2-dimensional
+ * array in the .obj file, describing all faces, all vertices
+ * and such. The parsing depends on the item string, such as "f"
+ * or "v".
+ *
+ * @param obj_string the string that is in obj format
+ * @param item the item to look for, such as "f" or "v"
+ * @return a newly allocated 2-dimensional array, NULL on failure
+ */
+static double **parse_2d_array(char const * const obj_string,
+		char *item)
+{
+	uint32_t lc = 0;
+	char *string,
+		 *str_ptr_space = NULL, /* for strtok */
+		 *str_ptr_newline = NULL, /* for strtok */
+		 *str_tmp_ptr = NULL; /* for strtok */
+	double **arr = NULL;
+
+	if (!obj_string || !item)
+		return NULL;
+
+	string = malloc(sizeof(char) * strlen(obj_string) + 1);
+	strcpy(string, obj_string);
+
+	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
+	while (str_tmp_ptr && *str_tmp_ptr) {
+
+		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
+
+		if (!strcmp(str_tmp_ptr, item)) {
+			char *myint = NULL;
+			uint8_t i = 1;
+
+			REALLOC(arr, sizeof(double*) * (lc + 2));
+			arr[lc] = NULL;
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				i++;
+
+				REALLOC(arr[lc],
+						sizeof(double**) * (i + 1));
+				arr[lc][i - 1] = atof(myint);
+			}
+			arr[lc][0] = i - 1; /* save length at first position */
+			lc++;
+			arr[lc] = NULL; /* trailing NULL pointer */
+		}
+
+		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
+	}
+
+	free(string);
+
+	return arr;
+}
+
+/**
+ * Parses the face arrays. Since these contain slashes, such as
+ * "f 1/4/3 8/4/4 9/8/3" we cannot use parse_2d_array() since
+ * we need extra logic.
+ *
+ * @param obj_string the string that is in obj format
+ * @return a newly allocated FACES array, NULL on failure
+ */
+static FACES parse_face_array(char const * const obj_string)
+{
+	uint32_t lc = 0;
+	char *string,
+		 *str_ptr_space = NULL, /* for strtok */
+		 *str_ptr_newline = NULL, /* for strtok */
+		 *str_tmp_ptr = NULL; /* for strtok */
+	FACES arr = NULL;
+
+	if (!obj_string)
+		return NULL;
+
+	string = malloc(sizeof(char) * strlen(obj_string) + 1);
+	strcpy(string, obj_string);
+
+	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
+	while (str_tmp_ptr && *str_tmp_ptr) {
+
+		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
+
+		if (!strcmp(str_tmp_ptr, "f")) {
+			char *myint = NULL;
+			uint8_t i = 1;
+
+			REALLOC(arr, sizeof(double*) * (lc + 2));
+			arr[lc] = NULL;
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				i++;
+
+				REALLOC(arr[lc],
+						sizeof(double**) * (i + 1));
+				arr[lc][i - 1] = atof(myint);
+			}
+			arr[lc][0] = i - 1; /* save length at first position */
+			lc++;
+			arr[lc] = NULL; /* trailing NULL pointer */
+		}
+
+		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
+	}
+
+	free(string);
+
+	return arr;
 }
 
 /**
@@ -270,18 +446,18 @@ bool normalize_object(HE_obj *obj)
  */
 HE_obj *parse_obj(char const * const obj_string)
 {
-	uint32_t vc = 0, /* vertices count */
+	int32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0; /* edge count */
-	char *string,
-		 *str_ptr_space = NULL, /* for strtok */
-		 *str_ptr_newline = NULL, /* for strtok */
-		 *str_tmp_ptr = NULL; /* for strtok */
+	char *string = NULL;
+
 	HE_vert *vertices = NULL;
 	HE_edge *edges = NULL;
 	HE_face *faces = NULL;
 	HE_obj *obj = NULL;
-	FACE face_v = NULL;
+	FACES obj_f = NULL;
+	/* V_TEXTURES obj_vt = NULL; */
+	VERTICES obj_v = NULL;
 
 	if (!obj_string || !*obj_string)
 		return NULL;
@@ -289,76 +465,51 @@ HE_obj *parse_obj(char const * const obj_string)
 	string = malloc(sizeof(char) * strlen(obj_string) + 1);
 	strcpy(string, obj_string);
 
-	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
-	while (str_tmp_ptr && *str_tmp_ptr) {
+	obj_v = parse_2d_array(string, "v");
+	/* obj_vt = parse_2d_array(obj_string, "vt"); */
+	obj_f = parse_face_array(string);
 
-		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
+	vc = 0;
+	vertices = malloc(sizeof(HE_vert) *
+			(get_row_count((int32_t const**)obj_v) + 1));
 
-		/* parse vertices and fill them */
-		if (!strcmp(str_tmp_ptr, "v")) {
-			char *myfloat = NULL;
-			vector *tmp_vec = malloc(sizeof(vector));
-			CHECK_PTR_VAL(tmp_vec);
+	/* fill the vertices */
+	while (obj_v[vc]) {
+		vector *tmp_vec;
 
-			REALLOC(vertices,
-					sizeof(HE_vert) * (vc + 1));
+		if (obj_v[vc][0] > 3)
+			ABORT("Failure in parse_obj(),\n"
+					"malformed vertice, exceeds 3 dimensions!\n");
 
-			/* fill x */
-			myfloat = strtok_r(NULL, " ", &str_ptr_space);
-			CHECK_PTR_VAL(myfloat);
-			tmp_vec->x = atof(myfloat);
+		tmp_vec = malloc(sizeof(vector));
+		CHECK_PTR_VAL(tmp_vec);
 
-			/* fill y */
-			myfloat = strtok_r(NULL, " ", &str_ptr_space);
-			CHECK_PTR_VAL(myfloat);
-			tmp_vec->y = atof(myfloat);
+		tmp_vec->x = obj_v[vc][1];
+		tmp_vec->y = obj_v[vc][2];
+		tmp_vec->z = obj_v[vc][3];
 
-			/* fill z */
-			myfloat = strtok_r(NULL, " ", &str_ptr_space);
-			CHECK_PTR_VAL(myfloat);
-			tmp_vec->z = atof(myfloat);
+		vertices[vc].vec = tmp_vec;
 
-			vertices[vc].vec = tmp_vec;
+		/* set unused/unknown values to NULL */
+		vertices[vc].edge = NULL;
+		vertices[vc].edge_array = NULL;
+		vertices[vc].eac = 0;
 
-			/* set unused/unknown values to NULL */
-			vertices[vc].edge = NULL;
-			vertices[vc].edge_array = NULL;
-			vertices[vc].eac = 0;
+		/* allocate color struct and set preliminary colors */
+		vertices[vc].col = malloc(sizeof(color));
+		vertices[vc].col->red = -1;
+		vertices[vc].col->green = -1;
+		vertices[vc].col->blue = -1;
 
-			/* allocate color struct and set preliminary colors */
-			vertices[vc].col = malloc(sizeof(color));
-			vertices[vc].col->red = -1;
-			vertices[vc].col->green = -1;
-			vertices[vc].col->blue = -1;
-			vc++;
-
-			/* exceeds 3 dimensions, malformed vertice */
-			if (strtok_r(NULL, " ", &str_ptr_space))
-				ABORT("Failure in parse_obj(),\n"
-						"malformed vertice, exceeds 3 dimensions!\n");
-
-		/* parse plain faces and fill them (not HE_face!) */
-		} else if (!strcmp(str_tmp_ptr, "f")) {
-			char *myint = NULL;
-			uint8_t i = 0;
-
-			REALLOC(face_v, sizeof(FACE*) * (fc + 1));
-			face_v[fc] = NULL;
-			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				i++;
-				ec++;
-
-				REALLOC(face_v[fc],
-						sizeof(FACE**) * (i + 1));
-				face_v[fc][i - 1] = (uint32_t) atoi(myint);
-				face_v[fc][i] = 0; /* so we can iterate over it */
-			}
-			fc++;
-		}
-
-		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
+		vc++;
 	}
 
+	if ((ec = get_edge_count(obj_f)) == -1)
+		ABORT("Invalid edge count!\n");
+	if ((fc = get_face_count(obj_f)) == -1)
+		ABORT("Invalid face count!\n");
+
+	/* print_plain_faces(obj_v, vc + 1); */
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);
 	/* hold enough space for possible dummy edges */
@@ -367,13 +518,13 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	ec = 0;
 	/* create HE_edges and real HE_faces */
-	for (uint32_t i = 0; i < fc; i++) { /* for all faces */
-		uint32_t j = 0,
-				 fv_id; /* reference of the face vertex */
+	for (uint32_t i = 0; i < (uint32_t)fc; i++) { /* for all faces */
 
 		/* for all vertices of the face */
-		while ((fv_id = face_v[i][j])) {
-			uint32_t fv_arr_id = fv_id - 1; /* fv_id starts at 1 */
+		for (uint32_t j = 0; j < (uint32_t)obj_f[i][0]; j++) {
+			uint32_t obj_f_pos = j + 1; /* first pos is reserved for length */
+			uint32_t fv_arr_id =
+				obj_f[i][obj_f_pos] - 1; /* fv_id starts at 1 */
 
 			edges[ec].vert = &(vertices[fv_arr_id]);
 			edges[ec].face = &(faces[i]);
@@ -383,7 +534,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			/* Skip j == 0 here, so we don't underrun the arrays,
 			 * since we always look one edge back. The first edge
 			 * element is taken care of below as well. */
-			if (j > 0 ) {
+			if (j > 0) {
 				uint32_t *eac = &(edges[ec].vert->eac);
 
 				/* connect previous edge to current edge */
@@ -396,7 +547,7 @@ HE_obj *parse_obj(char const * const obj_string)
 				edges[ec].vert->edge_array[*eac] = &(edges[ec - 1]);
 				(*eac)++;
 
-				if (!face_v[i][j + 1]) { /* no vertice left */
+				if (obj_f_pos == (uint32_t)obj_f[i][0]) { /* no vertice left */
 					uint32_t *eac;
 					/* connect last edge to first edge */
 					edges[ec].next = &(edges[ec - j]);
@@ -412,14 +563,13 @@ HE_obj *parse_obj(char const * const obj_string)
 			}
 
 			ec++;
-			j++;
 		}
 
 		faces[i].edge = &(edges[ec - 1]); /* "last" edge */
 	}
 
 	/* find pairs */
-	for (uint32_t i = 0; i < ec; i++) { /* for all edges */
+	for (uint32_t i = 0; i < (uint32_t)ec; i++) { /* for all edges */
 		uint32_t eac = edges[i].vert->eac;
 		bool pair_found = false;
 
@@ -456,7 +606,7 @@ HE_obj *parse_obj(char const * const obj_string)
 	}
 
 	/* don't need the edge array anymore */
-	for (uint32_t i = 0; i < vc; i++)
+	for (uint32_t i = 0; i < (uint32_t)vc; i++)
 		free(vertices[i].edge_array);
 
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
@@ -469,10 +619,13 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->vc = vc;
 	obj->fc = fc;
 
+	for (uint32_t i = 0; i < (uint32_t)fc; i++)
+		free(obj_f[i]);
+	free(obj_f);
+	for (uint32_t i = 0; i < (uint32_t)vc; i++)
+		free(obj_v[i]);
+	free(obj_v);
 	free(string);
-	for (uint32_t i = 0; i < fc; i++)
-		free(face_v[i]);
-	free(face_v);
 
 	return obj;
 }

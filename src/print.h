@@ -33,7 +33,7 @@
 void print_edges(HE_obj *obj);
 void print_vertices(HE_obj *obj);
 void print_faces(HE_obj *obj);
-void print_plain_faces(FACE face, uint32_t fc);
+void print_plain_faces(FACES face);
 void print_vector(vector *vec);
 
 
