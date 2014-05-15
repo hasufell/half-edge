@@ -37,8 +37,11 @@
 #include <unistd.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #define XY_WIRE_COUNT 10.0f
+
+#define FPS_OUT_SIZE 17
 
 #define ROT_FACTOR_PLANET_SUN (360.0 / yearabs)
 #define ROT_FACTOR_PLANET (360.0 / 1.0)
@@ -72,6 +75,7 @@ static void draw_normals(HE_obj const * const obj,
 		float const scale_inc);
 static void draw_vertices(HE_obj const * const obj,
 		bool disco);
+static float calculateFPS();
 
 
 static void draw_normals(HE_obj const * const obj,
@@ -357,11 +361,39 @@ static void draw_Planet_2(void)
 }
 
 /**
+ * Calculates the frames per second rate.
+ *
+ * @return the actual frames per second rate
+ */
+static float calculateFPS(void)
+{
+	static int frameCount = 0;
+	static int currentTime = 0;
+	static int previousTime = 0;
+	static float fps = 0;
+
+	frameCount++;
+	currentTime = glutGet(GLUT_ELAPSED_TIME);
+	int timeInterval = currentTime - previousTime;
+	if (timeInterval > 1000) {
+		fps = frameCount / (timeInterval / 1000.0f);
+		previousTime = currentTime;
+		frameCount = 0;
+	}
+	return fps;
+}
+
+/**
  * Displays the whole setup with the sun, planet one,
  * planet two and the frame rate
  */
 void display(void)
 {
+	char fps_out[FPS_OUT_SIZE];
+	char *tmp_ptr = fps_out;
+	float fps = calculateFPS();
+	int i;
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 
@@ -379,6 +411,11 @@ void display(void)
 	glLoadIdentity();
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glRasterPos2i(5, 10);
+
+	sprintf(fps_out, "FPS: %f", fps);
+
+	for (i = 0; i < FPS_OUT_SIZE; ++i)
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *tmp_ptr++);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
