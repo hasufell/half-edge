@@ -23,10 +23,10 @@
  * @brief reading of different filetypes
  */
 
+#include "common.h"
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
-#include "common.h"
 
 #include <fcntl.h>
 #include <stdlib.h>
