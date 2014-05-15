@@ -38,18 +38,6 @@
  * Fault intolerant macro. Will abort the program if the called
  * function failed.
  */
-#define GET_ALL_EMANATING_EDGES(...) \
-{ \
-	if (!get_all_emanating_edges(__VA_ARGS__)) { \
-		fprintf(stderr, "Failure in get_all_emanating_edges()!\n"); \
-		abort(); \
-	} \
-}
-
-/**
- * Fault intolerant macro. Will abort the program if the called
- * function failed.
- */
 #define FACE_NORMAL(...) \
 { \
 	if (!face_normal(__VA_ARGS__)) { \
