@@ -253,14 +253,14 @@ static FACES parse_face_array(char const * const obj_string)
 			char *myint = NULL;
 			uint8_t i = 1;
 
-			REALLOC(arr, sizeof(double*) * (lc + 2));
+			REALLOC(arr, sizeof(uint32_t*) * (lc + 2));
 			arr[lc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
 				i++;
 
 				REALLOC(arr[lc],
-						sizeof(double**) * (i + 1));
-				arr[lc][i - 1] = atof(myint);
+						sizeof(uint32_t**) * (i + 1));
+				arr[lc][i - 1] = atoi(myint);
 			}
 			arr[lc][0] = i - 1; /* save length at first position */
 			lc++;
@@ -273,6 +273,41 @@ static FACES parse_face_array(char const * const obj_string)
 	free(string);
 
 	return arr;
+}
+
+static void fill_vertices(VERTICES obj_v, HE_vert *vertices, int32_t *vc)
+{
+	*vc = 0;
+
+	while (obj_v[*vc]) {
+		vector *tmp_vec;
+
+		if (obj_v[*vc][0] > 3)
+			ABORT("Failure in parse_obj(),\n"
+					"malformed vertice, exceeds 3 dimensions!\n");
+
+		tmp_vec = malloc(sizeof(vector));
+		CHECK_PTR_VAL(tmp_vec);
+
+		tmp_vec->x = obj_v[*vc][1];
+		tmp_vec->y = obj_v[*vc][2];
+		tmp_vec->z = obj_v[*vc][3];
+
+		vertices[*vc].vec = tmp_vec;
+
+		/* set unused/unknown values to NULL */
+		vertices[*vc].edge = NULL;
+		vertices[*vc].edge_array = NULL;
+		vertices[*vc].eac = 0;
+
+		/* allocate color struct and set preliminary colors */
+		vertices[*vc].col = malloc(sizeof(color));
+		vertices[*vc].col->red = -1;
+		vertices[*vc].col->green = -1;
+		vertices[*vc].col->blue = -1;
+
+		(*vc)++;
+	}
 }
 
 /**
@@ -442,7 +477,8 @@ bool normalize_object(HE_obj *obj)
  * that represents the whole object.
  *
  * @param obj_string the whole string from the .obj file
- * @return the HE_face array that represents the object
+ * @return the HE_face array that represents the object, NULL
+ * on failure
  */
 HE_obj *parse_obj(char const * const obj_string)
 {
@@ -469,47 +505,20 @@ HE_obj *parse_obj(char const * const obj_string)
 	/* obj_vt = parse_2d_array(obj_string, "vt"); */
 	obj_f = parse_face_array(string);
 
-	vc = 0;
+	int32_t count = get_row_count((int32_t const**)obj_v);
 	vertices = malloc(sizeof(HE_vert) *
-			(get_row_count((int32_t const**)obj_v) + 1));
+			count + 1);
+
+	printf("row count %d\n", get_row_count((int32_t const**)obj_v));
 
 	/* fill the vertices */
-	while (obj_v[vc]) {
-		vector *tmp_vec;
-
-		if (obj_v[vc][0] > 3)
-			ABORT("Failure in parse_obj(),\n"
-					"malformed vertice, exceeds 3 dimensions!\n");
-
-		tmp_vec = malloc(sizeof(vector));
-		CHECK_PTR_VAL(tmp_vec);
-
-		tmp_vec->x = obj_v[vc][1];
-		tmp_vec->y = obj_v[vc][2];
-		tmp_vec->z = obj_v[vc][3];
-
-		vertices[vc].vec = tmp_vec;
-
-		/* set unused/unknown values to NULL */
-		vertices[vc].edge = NULL;
-		vertices[vc].edge_array = NULL;
-		vertices[vc].eac = 0;
-
-		/* allocate color struct and set preliminary colors */
-		vertices[vc].col = malloc(sizeof(color));
-		vertices[vc].col->red = -1;
-		vertices[vc].col->green = -1;
-		vertices[vc].col->blue = -1;
-
-		vc++;
-	}
+	fill_vertices(obj_v, vertices, &vc);
 
 	if ((ec = get_edge_count(obj_f)) == -1)
 		ABORT("Invalid edge count!\n");
 	if ((fc = get_face_count(obj_f)) == -1)
 		ABORT("Invalid face count!\n");
 
-	/* print_plain_faces(obj_v, vc + 1); */
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);
 	/* hold enough space for possible dummy edges */
@@ -605,13 +614,9 @@ HE_obj *parse_obj(char const * const obj_string)
 		}
 	}
 
-	/* don't need the edge array anymore */
-	for (uint32_t i = 0; i < (uint32_t)vc; i++)
-		free(vertices[i].edge_array);
-
+	/* set up obj help struct */
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
 	CHECK_PTR_VAL(obj);
-
 	obj->edges = edges;
 	obj->vertices = vertices;
 	obj->faces = faces;
@@ -619,11 +624,14 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->vc = vc;
 	obj->fc = fc;
 
+	/* cleanup */
 	for (uint32_t i = 0; i < (uint32_t)fc; i++)
 		free(obj_f[i]);
 	free(obj_f);
-	for (uint32_t i = 0; i < (uint32_t)vc; i++)
+	for (uint32_t i = 0; i < (uint32_t)vc; i++) {
+		free(vertices[i].edge_array);
 		free(obj_v[i]);
+	}
 	free(obj_v);
 	free(string);
 

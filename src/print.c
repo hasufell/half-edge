@@ -106,7 +106,7 @@ void print_plain_faces(FACES faces, uint32_t fc)
 		uint32_t j = 0;
 		printf("f:");
 		while (faces[i][j]) {
-			printf(" %f", faces[i][j]);
+			printf(" %u", faces[i][j]);
 			j++;
 		}
 		printf("\n");

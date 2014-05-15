@@ -84,7 +84,7 @@
 
 
 typedef double** VERTICES;
-typedef double** FACES;
+typedef uint32_t** FACES;
 typedef double** V_TEXTURES;
 
 typedef struct HE_edge HE_edge;
