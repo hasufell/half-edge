@@ -82,19 +82,16 @@ char *read_file(char const * const filename)
 	if (fd != -1) {
 		/* read and copy chunks */
 		while ((n = read(fd, buf, STD_FILE_BUF)) != 0) {
-			char *tmp_ptr = NULL;
 
 			if (n == -1)
 				ABORT("Failed while reading file descriptor %d\n", fd);
 
 			str_size += n; /* count total bytes read */
 
-			tmp_ptr = (char*) realloc( /* allocate correct size */
+			REALLOC( /* allocate correct size */
 					string, /* pointer to realloc */
 					str_size /* total bytes read */
 					+ 1); /* space for trailing NULL byte */
-			CHECK_PTR_VAL(tmp_ptr);
-			string = tmp_ptr;
 
 			/* append buffer to string */
 			memcpy(string + (str_size - n), buf, (size_t)n);

@@ -24,6 +24,7 @@
  * @brief operations on half-edge data structs
  */
 
+#include "common.h"
 #include "err.h"
 #include "filereader.h"
 #include "half_edge.h"
@@ -75,7 +76,6 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 			 rc = 0; /* realloc count */
 	uint32_t const approx_ec = 20; /* allocation chunk */
 	HE_edge **edge_array;
-	HE_edge **tmp_ptr;
 
 	if (!edge_array_out || !vert || !ec_out)
 		return false;
@@ -94,10 +94,8 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 
 		/* allocate more chunks */
 		if (ec >= approx_ec) {
-			tmp_ptr = realloc(edge_array, sizeof(HE_edge*)
+			REALLOC(edge_array, sizeof(HE_edge*)
 						* approx_ec * (rc + 2));
-			CHECK_PTR_VAL(tmp_ptr);
-			edge_array = tmp_ptr;
 			rc++;
 		}
 
@@ -308,14 +306,11 @@ HE_obj *parse_obj(char const * const obj_string)
 		/* parse vertices and fill them */
 		if (!strcmp(str_tmp_ptr, "v")) {
 			char *myfloat = NULL;
-			HE_vert *tmp_ptr;
 			vector *tmp_vec = malloc(sizeof(vector));
 			CHECK_PTR_VAL(tmp_vec);
 
-			tmp_ptr = (HE_vert*) realloc(vertices,
+			REALLOC(vertices,
 					sizeof(HE_vert) * (vc + 1));
-			CHECK_PTR_VAL(tmp_ptr);
-			vertices = tmp_ptr;
 
 			/* fill x */
 			myfloat = strtok_r(NULL, " ", &str_ptr_space);
@@ -355,24 +350,17 @@ HE_obj *parse_obj(char const * const obj_string)
 		} else if (!strcmp(str_tmp_ptr, "f")) {
 			char *myint = NULL;
 			uint8_t i = 0;
-			FACE tmp_ptr = NULL;
 
-			tmp_ptr = (FACE) realloc(face_v, sizeof(FACE*) * (fc + 1));
-			CHECK_PTR_VAL(tmp_ptr);
-			face_v = tmp_ptr;
+			REALLOC(face_v, sizeof(FACE*) * (fc + 1));
 			face_v[fc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				uint32_t *tmp_ptr = NULL;
-
 				i++;
 				ec++;
 
-				tmp_ptr = (uint32_t*) realloc(face_v[fc],
+				REALLOC(face_v[fc],
 						sizeof(FACE**) * (i + 1));
-				CHECK_PTR_VAL(tmp_ptr);
-				tmp_ptr[i - 1] = (uint32_t) atoi(myint);
-				tmp_ptr[i] = 0; /* so we can iterate over it */
-				face_v[fc] = tmp_ptr;
+				face_v[fc][i - 1] = (uint32_t) atoi(myint);
+				face_v[fc][i] = 0; /* so we can iterate over it */
 			}
 			fc++;
 		}
@@ -404,7 +392,6 @@ HE_obj *parse_obj(char const * const obj_string)
 			 * since we always look one edge back. The first edge
 			 * element is taken care of below as well. */
 			if (j > 0 ) {
-				HE_edge **tmp_ptr = NULL;
 				uint32_t *eac = &(edges[ec].vert->eac);
 
 				/* connect previous edge to current edge */
@@ -412,10 +399,8 @@ HE_obj *parse_obj(char const * const obj_string)
 
 				/* Acceleration struct:
 				 * add previous edge to edge_array of current vertice */
-				tmp_ptr = realloc(edges[ec].vert->edge_array,
+				REALLOC(edges[ec].vert->edge_array,
 						sizeof(HE_edge*) * (*eac + 1));
-				CHECK_PTR_VAL(tmp_ptr);
-				edges[ec].vert->edge_array = tmp_ptr;
 				edges[ec].vert->edge_array[*eac] = &(edges[ec - 1]);
 				(*eac)++;
 
@@ -427,10 +412,8 @@ HE_obj *parse_obj(char const * const obj_string)
 
 					/* Acceleration struct:
 					 * add last edge to edge_array element of first vertice */
-					tmp_ptr = realloc(edges[ec].next->vert->edge_array,
+					REALLOC(edges[ec].next->vert->edge_array,
 							sizeof(HE_edge*) * (*eac + 1));
-					CHECK_PTR_VAL(tmp_ptr);
-					edges[ec].next->vert->edge_array = tmp_ptr;
 					edges[ec].next->vert->edge_array[*eac] = &(edges[ec]);
 					(*eac)++;
 				}

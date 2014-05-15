@@ -35,5 +35,20 @@
  */
 #define STD_FILE_BUF 4096
 
+/**
+ * Realloc macro which checks if reallocation
+ * worked via a temporary pointer.
+ */
+#define REALLOC(ptr, size) \
+{ \
+	void *tmp_ptr = NULL; \
+	tmp_ptr = realloc(ptr, size); \
+	if (tmp_ptr == NULL) { \
+		fprintf(stderr,"NULL Pointer in %s [%d]",__FILE__,__LINE__); \
+		abort(); \
+	} \
+	ptr = tmp_ptr; \
+}
+
 
 #endif /* _DROW_ENGINE_TYPES_H */
