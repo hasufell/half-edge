@@ -65,7 +65,7 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
  * @param edge_array_out address of the 2d edge array to save
  * the result in [out]
  * @param ec_out the edge counter is saved here [out]
- * @return pointer to an array of half-edges, size ec_out
+ * @return true/false for success/failure
  */
 static bool get_all_emanating_edges(HE_vert const * const vert,
 		HE_edge ***edge_array_out,

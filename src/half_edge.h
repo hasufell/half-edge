@@ -132,7 +132,7 @@ struct HE_edge {
 
 /**
  * Represents a vertex with a random attached
- * hald-edge.
+ * half-edge.
  */
 struct HE_vert {
 	/**
