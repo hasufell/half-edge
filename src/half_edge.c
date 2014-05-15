@@ -72,32 +72,23 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 		HE_edge ***edge_array_out,
 		uint32_t *ec_out)
 {
-	uint32_t ec = 0, /* edge count */
-			 rc = 0; /* realloc count */
-	uint32_t const approx_ec = 20; /* allocation chunk */
-	HE_edge **edge_array;
+	uint32_t ec = 0; /* edge count */
+	HE_edge **edge_array = NULL;
 
 	if (!edge_array_out || !vert || !ec_out)
 		return false;
-
-	edge_array = malloc(sizeof(HE_edge*) * approx_ec);
-	CHECK_PTR_VAL(edge_array);
 
 	HE_edge *edge = vert->edge;
 
 	/* build an array of emanating edges */
 	do {
+		REALLOC(edge_array,
+				sizeof(HE_edge*) * (ec + 1));
+
 		edge_array[ec] = edge;
 
 		edge = edge->pair->next;
 		ec++;
-
-		/* allocate more chunks */
-		if (ec >= approx_ec) {
-			REALLOC(edge_array, sizeof(HE_edge*)
-						* approx_ec * (rc + 2));
-			rc++;
-		}
 
 	} while (edge && edge != vert->edge);
 
