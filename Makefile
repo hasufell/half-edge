@@ -14,7 +14,7 @@ doc-pdf: doc
 
 clean:
 	$(MAKE) -C src clean
-	rm -rf drown-engine test
+	rm -rf drown-engine test latex/* html/* vgcore* core
 
 install:
 	$(MAKE) -C install
