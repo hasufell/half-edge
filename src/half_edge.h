@@ -118,6 +118,8 @@ struct HE_edge {
 	HE_vert *vert;
 	/**
 	 * Oppositely oriented adjacent half-edge.
+	 * Border edges have a dummy pair which have "face"
+	 * and "next" set to NULL.
 	 */
 	HE_edge *pair;
 	/**
@@ -143,14 +145,19 @@ struct HE_vert {
 
 	/**
 	 * One of the half-edges emanating from the vertex.
+	 * It is made sure that this is never a border edge,
+	 * unless there are only border edges.
 	 */
 	HE_edge *edge;
 
 	/**
-	 * Acceleration structure which saves all
-	 * edges that point TO this vertex. It is used
+	 * Acceleration structure which saves all potential
+	 * pair edges that point TO this vertex. It is used
 	 * for finding the pairs when assembling
-	 * the HE_edge struct.
+	 * the HE_edge struct. Note that this does not reliably
+	 * save all border edges (which is a non-issue for the
+	 * specific purpose of this struct since border-edges
+	 * don't qualify for pairs anyway).
 	 */
 	HE_edge **edge_array;
 

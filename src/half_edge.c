@@ -99,7 +99,7 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 			rc++;
 		}
 
-	} while (edge != vert->edge);
+	} while (edge && edge != vert->edge);
 
 	/* set out-pointers */
 	*edge_array_out = edge_array;
@@ -370,7 +370,8 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);
-	edges = (HE_edge*) malloc(sizeof(HE_edge) * ec);
+	/* hold enough space for possible dummy edges */
+	edges = (HE_edge*) malloc(sizeof(HE_edge) * ec * 2);
 	CHECK_PTR_VAL(edges);
 
 	ec = 0;
@@ -429,6 +430,7 @@ HE_obj *parse_obj(char const * const obj_string)
 	/* find pairs */
 	for (uint32_t i = 0; i < ec; i++) { /* for all edges */
 		uint32_t eac = edges[i].vert->eac;
+		bool pair_found = false;
 
 		for (uint32_t j = 0; j < eac; j++) { /* for all potential pairs */
 			if (edges[i].vert->edge_array[j] &&
@@ -436,10 +438,35 @@ HE_obj *parse_obj(char const * const obj_string)
 					 edges[i].vert->edge_array[j]->vert)) {
 				edges[i].pair = edges[i].vert->edge_array[j];
 				edges[i].vert->edge_array[j] = NULL;
+
+				/* this is a trick to make sure the
+				 * edge member of HE_vert is never
+				 * a border-edge (unless there are only
+				 * border edges), otherwise
+				 * get_all_emanating_edges() would break
+				 * for vertices that are at the edge
+				 * of an open object */
+				edges[i].vert->edge = &(edges[i]);
+
+				pair_found = true;
 				break;
 			}
 		}
+
+		if (!pair_found) { /* we have a border edge */
+			/* add dummy edge, so get_all_emanating_edges()
+			 * does not break */
+			edges[ec + i].face = NULL;
+			edges[ec + i].next = NULL;
+			edges[ec + i].pair = &(edges[i]);
+			edges[ec + i].vert = edges[i].next->vert;
+			edges[i].pair = &(edges[ec + i]);
+		}
 	}
+
+	/* don't need the edge array anymore */
+	for (uint32_t i = 0; i < vc; i++)
+		free(vertices[i].edge_array);
 
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
 	CHECK_PTR_VAL(obj);
@@ -472,7 +499,6 @@ void delete_object(HE_obj *obj)
 	for (uint32_t i = 0; i < obj->vc; i++) {
 		free(obj->vertices[i].vec);
 		free(obj->vertices[i].col);
-		free(obj->vertices[i].edge_array);
 	}
 	free(obj->edges);
 	free(obj->vertices);
