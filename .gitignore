@@ -19,3 +19,4 @@ latex/
 core
 .cproject#
 vgcore*
+*.plist
