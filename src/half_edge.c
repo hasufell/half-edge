@@ -344,7 +344,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			/* exceeds 3 dimensions, malformed vertice */
 			if (strtok_r(NULL, " ", &str_ptr_space))
 				ABORT("Failure in parse_obj(),\n"
-						"malformed vertice, exceeds 2 dimensions!\n");
+						"malformed vertice, exceeds 3 dimensions!\n");
 
 		/* parse plain faces and fill them (not HE_face!) */
 		} else if (!strcmp(str_tmp_ptr, "f")) {
