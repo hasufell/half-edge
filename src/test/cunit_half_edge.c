@@ -469,10 +469,63 @@ void test_parse_obj5(void)
 		while(next_edge != start_edge) {
 			CU_ASSERT_PTR_NOT_NULL(next_edge);
 			CU_ASSERT_PTR_NOT_NULL(next_edge->pair->pair);
+			/* check if edges have all the same face */
 			CU_ASSERT_EQUAL(next_edge->face, &(obj->faces[i]));
+			/* check if pairs are consistently set */
 			CU_ASSERT_EQUAL(next_edge->pair->pair, next_edge);
+			CU_ASSERT_NOT_EQUAL(next_edge->pair, next_edge);
+			/* check if vertices are consistent with edges */
+			CU_ASSERT_PTR_NOT_NULL(next_edge->vert->edge);
+			CU_ASSERT_EQUAL(next_edge->vert->edge->vert, next_edge->vert);
 			next_edge = next_edge->next;
 		}
+	}
+}
+
+/**
+ * Test the whole object for consistency by walking
+ * through all vertices and checking them for consistency.
+ */
+void test_parse_obj6(void)
+{
+	char const * const string = ""
+		"v 9.0 10.0 11.0\n"
+		"v 11.0 10.0 11.0\n"
+		"v 9.0 11.0 11.0\n"
+		"v 11.0 11.0 11.0\n"
+		"v 9.0 11.0 9.0\n"
+		"v 11.0 11.0 9.0\n"
+		"v 9.0 10.0 9.0\n"
+		"v 11.0 10.0 9.0\n"
+		"f 1 2 4 3\n"
+		"f 3 4 6 5\n"
+		"f 5 6 8 7\n"
+		"f 7 8 2 1\n"
+		"f 2 8 6 4\n"
+		"f 7 1 3 5\n";
+
+	HE_obj *obj = parse_obj(string);
+
+	CU_ASSERT_PTR_NOT_NULL(obj);
+
+
+	for (uint32_t i = 0; i < obj->vc; i++) {
+		HE_edge *edge = obj->vertices[i].edge;
+
+		do {
+			/* check if pairs are consistently set */
+			CU_ASSERT_EQUAL(edge->pair->pair, edge);
+			CU_ASSERT_NOT_EQUAL(edge->pair, edge);
+			/* check if neighbor vertex is consistently connected
+			 * to half-edge */
+			CU_ASSERT_NOT_EQUAL(edge->pair->vert, edge->vert);
+			CU_ASSERT_PTR_NOT_NULL(edge->pair->vert->edge);
+			CU_ASSERT_EQUAL(edge->pair->next->vert, edge->vert);
+			CU_ASSERT_EQUAL(edge->vert->edge->vert, edge->vert);
+
+			edge = edge->pair->next;
+
+		} while (edge && edge != obj->vertices[i].edge);
 	}
 }
 
