@@ -34,131 +34,114 @@
 #include <string.h>
 
 
-static int32_t get_row_count(int32_t const **array);
-static int32_t get_face_count(FACES const faces);
-static int32_t get_edge_count(FACES const faces);
-static double **parse_2d_array(char const * const obj_string,
-		char *item);
-static FACES parse_face_array(char const * const obj_string);
+static bool assemble_obj_arrays(char const * const obj_string,
+		VERTICES *obj_v_out,
+		FACES *obj_f_out,
+		uint32_t *vc_out,
+		uint32_t *fc_out,
+		uint32_t *ec_out);
 static void assemble_HE_stage1(VERTICES obj_v,
 		HE_vert *vertices,
-		int32_t *vc);
+		uint32_t *vc);
 static void assemble_HE_stage2(FACES obj_f,
 		HE_vert *vertices,
 		HE_face *faces,
 		HE_edge *edges,
-		int32_t *fc,
-		int32_t *ec);
+		uint32_t *fc,
+		uint32_t *ec);
 static void assemble_HE_stage3(HE_edge *edges,
-		int32_t *ec,
-		int32_t *dec);
+		uint32_t *ec,
+		uint32_t *dec);
 
 
 /**
- * Get the row count of the 2d array.
- *
- * @param array the 2 dimensional array
- * @return the row count
- */
-static int32_t get_row_count(int32_t const **array)
-{
-	uint32_t rc = 0;
-
-	if (!array)
-		return -1;
-
-	while (array[rc])
-		rc++;
-
-	return rc;
-
-}
-
-/**
- * Get the amount of faces as they are in the
- * .obj file.
- *
- * @param faces the faces array
- * @return the count of faces, -1 on failure
- */
-static int32_t get_face_count(FACES const faces)
-{
-	if (!faces)
-		return 0;
-
-	return get_row_count((int32_t const**)faces);
-}
-
-/**
- * Get the amount of edges.
- *
- * @param faces the faces array which will be used
- * to calculate the amount of edges
- * @return the count of edges, -1 on failure
- */
-static int32_t get_edge_count(FACES const faces)
-{
-	uint32_t ec = 0;
-	uint32_t fc;
-
-	if (!faces)
-		return -1;
-
-	fc = get_face_count(faces);
-
-	for (uint32_t i = 0; i < fc; i++)
-		ec += faces[i][0];
-
-	return ec;
-}
-
-/**
- * Parse a string which supposedly is a 2-dimensional
- * array in the .obj file, describing all faces, all vertices
- * and such. The parsing depends on the item string, such as "f"
- * or "v".
+ * Parse the obj_string for obj related arrays such as
+ * "f 1 4 3 2" or "v 0.3 0.2 -1.2" and fill the related
+ * raw obj_* structures which are not yet HE_* structures.
+ * This function is a blob to take advantage of subsequent
+ * strtok_r calls which allow us to parse the whole string only
+ * once.
  *
  * @param obj_string the string that is in obj format
- * @param item the item to look for, such as "f" or "v"
- * @return a newly allocated 2-dimensional array, NULL on failure
+ * @param obj_v_out where to save the vertices, the rear
+ * dimension will always have 3 elements for x,y,z [out]
+ * @param obj_f_out where to save the faces, the rear dimension
+ * will be terminated with a "0" [out]
  */
-static double **parse_2d_array(char const * const obj_string,
-		char *item)
+static bool assemble_obj_arrays(char const * const obj_string,
+		VERTICES *obj_v_out,
+		FACES *obj_f_out,
+		uint32_t *vc_out,
+		uint32_t *fc_out,
+		uint32_t *ec_out)
 {
-	uint32_t lc = 0;
+	uint32_t vc = 0,
+			 fc = 0,
+			 ec = 0;
 	char *string,
 		 *str_ptr_space = NULL, /* for strtok */
 		 *str_ptr_newline = NULL, /* for strtok */
 		 *str_tmp_ptr = NULL; /* for strtok */
-	double **arr = NULL;
+	VERTICES obj_v = NULL;
+	FACES obj_f = NULL;
 
-	if (!obj_string || !item)
-		return NULL;
+	if (!obj_string || !obj_v_out || !obj_f_out)
+		return false;
 
+	/* avoid side effects */
 	string = malloc(sizeof(char) * strlen(obj_string) + 1);
 	strcpy(string, obj_string);
 
+	/* start parsing the string line by line */
 	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
+
 	while (str_tmp_ptr && *str_tmp_ptr) {
 
+		/* parse word by word */
 		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
 
-		if (!strcmp(str_tmp_ptr, item)) {
+		/*
+		 * VERTICES
+		 */
+		if (!strcmp(str_tmp_ptr, "v")) {
 			char *myint = NULL;
-			uint8_t i = 1;
+			uint8_t i = 0;
 
-			REALLOC(arr, sizeof(double*) * (lc + 2));
-			arr[lc] = NULL;
+			REALLOC(obj_v, sizeof(*obj_v) * (vc + 2));
+			obj_v[vc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
 				i++;
 
-				REALLOC(arr[lc],
-						sizeof(double**) * (i + 1));
-				arr[lc][i - 1] = atof(myint);
+				REALLOC(obj_v[vc],
+						sizeof(**obj_v) * (i + 1));
+				obj_v[vc][i - 1] = atof(myint);
+
+				if (i > 3)
+					ABORT("Malformed vertice exceeds 3 dimensions!\n");
 			}
-			arr[lc][0] = i - 1; /* save length at first position */
-			lc++;
-			arr[lc] = NULL; /* trailing NULL pointer */
+			vc++;
+			obj_v[vc] = NULL; /* trailing NULL pointer */
+
+		/*
+		 * FACES
+		 */
+		} else if (!strcmp(str_tmp_ptr, "f")) {
+			char *myint = NULL;
+			uint8_t i = 0;
+
+			REALLOC(obj_f, sizeof(*obj_f) * (fc + 2));
+			obj_f[fc] = NULL;
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				i++;
+				ec++;
+
+				REALLOC(obj_f[fc],
+						sizeof(**obj_f) * (i + 1));
+				obj_f[fc][i - 1] = atoi(myint);
+				obj_f[fc][i] = 0; /* so we can iterate over it more easily */
+			}
+			fc++;
+			obj_f[fc] = NULL; /* trailing NULL pointer */
 		}
 
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
@@ -166,61 +149,13 @@ static double **parse_2d_array(char const * const obj_string,
 
 	free(string);
 
-	return arr;
-}
+	*obj_v_out = obj_v;
+	*obj_f_out = obj_f;
+	*vc_out = vc;
+	*fc_out = fc;
+	*ec_out = ec;
 
-/**
- * Parses the face arrays. Since these contain slashes, such as
- * "f 1/4/3 8/4/4 9/8/3" we cannot use parse_2d_array() since
- * we need extra logic.
- *
- * @param obj_string the string that is in obj format
- * @return a newly allocated FACES array, NULL on failure
- */
-static FACES parse_face_array(char const * const obj_string)
-{
-	uint32_t lc = 0;
-	char *string,
-		 *str_ptr_space = NULL, /* for strtok */
-		 *str_ptr_newline = NULL, /* for strtok */
-		 *str_tmp_ptr = NULL; /* for strtok */
-	FACES arr = NULL;
-
-	if (!obj_string)
-		return NULL;
-
-	string = malloc(sizeof(char) * strlen(obj_string) + 1);
-	strcpy(string, obj_string);
-
-	str_tmp_ptr = strtok_r(string, "\n", &str_ptr_newline);
-	while (str_tmp_ptr && *str_tmp_ptr) {
-
-		str_tmp_ptr = strtok_r(str_tmp_ptr, " ", &str_ptr_space);
-
-		if (!strcmp(str_tmp_ptr, "f")) {
-			char *myint = NULL;
-			uint8_t i = 1;
-
-			REALLOC(arr, sizeof(uint32_t*) * (lc + 2));
-			arr[lc] = NULL;
-			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				i++;
-
-				REALLOC(arr[lc],
-						sizeof(uint32_t**) * (i + 1));
-				arr[lc][i - 1] = atoi(myint);
-			}
-			arr[lc][0] = i - 1; /* save length at first position */
-			lc++;
-			arr[lc] = NULL; /* trailing NULL pointer */
-		}
-
-		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
-	}
-
-	free(string);
-
-	return arr;
+	return true;
 }
 
 /**
@@ -238,21 +173,17 @@ static FACES parse_face_array(char const * const obj_string)
  */
 static void assemble_HE_stage1(VERTICES obj_v,
 		HE_vert *vertices,
-		int32_t *vc)
+		uint32_t *vc)
 {
-	uint8_t const xpos = 1;
-	uint8_t	const ypos = 2;
-	uint8_t	const zpos = 3;
+	uint8_t const xpos = 0;
+	uint8_t	const ypos = 1;
+	uint8_t	const zpos = 2;
 	int8_t const default_col = -1;
 
 	*vc = 0;
 
 	while (obj_v[*vc]) {
 		vector *tmp_vec;
-
-		if (obj_v[*vc][0] > 3)
-			ABORT("Failure in parse_obj(),\n"
-					"malformed vertice, exceeds 3 dimensions!\n");
 
 		tmp_vec = malloc(sizeof(vector));
 		CHECK_PTR_VAL(tmp_vec);
@@ -299,18 +230,17 @@ static void assemble_HE_stage2(FACES obj_f,
 		HE_vert *vertices,
 		HE_face *faces,
 		HE_edge *edges,
-		int32_t *fc,
-		int32_t *ec)
+		uint32_t *fc,
+		uint32_t *ec)
 {
 	*ec = 0;
 	/* create HE_edges and real HE_faces */
 	for (uint32_t i = 0; i < (uint32_t)(*fc); i++) { /* for all faces */
-
+		uint32_t j = 0;
 		/* for all vertices of the face */
-		for (uint32_t j = 0; j < (uint32_t)obj_f[i][0]; j++) {
-			uint32_t obj_f_pos = j + 1; /* first pos is reserved for length */
+		while (obj_f[i][j]) {
 			uint32_t fv_arr_id =
-				obj_f[i][obj_f_pos] - 1; /* fv_id starts at 1 */
+				obj_f[i][j] - 1; /* fv_id starts at 1 */
 
 			edges[*ec].vert = &(vertices[fv_arr_id]);
 			edges[*ec].face = &(faces[i]);
@@ -334,7 +264,7 @@ static void assemble_HE_stage2(FACES obj_f,
 				edges[*ec].vert->edge_array[*eac] = &(edges[*ec - 1]);
 				(*eac)++;
 
-				if (obj_f_pos == (uint32_t)obj_f[i][0]) { /* no vertice left */
+				if (!obj_f[i][j + 1]) { /* no vertice left */
 					uint32_t *eac;
 					/* connect last edge to first edge */
 					edges[*ec].next = &(edges[*ec - j]);
@@ -350,6 +280,7 @@ static void assemble_HE_stage2(FACES obj_f,
 			}
 
 			(*ec)++;
+			j++;
 		}
 
 		faces[i].edge = &(edges[*ec - 1]); /* "last" edge */
@@ -367,8 +298,8 @@ static void assemble_HE_stage2(FACES obj_f,
  * @param dec the dummy edges count
  */
 static void assemble_HE_stage3(HE_edge *edges,
-		int32_t *ec,
-		int32_t *dec)
+		uint32_t *ec,
+		uint32_t *dec)
 {
 	/* find pairs */
 	for (uint32_t i = 0; i < (uint32_t)(*ec); i++) { /* for all edges */
@@ -435,11 +366,12 @@ static void assemble_HE_stage3(HE_edge *edges,
  */
 HE_obj *parse_obj(char const * const obj_string)
 {
-	int32_t vc = 0, /* vertices count */
+	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0, /* edge count */
 			 dec = 0; /* dummy edge count */
-	char *string = NULL;
+	char *string = NULL,
+		 *str_ptr;
 	HE_vert *vertices = NULL;
 	HE_edge *edges = NULL;
 	HE_face *faces = NULL;
@@ -453,18 +385,19 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	string = malloc(sizeof(char) * strlen(obj_string) + 1);
 	strcpy(string, obj_string);
+	str_ptr = string;
 
-	obj_v = parse_2d_array(string, "v");
-	/* obj_vt = parse_2d_array(obj_string, "vt"); */
-	obj_f = parse_face_array(string);
+	if (!assemble_obj_arrays(string, &obj_v, &obj_f, &vc, &fc, &ec))
+		return NULL;
 
-	if ((ec = get_edge_count(obj_f)) == -1)
-		ABORT("Invalid edge count!\n");
-	if ((fc = get_face_count(obj_f)) == -1)
-		ABORT("Invalid face count!\n");
+
+	/* if ((ec = get_edge_count(obj_f)) == -1) */
+		/* ABORT("Invalid edge count!\n"); */
+	/* if ((fc = get_face_count(obj_f)) == -1) */
+		/* ABORT("Invalid face count!\n"); */
 
 	vertices = malloc(sizeof(HE_vert) *
-			get_row_count((int32_t const**)obj_v) + 1);
+			(vc + 1));
 	CHECK_PTR_VAL(vertices);
 	faces = (HE_face*) malloc(sizeof(HE_face) * fc);
 	CHECK_PTR_VAL(faces);
