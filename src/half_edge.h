@@ -18,10 +18,11 @@
 
 /**
  * @file half_edge.h
- * Header for the external API of half_edge.c,
+ * Header for the external API of half_edge.c
+ * and half_edge_AS.c,
  * primarily holding the common half-edge data
  * structures.
- * @brief header of half_edge.c
+ * @brief header of half_edge related functions
  */
 
 #ifndef _DROW_ENGINE_HE_OPERATIONS_H
