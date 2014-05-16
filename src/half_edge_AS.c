@@ -17,10 +17,10 @@
  */
 
 /**
- * @file half_edge.c
+ * @file half_edge_AS.c
  * This files only purpose is to assemble the half-edge
  * data structure from an obj string.
- * @brief half-edge assembler
+ * @brief Half-edge assembler
  */
 
 #include "common.h"
