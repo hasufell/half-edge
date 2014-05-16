@@ -469,14 +469,19 @@ void test_parse_obj5(void)
 		while(next_edge != start_edge) {
 			CU_ASSERT_PTR_NOT_NULL(next_edge);
 			CU_ASSERT_PTR_NOT_NULL(next_edge->pair->pair);
-			/* check if edges have all the same face */
-			CU_ASSERT_EQUAL(next_edge->face, &(obj->faces[i]));
+
 			/* check if pairs are consistently set */
 			CU_ASSERT_EQUAL(next_edge->pair->pair, next_edge);
 			CU_ASSERT_NOT_EQUAL(next_edge->pair, next_edge);
+
 			/* check if vertices are consistent with edges */
 			CU_ASSERT_PTR_NOT_NULL(next_edge->vert->edge);
 			CU_ASSERT_EQUAL(next_edge->vert->edge->vert, next_edge->vert);
+			CU_ASSERT_EQUAL(next_edge->vert, next_edge->pair->next->vert);
+
+			/* check if edges have all the same face */
+			CU_ASSERT_EQUAL(next_edge->face, &(obj->faces[i]));
+
 			next_edge = next_edge->next;
 		}
 	}
@@ -516,12 +521,13 @@ void test_parse_obj6(void)
 			/* check if pairs are consistently set */
 			CU_ASSERT_EQUAL(edge->pair->pair, edge);
 			CU_ASSERT_NOT_EQUAL(edge->pair, edge);
+
 			/* check if neighbor vertex is consistently connected
 			 * to half-edge */
 			CU_ASSERT_NOT_EQUAL(edge->pair->vert, edge->vert);
 			CU_ASSERT_PTR_NOT_NULL(edge->pair->vert->edge);
-			CU_ASSERT_EQUAL(edge->pair->next->vert, edge->vert);
 			CU_ASSERT_EQUAL(edge->vert->edge->vert, edge->vert);
+			CU_ASSERT_EQUAL(edge->pair->next->vert, edge->vert);
 
 			edge = edge->pair->next;
 
