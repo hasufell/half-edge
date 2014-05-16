@@ -482,7 +482,6 @@ void animate()
 		day = 0;
 	}
 
-	usleep(30000); /* some very basic VScny to see the movement better */
 	glutPostRedisplay();
 }
 
