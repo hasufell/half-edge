@@ -155,8 +155,10 @@ bool vec_normal(HE_vert const * const vert, vector *vec)
 	for (uint32_t i = 0; i < ec; i++) {
 		vector new_vec;
 
-		FACE_NORMAL(edge_array[i], &new_vec);
-		ADD_VECTORS(vec, &new_vec, vec);
+		if (edge_array[i]->face) {
+			FACE_NORMAL(edge_array[i], &new_vec);
+			ADD_VECTORS(vec, &new_vec, vec);
+		}
 	}
 
 	/* normalize the result */
@@ -272,7 +274,8 @@ HE_obj *parse_obj(char const * const obj_string)
 {
 	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
-			 ec = 0; /* edge count */
+			 ec = 0, /* edge count */
+			 dec = 0; /* dummy edge count */
 	char *string,
 		 *str_ptr_space = NULL, /* for strtok */
 		 *str_ptr_newline = NULL, /* for strtok */
@@ -324,6 +327,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			vertices[vc].edge = NULL;
 			vertices[vc].edge_array = NULL;
 			vertices[vc].eac = 0;
+			vertices[vc].dc = 0;
 
 			/* allocate color struct and set preliminary colors */
 			vertices[vc].col = malloc(sizeof(color));
@@ -379,6 +383,7 @@ HE_obj *parse_obj(char const * const obj_string)
 			edges[ec].face = &(faces[i]);
 			edges[ec].pair = NULL; /* preliminary */
 			vertices[fv_arr_id].edge = &(edges[ec]); /* last one wins */
+			vertices[fv_arr_id].dummys = NULL; /* preliminary */
 
 			/* Skip j == 0 here, so we don't underrun the arrays,
 			 * since we always look one edge back. The first edge
@@ -430,34 +435,48 @@ HE_obj *parse_obj(char const * const obj_string)
 				edges[i].pair = edges[i].vert->edge_array[j];
 				edges[i].vert->edge_array[j] = NULL;
 
-				/* this is a trick to make sure the
-				 * edge member of HE_vert is never
-				 * a border-edge (unless there are only
-				 * border edges), otherwise
-				 * get_all_emanating_edges() would break
-				 * for vertices that are at the edge
-				 * of an open object */
-				edges[i].vert->edge = &(edges[i]);
-
 				pair_found = true;
 				break;
 			}
 		}
 
-		if (!pair_found) { /* we have a border edge */
-			/* add dummy edge, so get_all_emanating_edges()
-			 * does not break */
-			edges[ec + i].face = NULL;
-			edges[ec + i].next = NULL;
-			edges[ec + i].pair = &(edges[i]);
-			edges[ec + i].vert = edges[i].next->vert;
-			edges[i].pair = &(edges[ec + i]);
+		/* create dummy pair edge if we have a border edge */
+		if (!pair_found) {
+			uint32_t *vert_dc = &(edges[i].next->vert->dc);
+
+			REALLOC(edges[i].next->vert->dummys,
+					sizeof(HE_edge*) * (*vert_dc + 1));
+
+			/* NULL-face indicates border-edge */
+			edges[ec + dec].face = NULL;
+			/* we don't know this one yet */
+			edges[ec + dec].next = NULL;
+			/* set both pairs */
+			edges[ec + dec].pair = &(edges[i]);
+			edges[i].pair = &(edges[ec + dec]);
+			/* set vertex */
+			edges[ec + dec].vert = edges[i].next->vert;
+			/* add the dummy edge to the dummys array of the vertex */
+			edges[ec + dec].vert->dummys[*vert_dc] = &(edges[ec + dec]);
+			(*vert_dc)++;
+
+			dec++;
 		}
 	}
 
-	/* don't need the edge array anymore */
-	for (uint32_t i = 0; i < vc; i++)
-		free(vertices[i].edge_array);
+	/* now we have to connect the dummy edges together */
+	for (uint32_t i = 0; i < dec; i++) { /* for all dummy edges */
+		/* vertex the dummy edge points to */
+		HE_vert *vert = edges[ec + i].pair->vert;
+
+		/* iterate over the dummy array */
+		for (uint32_t j = 0; j < vert->dc; j++) {
+			if (vert == vert->dummys[j]->vert)
+				edges[ec + i].next = vert->dummys[j];
+			j++;
+		}
+	}
+
 
 	obj = (HE_obj*) malloc(sizeof(HE_obj));
 	CHECK_PTR_VAL(obj);
@@ -469,10 +488,14 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->vc = vc;
 	obj->fc = fc;
 
-	free(string);
 	for (uint32_t i = 0; i < fc; i++)
 		free(face_v[i]);
 	free(face_v);
+	for (uint32_t i = 0; i < vc; i++) {
+		free(vertices[i].dummys);
+		free(vertices[i].edge_array);
+	}
+	free(string);
 
 	return obj;
 }

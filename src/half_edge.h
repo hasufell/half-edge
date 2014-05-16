@@ -150,9 +150,21 @@ struct HE_vert {
 	HE_edge **edge_array;
 
 	/**
+	 * Similar as the edge_array acceleration structure,
+	 * except that it is used for connecting the
+	 * dummy edges.
+	 */
+	HE_edge **dummys;
+
+	/**
 	 * Element count of the edge_array.
 	 */
 	uint32_t eac;
+
+	/**
+	 * Element count of dummys.
+	 */
+	uint32_t dc;
 
 	/**
 	 * Color of the vertex.
