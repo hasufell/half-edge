@@ -93,7 +93,7 @@ void print_faces(HE_obj *obj)
  * Print all plain unconverted faces
  * as they are saved in the .obj file.
  *
- * @param face the plain face struct
+ * @param faces the plain faces
  * @param fc the count of faces
  */
 void print_plain_faces(FACES faces, uint32_t fc)
