@@ -157,7 +157,6 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			REALLOC(obj_f_v, sizeof(*obj_f_v) * (fc + 2));
 			obj_f_v[fc] = NULL;
 
-			/* TODO: deallocate if we don't have vertex textures */
 			REALLOC(obj_f_vt, sizeof(*obj_f_vt) * (fc + 2));
 			obj_f_vt[fc] = NULL;
 
@@ -165,6 +164,8 @@ static bool assemble_obj_arrays(char const * const obj_string,
 				/* is there a slash? */
 				if ((myint_vt = strtok_r(myint_v, "/", &str_ptr_slash)))
 					myint_v = myint_vt;
+				else
+					free(obj_f_vt); /* seems there is no vt, free the array */
 
 				i++;
 				ec++;
