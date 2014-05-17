@@ -60,6 +60,9 @@ static void delete_raw_object(obj_items *raw_obj,
  * strtok_r calls which allow us to parse the whole string only
  * once.
  *
+ * NOTE: This function can be buggy for trailing whitespaces on
+ * the end of lines or dos line endings.
+ *
  * @param obj_string the string that is in obj format
  * @param raw_obj contains arrays of the items as they are in the .obj
  * file; members v, f and vt are set [out]

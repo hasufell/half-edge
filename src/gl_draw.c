@@ -498,25 +498,45 @@ void animate()
  * Keyboard callback function,
  *
  * press t to increase the day
+ *
  * press T to decrease the day
+ *
  * press j to increase the year
+ *
  * press J to decrease the year
+ *
  * press b to toggle GL_CULL_FACE
+ *
  * press D to toggle disco mode
+ *
  * press S to toggle shade model between GL_SMOOTH and GL_FLAT
+ *
  * press n to toggle normals
+ *
  * press k to increase length of normals
+ *
  * press l to decrease length of normals
+ *
  * press x to rotate the middle object in x direction
+ *
  * press X to rotate the middle object in -x direction
+ *
  * press y to rotate the middle object in y direction
+ *
  * press Y to rotate the middle object in -y direction
+ *
  * press c to rotate the middle object in z direction
+ *
  * press C to rotate the middle object in -z direction
+ *
  * press w to translate the whole scene in y direction
+ *
  * press s to translate the whole scene in -y direction
+ *
  * press a to translate the whole scene in -x direction
+ *
  * press d to translate the whole scene in x direction
+ *
  * press q to quit
  *
  * @param key which was pressed
