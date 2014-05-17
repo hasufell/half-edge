@@ -10,14 +10,14 @@ check: test
 	./test
 
 doc:
-	doxygen
+	cd doxygen && doxygen
 
 doc-pdf: doc
-	$(MAKE) -C latex pdf
+	$(MAKE) -C doxygen/latex pdf
 
 clean:
 	$(MAKE) -C src clean
-	rm -rf drow-engine test latex/* html/* vgcore* core
+	rm -rf drow-engine test doxygen/latex/* doxygen/html/* vgcore* core
 
 install:
 	$(MAKE) -C install
