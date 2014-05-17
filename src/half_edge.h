@@ -84,21 +84,63 @@
 }
 
 
+typedef struct obj_items obj_items;
+/**
+ * 2d array which can hold the vertices
+ * as they are in the .obj file,
+ */
 typedef double** VERTICES;
 typedef struct FACES FACES;
+/**
+ * 2d array which can hold the vertices texture
+ * coordinates as they are in the .obj file,
+ */
 typedef double** V_TEXTURES;
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
+typedef struct HE_vert_acc HE_vert_acc;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 typedef struct color color;
 
 
-struct FACES {
-	uint32_t **v;
-	uint32_t **vt;
+/**
+ * This will hold all supported items,
+ * such as "v" (for vertice), "f" (for face)
+ * or "vt" (for vertex texture) as they are
+ * in the .obj file, not converted to anything.
+ */
+struct obj_items {
+	/**
+	 * Raw vertices array.
+	 */
+	VERTICES v;
+	/**
+	 * Raw faces array.
+	 */
+	FACES *f;
+	/**
+	 * Raw texture coordinates array.
+	 */
+	V_TEXTURES vt;
 };
 
+/**
+ * Represents the raw faces as they are in the .obj
+ * file with their references to vertices etc.
+ */
+struct FACES {
+	/**
+	 * References to the vertices which
+	 * will form the face.
+	 */
+	uint32_t **v;
+	/**
+	 * Reference to the texture coordinates
+	 * which will form the polygon texture.
+	 */
+	uint32_t **vt;
+};
 
 /**
  * Represents a half-edge.
@@ -134,14 +176,24 @@ struct HE_vert {
 	 * to the coordinates of the vertex.
 	 */
 	vector *vec;
-
 	/**
 	 * One of the half-edges emanating from the vertex.
 	 * It is made sure that this is never a border edge,
 	 * unless there are only border edges.
 	 */
 	HE_edge *edge;
+	/**
+	 * Color of the vertex.
+	 */
+	color *col;
+	/**
+	 * The acceleration structure, used to speed up
+	 * assembling the half-edge structures.
+	 */
+	HE_vert_acc *acc;
+};
 
+struct HE_vert_acc {
 	/**
 	 * Acceleration structure which saves all potential
 	 * pair edges that point TO this vertex. It is used
@@ -152,28 +204,20 @@ struct HE_vert {
 	 * don't qualify for pairs anyway).
 	 */
 	HE_edge **edge_array;
-
 	/**
 	 * Similar as the edge_array acceleration structure,
 	 * except that it is used for connecting the
 	 * dummy edges.
 	 */
 	HE_edge **dummys;
-
 	/**
 	 * Element count of the edge_array.
 	 */
 	uint32_t eac;
-
 	/**
 	 * Element count of dummys.
 	 */
 	uint32_t dc;
-
-	/**
-	 * Color of the vertex.
-	 */
-	color *col;
 };
 
 /**
@@ -216,6 +260,14 @@ struct HE_obj {
 	 * Count of faces.
 	 */
 	uint32_t fc;
+	/**
+	 * Count of the vertex texture coordinates.
+	 */
+	uint32_t vtc;
+	/**
+	 * Count of dummy edges.
+	 */
+	uint32_t dec;
 };
 
 /**
