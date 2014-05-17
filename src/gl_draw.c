@@ -78,6 +78,12 @@ static void draw_vertices(HE_obj const * const obj,
 static float calculateFPS();
 
 
+/**
+ * Draws the vertex normals of the object.
+ *
+ * @param obj the object to draw the vertex normals of
+ * @param scale_inc the incrementor for scaling the normals
+ */
 static void draw_normals(HE_obj const * const obj,
 		float const scale_inc)
 {
@@ -109,8 +115,8 @@ static void draw_normals(HE_obj const * const obj,
 }
 
 /**
- * Call glVertex3f on all of the vertices of the object,
- * in appropriate order.
+ * Draws all vertices of the object by
+ * assembling a polygon for each face.
  *
  * @param obj the object of which we will draw the vertices
  * @param disco_set determines whether we are in disco mode
