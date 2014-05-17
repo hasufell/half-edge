@@ -100,7 +100,10 @@ static void draw_normals(HE_obj const * const obj,
 
 	glBegin(GL_LINES);
 	for (uint32_t i = 0; i < obj->vc; i++) {
-		VEC_NORMAL(&(obj->vertices[i]), &vec);
+		/* be fault tolerant here, so we don't just
+		 * kill the whole thing, because the normals failed to draw */
+		if (!vec_normal(&(obj->vertices[i]), &vec))
+			break;
 
 		glVertex3f(obj->vertices[i].vec->x,
 				obj->vertices[i].vec->y,
@@ -108,7 +111,6 @@ static void draw_normals(HE_obj const * const obj,
 		glVertex3f(obj->vertices[i].vec->x + (vec.x * normals_scale_factor),
 				obj->vertices[i].vec->y + (vec.y * normals_scale_factor),
 				obj->vertices[i].vec->z + (vec.z * normals_scale_factor));
-
 	}
 	glEnd();
 	glPopMatrix();

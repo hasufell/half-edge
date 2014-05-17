@@ -72,6 +72,7 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 		uint32_t *ec_out)
 {
 	uint32_t ec = 0; /* edge count */
+	uint32_t max_edges = 500; /* good guess to avoid infinite loop */
 	HE_edge **edge_array = NULL;
 
 	if (!edge_array_out || !vert || !ec_out)
@@ -89,6 +90,9 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 		edge = edge->pair->next;
 		ec++;
 
+		/* sanity check */
+		if (ec > max_edges)
+			goto loop_fail_cleanup;
 	} while (edge && edge != vert->edge);
 
 	/* set out-pointers */
@@ -96,6 +100,10 @@ static bool get_all_emanating_edges(HE_vert const * const vert,
 	*ec_out = ec; /* this is the real size, not the x[ec] value */
 
 	return true;
+
+loop_fail_cleanup:
+	free(edge_array);
+	return false;
 }
 
 
@@ -146,7 +154,11 @@ bool vec_normal(HE_vert const * const vert, vector *vec)
 	if (!vert || !vec)
 		return false;
 
-	GET_ALL_EMANATING_EDGES(vert, &edge_array, &ec);
+	/* fault tolerance if we didn't get any
+	 * normal */
+	if (!get_all_emanating_edges(vert, &edge_array, &ec))
+		return false;
+
 	COPY_VECTOR(edge_array[0]->vert->vec, &he_base);
 	SET_NULL_VECTOR(vec); /* set to null for later summation */
 
