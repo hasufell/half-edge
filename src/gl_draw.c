@@ -81,7 +81,7 @@ static float calculateFPS();
 static void draw_normals(HE_obj const * const obj,
 		float const scale_inc)
 {
-	static float normals_scale_factor = 0.3f;
+	static float normals_scale_factor = 0.1f;
 	static float line_width = 2;
 	vector vec;
 
@@ -572,11 +572,11 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'k':
-		draw_normals(obj, 0.02f);
+		draw_normals(obj, 0.01f);
 		glutPostRedisplay();
 		break;
 	case 'l':
-		draw_normals(obj, -0.02f);
+		draw_normals(obj, -0.01f);
 		glutPostRedisplay();
 		break;
 	case 'w':
