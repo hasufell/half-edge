@@ -157,7 +157,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			REALLOC(obj_f_v, sizeof(*obj_f_v) * (fc + 2));
 			obj_f_v[fc] = NULL;
 
-			/* deallocate if we don't have vertex textures */
+			/* TODO: deallocate if we don't have vertex textures */
 			REALLOC(obj_f_vt, sizeof(*obj_f_vt) * (fc + 2));
 			obj_f_vt[fc] = NULL;
 
