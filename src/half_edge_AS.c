@@ -303,7 +303,7 @@ static void assemble_HE_stage2(FACES *obj_f,
 {
 	*ec = 0;
 	/* create HE_edges and real HE_faces */
-	for (uint32_t i = 0; i < (uint32_t)(*fc); i++) { /* for all faces */
+	for (uint32_t i = 0; i < *fc; i++) { /* for all faces */
 		uint32_t j = 0;
 		/* for all vertices of the face */
 		while (obj_f->v[i][j]) {
@@ -370,7 +370,7 @@ static void assemble_HE_stage3(HE_edge *edges,
 		uint32_t *dec)
 {
 	/* find pairs */
-	for (uint32_t i = 0; i < (uint32_t)(*ec); i++) { /* for all edges */
+	for (uint32_t i = 0; i < *ec; i++) { /* for all edges */
 		uint32_t eac = edges[i].vert->eac;
 		bool pair_found = false;
 
@@ -411,7 +411,7 @@ static void assemble_HE_stage3(HE_edge *edges,
 	}
 
 	/* now we have to connect the dummy edges together */
-	for (uint32_t i = 0; i < (uint32_t) (*dec); i++) { /* for all dummy edges */
+	for (uint32_t i = 0; i < *dec; i++) { /* for all dummy edges */
 		/* vertex the dummy edge points to */
 		HE_vert *vert = edges[*ec + i].pair->vert;
 
@@ -483,14 +483,14 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->fc = fc;
 
 	/* cleanup */
-	for (uint32_t i = 0; i < (uint32_t)fc; i++) {
+	for (uint32_t i = 0; i < fc; i++) {
 		free(obj_f->v[i]);
 		free(obj_f->vt[i]);
 	}
 	free(obj_f->v);
 	free(obj_f->vt);
 	free(obj_f);
-	for (uint32_t i = 0; i < (uint32_t)vc; i++) {
+	for (uint32_t i = 0; i < vc; i++) {
 		free(vertices[i].dummys);
 		free(vertices[i].edge_array);
 		free(obj_v[i]);
