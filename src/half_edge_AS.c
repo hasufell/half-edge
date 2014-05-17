@@ -68,8 +68,14 @@ static void assemble_HE_stage3(HE_edge *edges,
  * @param obj_string the string that is in obj format
  * @param obj_v_out where to save the vertices, the rear
  * dimension will always have 3 elements for x,y,z [out]
+ * @param obj_vt_out where to save the texture coordinates [out]
  * @param obj_f_out where to save the faces, the rear dimension
  * will be terminated with a "0" [out]
+ * @param vc_out pointer to save vertice count [out]
+ * @param fc_out pointer to save face count [out]
+ * @param ec_out pointer to save edge count [out]
+ * @param vtc_out pointer to save texture coordinates count [out]
+ * @return true/false for success/failure
  */
 static bool assemble_obj_arrays(char const * const obj_string,
 		VERTICES *obj_v_out,
@@ -229,6 +235,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
  * parsed from the obj file
  * @param vertices pointer the actual half-edge vertices
  * @param vc pointer to the vertice count
+ * @param fc pointer to the face count
  */
 static void assemble_HE_stage1(VERTICES obj_v,
 		HE_vert *vertices,
