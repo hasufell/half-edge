@@ -208,8 +208,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
 	}
 
-	free(string);
-
+	/* set all out-variables */
 	*obj_v_out = obj_v;
 	*obj_vt_out = obj_vt;
 	obj_f->v = obj_f_v;
@@ -219,6 +218,9 @@ static bool assemble_obj_arrays(char const * const obj_string,
 	*fc_out = fc;
 	*ec_out = ec;
 	*vtc_out = vtc;
+
+	/* cleanup */
+	free(string);
 
 	return true;
 }
