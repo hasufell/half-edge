@@ -36,14 +36,17 @@
 
 static bool assemble_obj_arrays(char const * const obj_string,
 		VERTICES *obj_v_out,
-		FACES *obj_f_out,
+		V_TEXTURES *obj_vt_out,
+		FACES **obj_f_out,
 		uint32_t *vc_out,
 		uint32_t *fc_out,
-		uint32_t *ec_out);
+		uint32_t *ec_out,
+		uint32_t *vtc_out);
 static void assemble_HE_stage1(VERTICES obj_v,
 		HE_vert *vertices,
-		uint32_t *vc);
-static void assemble_HE_stage2(FACES obj_f,
+		uint32_t *vc,
+		uint32_t *fc);
+static void assemble_HE_stage2(FACES *obj_f,
 		HE_vert *vertices,
 		HE_face *faces,
 		HE_edge *edges,
@@ -70,20 +73,30 @@ static void assemble_HE_stage3(HE_edge *edges,
  */
 static bool assemble_obj_arrays(char const * const obj_string,
 		VERTICES *obj_v_out,
-		FACES *obj_f_out,
+		V_TEXTURES *obj_vt_out,
+		FACES **obj_f_out,
 		uint32_t *vc_out,
 		uint32_t *fc_out,
-		uint32_t *ec_out)
+		uint32_t *ec_out,
+		uint32_t *vtc_out)
 {
 	uint32_t vc = 0,
 			 fc = 0,
-			 ec = 0;
-	char *string,
-		 *str_ptr_space = NULL, /* for strtok */
-		 *str_ptr_newline = NULL, /* for strtok */
-		 *str_tmp_ptr = NULL; /* for strtok */
+			 ec = 0,
+			 vtc = 0;
+	char *string;
+
+	/* for strtok_r */
+	char *str_ptr_space = NULL,
+		 *str_ptr_newline = NULL,
+		 *str_ptr_slash = NULL,
+		 *str_tmp_ptr = NULL;
+
 	VERTICES obj_v = NULL;
-	FACES obj_f = NULL;
+	FACES *obj_f = malloc(sizeof(*obj_f));
+	uint32_t **obj_f_v = NULL;
+	uint32_t **obj_f_vt = NULL;
+	V_TEXTURES obj_vt = NULL;
 
 	if (!obj_string || !obj_v_out || !obj_f_out)
 		return false;
@@ -123,25 +136,67 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			obj_v[vc] = NULL; /* trailing NULL pointer */
 
 		/*
-		 * FACES
+		 * VERTEX TEXTURES
 		 */
-		} else if (!strcmp(str_tmp_ptr, "f")) {
+		} else if (!strcmp(str_tmp_ptr, "vt")) {
 			char *myint = NULL;
 			uint8_t i = 0;
 
-			REALLOC(obj_f, sizeof(*obj_f) * (fc + 2));
-			obj_f[fc] = NULL;
+			REALLOC(obj_vt, sizeof(*obj_vt) * (vtc + 2));
+			obj_vt[vtc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				i++;
+
+				REALLOC(obj_vt[vtc],
+						sizeof(**obj_vt) * (i + 1));
+				obj_vt[vtc][i - 1] = atof(myint);
+
+				if (i > 3)
+					ABORT("Malformed vertice texture exceeds 3 dimensions!\n");
+			}
+			vtc++;
+			obj_vt[vtc] = NULL; /* trailing NULL pointer */
+
+		/*
+		 * FACES
+		 */
+		} else if (!strcmp(str_tmp_ptr, "f")) {
+			char *myint_v = NULL,
+				 *myint_vt = NULL;
+			uint8_t i = 0;
+
+			REALLOC(obj_f_v, sizeof(*obj_f_v) * (fc + 2));
+			obj_f_v[fc] = NULL;
+
+			/* deallocate if we don't have vertex textures */
+			REALLOC(obj_f_vt, sizeof(*obj_f_vt) * (fc + 2));
+			obj_f_vt[fc] = NULL;
+
+			while ((myint_v = strtok_r(NULL, " ", &str_ptr_space))) {
+				/* is there a slash? */
+				if ((myint_vt = strtok_r(myint_v, "/", &str_ptr_slash)))
+					myint_v = myint_vt;
+
 				i++;
 				ec++;
 
-				REALLOC(obj_f[fc],
-						sizeof(**obj_f) * (i + 1));
-				obj_f[fc][i - 1] = atoi(myint);
-				obj_f[fc][i] = 0; /* so we can iterate over it more easily */
+				REALLOC(obj_f_v[fc],
+						sizeof(**obj_f_v) * (i + 1));
+				obj_f_v[fc][i - 1] = atoi(myint_v);
+				/* so we can iterate over it more easily */
+				obj_f_v[fc][i] = 0;
+
+				/* parse x from "0.3/x" */
+				if ((myint_vt = strtok_r(NULL, "/", &str_ptr_slash))) {
+					REALLOC(obj_f_vt[fc],
+							sizeof(**obj_f_vt) * (i + 1));
+					obj_f_vt[fc][i - 1] = atoi(myint_vt);
+					/* so we can iterate over it more easily */
+					obj_f_vt[fc][i] = 0;
+				}
 			}
 			fc++;
-			obj_f[fc] = NULL; /* trailing NULL pointer */
+			obj_f_v[fc] = NULL; /* trailing NULL pointer */
 		}
 
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
@@ -150,10 +205,14 @@ static bool assemble_obj_arrays(char const * const obj_string,
 	free(string);
 
 	*obj_v_out = obj_v;
+	*obj_vt_out = obj_vt;
+	obj_f->v = obj_f_v;
+	obj_f->vt = obj_f_vt;
 	*obj_f_out = obj_f;
 	*vc_out = vc;
 	*fc_out = fc;
 	*ec_out = ec;
+	*vtc_out = vtc;
 
 	return true;
 }
@@ -173,12 +232,13 @@ static bool assemble_obj_arrays(char const * const obj_string,
  */
 static void assemble_HE_stage1(VERTICES obj_v,
 		HE_vert *vertices,
-		uint32_t *vc)
+		uint32_t *vc,
+		uint32_t *fc)
 {
 	uint8_t const xpos = 0;
 	uint8_t	const ypos = 1;
 	uint8_t	const zpos = 2;
-	int8_t const default_col = -1;
+	int8_t default_color = -1;
 
 	*vc = 0;
 
@@ -200,11 +260,10 @@ static void assemble_HE_stage1(VERTICES obj_v,
 		vertices[*vc].eac = 0;
 		vertices[*vc].dc = 0;
 
-		/* allocate color struct and set preliminary colors */
 		vertices[*vc].col = malloc(sizeof(color));
-		vertices[*vc].col->red = default_col;
-		vertices[*vc].col->green = default_col;
-		vertices[*vc].col->blue = default_col;
+		vertices[*vc].col->red = default_color;
+		vertices[*vc].col->green = default_color;
+		vertices[*vc].col->blue = default_color;
 
 		(*vc)++;
 	}
@@ -226,7 +285,7 @@ static void assemble_HE_stage1(VERTICES obj_v,
  * @param fc the count of half-edge faces
  * @param ec the count of half-edge edges
  */
-static void assemble_HE_stage2(FACES obj_f,
+static void assemble_HE_stage2(FACES *obj_f,
 		HE_vert *vertices,
 		HE_face *faces,
 		HE_edge *edges,
@@ -238,9 +297,9 @@ static void assemble_HE_stage2(FACES obj_f,
 	for (uint32_t i = 0; i < (uint32_t)(*fc); i++) { /* for all faces */
 		uint32_t j = 0;
 		/* for all vertices of the face */
-		while (obj_f[i][j]) {
+		while (obj_f->v[i][j]) {
 			uint32_t fv_arr_id =
-				obj_f[i][j] - 1; /* fv_id starts at 1 */
+				obj_f->v[i][j] - 1; /* fv_id starts at 1 */
 
 			edges[*ec].vert = &(vertices[fv_arr_id]);
 			edges[*ec].face = &(faces[i]);
@@ -264,7 +323,7 @@ static void assemble_HE_stage2(FACES obj_f,
 				edges[*ec].vert->edge_array[*eac] = &(edges[*ec - 1]);
 				(*eac)++;
 
-				if (!obj_f[i][j + 1]) { /* no vertice left */
+				if (!obj_f->v[i][j + 1]) { /* no vertice left */
 					uint32_t *eac;
 					/* connect last edge to first edge */
 					edges[*ec].next = &(edges[*ec - j]);
@@ -369,16 +428,17 @@ HE_obj *parse_obj(char const * const obj_string)
 	uint32_t vc = 0, /* vertices count */
 			 fc = 0, /* face count */
 			 ec = 0, /* edge count */
-			 dec = 0; /* dummy edge count */
+			 dec = 0, /* dummy edge count */
+			 vtc = 0;
 	char *string = NULL,
 		 *str_ptr;
 	HE_vert *vertices = NULL;
 	HE_edge *edges = NULL;
 	HE_face *faces = NULL;
 	HE_obj *obj = NULL;
-	FACES obj_f = NULL;
-	/* V_TEXTURES obj_vt = NULL; */
+	FACES *obj_f = NULL;
 	VERTICES obj_v = NULL;
+	V_TEXTURES obj_vt = NULL;
 
 	if (!obj_string || !*obj_string)
 		return NULL;
@@ -387,14 +447,9 @@ HE_obj *parse_obj(char const * const obj_string)
 	strcpy(string, obj_string);
 	str_ptr = string;
 
-	if (!assemble_obj_arrays(string, &obj_v, &obj_f, &vc, &fc, &ec))
+	if (!assemble_obj_arrays(string, &obj_v, &obj_vt, &obj_f,
+				&vc, &fc, &ec, &vtc))
 		return NULL;
-
-
-	/* if ((ec = get_edge_count(obj_f)) == -1) */
-		/* ABORT("Invalid edge count!\n"); */
-	/* if ((fc = get_face_count(obj_f)) == -1) */
-		/* ABORT("Invalid face count!\n"); */
 
 	vertices = malloc(sizeof(HE_vert) *
 			(vc + 1));
@@ -405,7 +460,7 @@ HE_obj *parse_obj(char const * const obj_string)
 	edges = (HE_edge*) malloc(sizeof(HE_edge) * ec * 2);
 	CHECK_PTR_VAL(edges);
 
-	assemble_HE_stage1(obj_v, vertices, &vc);
+	assemble_HE_stage1(obj_v, vertices, &vc, &fc);
 	assemble_HE_stage2(obj_f, vertices, faces, edges, &fc, &ec);
 	assemble_HE_stage3(edges, &ec, &dec);
 
@@ -419,8 +474,12 @@ HE_obj *parse_obj(char const * const obj_string)
 	obj->fc = fc;
 
 	/* cleanup */
-	for (uint32_t i = 0; i < (uint32_t)fc; i++)
-		free(obj_f[i]);
+	for (uint32_t i = 0; i < (uint32_t)fc; i++) {
+		free(obj_f->v[i]);
+		free(obj_f->vt[i]);
+	}
+	free(obj_f->v);
+	free(obj_f->vt);
 	free(obj_f);
 	for (uint32_t i = 0; i < (uint32_t)vc; i++) {
 		free(vertices[i].dummys);

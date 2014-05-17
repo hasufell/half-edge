@@ -85,14 +85,19 @@
 
 
 typedef double** VERTICES;
-typedef uint32_t** FACES;
+typedef struct FACES FACES;
 typedef double** V_TEXTURES;
-
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 typedef struct color color;
+
+
+struct FACES {
+	uint32_t **v;
+	uint32_t **vt;
+};
 
 
 /**
@@ -217,9 +222,9 @@ struct HE_obj {
  * Color.
  */
 struct color {
-	float red;
-	float green;
-	float blue;
+	double red;
+	double green;
+	double blue;
 };
 
 
