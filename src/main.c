@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
 			((screenY / 2) - (windowY / 2)));
 	glutInitWindowSize(windowX, windowY);
 	glutCreateWindow(filename);
+	glutSetWindowTitle("Drow engine");
 
 	init(argv[1]);
 
