@@ -26,6 +26,7 @@
 
 #include "err.h"
 #include "filereader.h"
+#include "gl_draw.h"
 #include "half_edge.h"
 
 #include <GL/glut.h>
@@ -262,7 +263,7 @@ static void draw_Planet_1(void)
 	glColor3f(1.0f, 0.0f, 0.0f);
 
 	/* A rotation (full 360°) once a day is much
-	 * too fast you woulden'd see a thing */
+	 * too fast you wouldn't see a thing */
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, 1.0f);
 	glutWireSphere(1.0f, XY_WIRE_COUNT, XY_WIRE_COUNT);
 	glRotatef((ROT_FACTOR_PLANET * day) / rot_fac_day, 0.0f, 0.0f, -1.0f);
@@ -490,7 +491,7 @@ void animate()
 		day = 0;
 	}
 
-	usleep(30000); /* some very basic VScny to see the movement better */
+	glutTimerFunc(TIMERMSECS, animate, 0);
 	glutPostRedisplay();
 }
 

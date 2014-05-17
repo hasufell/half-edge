@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(keyboard);
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
-	glutIdleFunc(animate);
+	glutTimerFunc(TIMERMSECS, animate, 0);
 	glutMainLoop();
 
 	return 0;

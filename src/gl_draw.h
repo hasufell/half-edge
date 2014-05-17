@@ -31,6 +31,12 @@
 #include <GL/glu.h>
 
 
+/**
+ * Vsync timer for animate() function
+ */
+#define TIMERMSECS 25
+
+
 void init(char const * const filename);
 void display(void);
 void reshape(GLsizei w, GLsizei h);
