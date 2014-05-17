@@ -6,6 +6,9 @@ all:
 test:
 	$(MAKE) -C src test
 
+check: test
+	./test
+
 doc:
 	doxygen
 
