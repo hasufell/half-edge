@@ -193,9 +193,14 @@ struct HE_vert {
 	HE_vert_acc *acc;
 };
 
+/**
+ * Structure only needed for various
+ * acceleration techniques during assembling of the
+ * half-edge.
+ */
 struct HE_vert_acc {
 	/**
-	 * Acceleration structure which saves all potential
+	 * Array that saves all potential
 	 * pair edges that point TO this vertex. It is used
 	 * for finding the pairs when assembling
 	 * the HE_edge struct. Note that this does not reliably
