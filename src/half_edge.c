@@ -256,6 +256,7 @@ float get_normalized_scale_factor(HE_obj const * const obj)
  * is modified!
  *
  * @param obj the object we want to scale [mod]
+ * @return true/false for success/failure
  */
 bool normalize_object(HE_obj *obj)
 {
