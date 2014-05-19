@@ -415,7 +415,6 @@ static void assemble_HE_stage3(HE_obj *he_obj)
 		for (uint32_t j = 0; j < vert->acc->dc; j++) {
 			if (vert == vert->acc->dummys[j]->vert)
 				edges[ec + i].next = vert->acc->dummys[j];
-			j++;
 		}
 	}
 
