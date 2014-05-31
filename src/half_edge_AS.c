@@ -238,7 +238,8 @@ static bool assemble_obj_arrays(char const * const obj_string,
 /**
  * First stage of assembling the half-edge data structure.
  * Here we allocate vertices and fill their coordinates
- * with the information we have from parsing the obj file.
+ * with the information we have from parsing the obj file,
+ * as well as the bezier curves.
  * All other yet unknown members such as edge are set to
  * NULL. This function isn't really modular, but makes
  * reading parse_obj() a bit less painful.
