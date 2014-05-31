@@ -49,7 +49,8 @@ static void delete_accel_struct(HE_obj *he_obj);
 static void delete_raw_object(obj_items *raw_obj,
 		uint32_t fc,
 		uint32_t vc,
-		uint32_t vt);
+		uint32_t vt,
+		uint32_t bzc);
 
 
 /**
@@ -83,12 +84,13 @@ static bool assemble_obj_arrays(char const * const obj_string,
 		 *str_tmp_ptr = NULL;
 
 	/* these will be assigned later to the out structs */
-	uint32_t vc = 0, fc = 0, ec = 0, vtc = 0;
+	uint32_t vc = 0, fc = 0, ec = 0, vtc = 0, bzc = 0;
 	VERTICES obj_v = NULL;
 	FACES *obj_f = malloc(sizeof(*obj_f));
 	uint32_t **obj_f_v = NULL; /* tmp v member of obj_f */
 	uint32_t **obj_f_vt = NULL; /* tmp vt member of obj_f */
 	V_TEXTURES obj_vt = NULL;
+	BEZIER_CURV bez = NULL;
 
 	if (!obj_string || !raw_obj)
 		return false;
@@ -190,6 +192,26 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			}
 			fc++;
 			obj_f_v[fc] = NULL; /* trailing NULL pointer */
+
+		/*
+		 * Bezier Curve
+		 */
+		} else if (!strcmp(str_tmp_ptr, "curv")) {
+			char *myint = NULL;
+			uint8_t i = 0;
+
+			REALLOC(bez, sizeof(*bez) * (bzc + 2));
+			bez[bzc] = NULL;
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				i++;
+
+				REALLOC(bez[bzc],
+						sizeof(**bez) * (i + 1));
+				bez[bzc][i - 1] = atoi(myint);
+				bez[bzc][i] = 0;
+			}
+			bzc++;
+			bez[bzc] = NULL; /* trailing NULL pointer */
 		}
 
 		str_tmp_ptr = strtok_r(NULL, "\n", &str_ptr_newline);
@@ -205,6 +227,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 	obj_f->vt = obj_f_vt;
 	raw_obj->f = obj_f;
 	raw_obj->vt = obj_vt;
+	raw_obj->bez = bez;
 
 	/* cleanup */
 	free(string);
@@ -228,12 +251,14 @@ static bool assemble_obj_arrays(char const * const obj_string,
 static void assemble_HE_stage1(obj_items const * const raw_obj,
 		HE_obj *he_obj)
 {
-	uint32_t vc = 0;
+	uint32_t vc = 0,
+			 bzc = 0;
 	uint8_t const xpos = 0;
 	uint8_t	const ypos = 1;
 	uint8_t	const zpos = 2;
 	int8_t default_color = -1;
 	HE_vert *vertices = he_obj->vertices;
+	bez_curv *bez_curves = NULL;
 
 	while (raw_obj->v[vc]) {
 		vector *tmp_vec;
@@ -264,6 +289,25 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 		vc++;
 	}
 
+	while (raw_obj->bez[bzc]) {
+		uint32_t i = 0;
+		vector *bez_vec = NULL;
+
+		REALLOC(bez_curves, sizeof(*bez_curves) * (bzc + 2));
+
+		while (raw_obj->bez[bzc][i]) {
+			REALLOC(bez_vec, sizeof(vector) * (i + 1));
+			bez_vec[i] = *(vertices[raw_obj->bez[bzc][i] - 1].vec);
+			i++;
+		}
+
+		bez_curves[bzc].vec = bez_vec;
+		bez_curves[bzc].deg = i - 1; /* i is length */
+		bzc++;
+	}
+
+	he_obj->bez_curves = bez_curves;
+	he_obj->bzc = bzc;
 	he_obj->vertices = vertices;
 }
 
@@ -476,7 +520,8 @@ HE_obj *parse_obj(char const * const obj_string)
 	assemble_HE_stage3(he_obj);
 
 	/* cleanup */
-	delete_raw_object(&raw_obj, he_obj->fc, he_obj->vc, he_obj->vtc);
+	delete_raw_object(&raw_obj, he_obj->fc,
+			he_obj->vc, he_obj->vtc, he_obj->bzc);
 	delete_accel_struct(he_obj);
 	free(string);
 
@@ -503,11 +548,14 @@ static void delete_accel_struct(HE_obj *he_obj)
 static void delete_raw_object(obj_items *raw_obj,
 		uint32_t fc,
 		uint32_t vc,
-		uint32_t vtc)
+		uint32_t vtc,
+		uint32_t bzc)
 {
 	if (!raw_obj)
 		return;
 
+	for (uint32_t i = 0; i < bzc; i++)
+		free(raw_obj->bez[i]);
 	for (uint32_t i = 0; i < vtc; i++)
 		free(raw_obj->vt[i]);
 	for (uint32_t i = 0; i < vc; i++)
@@ -516,6 +564,7 @@ static void delete_raw_object(obj_items *raw_obj,
 		free(raw_obj->f->v[i]);
 		free(raw_obj->f->vt[i]);
 	}
+	free(raw_obj->bez);
 	free(raw_obj->f->v);
 	free(raw_obj->f->vt);
 	free(raw_obj->v);

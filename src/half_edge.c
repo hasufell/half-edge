@@ -290,7 +290,11 @@ void delete_object(HE_obj *obj)
 		free(obj->vertices[i].vec);
 		free(obj->vertices[i].col);
 	}
+	for (uint32_t i = 0; i < obj->bzc; i++)
+		free(obj->bez_curves[i].vec);
+
 	free(obj->edges);
 	free(obj->vertices);
 	free(obj->faces);
+	free(obj->bez_curves);
 }

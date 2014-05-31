@@ -90,18 +90,25 @@ typedef struct obj_items obj_items;
  * as they are in the .obj file,
  */
 typedef double** VERTICES;
-typedef struct FACES FACES;
 /**
  * 2d array which can hold the vertices texture
  * coordinates as they are in the .obj file,
  */
 typedef double** V_TEXTURES;
+/**
+ * 2d array which holds the array or vertice references
+ * that describe a bezier curve.
+ */
+typedef int** BEZIER_CURV;
+
+typedef struct FACES FACES;
 typedef struct HE_edge HE_edge;
 typedef struct HE_vert HE_vert;
 typedef struct HE_vert_acc HE_vert_acc;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 typedef struct color color;
+typedef struct bez_curv bez_curv;
 
 
 /**
@@ -123,6 +130,10 @@ struct obj_items {
 	 * Raw texture coordinates array.
 	 */
 	V_TEXTURES vt;
+	/**
+	 * Bezier curve
+	 */
+	BEZIER_CURV bez;
 };
 
 /**
@@ -254,6 +265,10 @@ struct HE_obj {
 	 */
 	HE_face *faces;
 	/**
+	 * Array of bezier curves.
+	 */
+	bez_curv *bez_curves;
+	/**
 	 * Count of edges.
 	 */
 	uint32_t ec;
@@ -261,6 +276,10 @@ struct HE_obj {
 	 * Count of vertices.
 	 */
 	uint32_t vc;
+	/**
+	 * Count of bez curves.
+	 */
+	uint32_t bzc;
 	/**
 	 * Count of faces.
 	 */
@@ -282,6 +301,20 @@ struct color {
 	double red;
 	double green;
 	double blue;
+};
+
+/**
+ * Bezier Curve.
+ */
+struct bez_curv {
+	/**
+	 * Array of vectors.
+	 */
+	vector *vec;
+	/**
+	 * Degree of the curve.
+	 */
+	uint32_t deg;
 };
 
 
