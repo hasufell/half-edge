@@ -257,13 +257,16 @@ static void draw_obj(int32_t const myxrot,
 			-center_vert.y,
 			-center_vert.z + SYSTEM_POS_Z);
 
-	if (show_normals)
-		draw_normals(obj, 0);
 
-	if (obj->ec != 0)
+	if (obj->ec != 0) {
+		if (show_normals)
+			draw_normals(obj, 0);
+
 		draw_vertices(obj, false);
+	}
 
-	draw_bez(obj);
+	if (obj->bzc != 0)
+		draw_bez(obj);
 
 	glPopMatrix();
 }
