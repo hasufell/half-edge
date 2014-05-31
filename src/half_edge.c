@@ -268,9 +268,9 @@ bool normalize_object(HE_obj *obj)
 	scale_factor = get_normalized_scale_factor(obj);
 
 	for (uint32_t i = 0; i < obj->vc; i++) {
-		obj->vertices[i].vec->x = obj->vertices[i].vec->x * scale_factor;
-		obj->vertices[i].vec->y = obj->vertices[i].vec->y * scale_factor;
-		obj->vertices[i].vec->z = obj->vertices[i].vec->z * scale_factor;
+		obj->vertices[i].vec->x *= scale_factor;
+		obj->vertices[i].vec->y *= scale_factor;
+		obj->vertices[i].vec->z *= scale_factor;
 	}
 
 	for (uint32_t i = 0; i < obj->bzc; i++) {
