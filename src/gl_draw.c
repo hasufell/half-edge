@@ -66,6 +66,7 @@ bool shademodel = true;
 /*
  * static function declaration
  */
+static void draw_bez(HE_obj const * const obj);
 static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
 		int32_t const myzrot);
@@ -188,6 +189,31 @@ static void draw_vertices(HE_obj const * const obj,
 	glPopMatrix();
 }
 
+static void draw_bez(HE_obj const * const obj)
+{
+	uint32_t i = 0;
+	static float line_width = 2;
+
+	glPushMatrix();
+
+	glLineWidth(line_width);
+	glColor3f(1.0, 0.0, 0.0);
+
+
+	while (i < obj->bzc) {
+		glBegin(GL_LINE_STRIP);
+		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
+			glVertex3f(obj->bez_curves[i].vec[j].x,
+				obj->bez_curves[i].vec[j].y,
+				obj->bez_curves[i].vec[j].z);
+		}
+		glEnd();
+		i++;
+	}
+
+	glPopMatrix();
+}
+
 
 /**
  * Draws an object.
@@ -234,7 +260,10 @@ static void draw_obj(int32_t const myxrot,
 	if (show_normals)
 		draw_normals(obj, 0);
 
-	draw_vertices(obj, false);
+	if (obj->ec != 0)
+		draw_vertices(obj, false);
+
+	draw_bez(obj);
 
 	glPopMatrix();
 }

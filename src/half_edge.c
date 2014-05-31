@@ -273,6 +273,15 @@ bool normalize_object(HE_obj *obj)
 		obj->vertices[i].vec->z = obj->vertices[i].vec->z * scale_factor;
 	}
 
+	for (uint32_t i = 0; i < obj->bzc; i++) {
+		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
+			obj->bez_curves[i].vec[j].x *= scale_factor;
+			obj->bez_curves[i].vec[j].y *= scale_factor;
+			obj->bez_curves[i].vec[j].z *= scale_factor;
+		}
+		i++;
+	}
+
 	return true;
 }
 
