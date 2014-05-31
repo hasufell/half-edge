@@ -289,7 +289,7 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 		vc++;
 	}
 
-	while (raw_obj->bez[bzc]) {
+	while (raw_obj->bez && raw_obj->bez[bzc]) {
 		uint32_t i = 0;
 		vector *bez_vec = NULL;
 
