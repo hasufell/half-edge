@@ -193,15 +193,28 @@ static void draw_bez(HE_obj const * const obj)
 {
 	uint32_t i = 0;
 	static float line_width = 2;
+	static float point_size = 10;
 
 	glPushMatrix();
 
 	glLineWidth(line_width);
+	glPointSize(point_size);
 	glColor3f(1.0, 0.0, 0.0);
-
 
 	while (i < obj->bzc) {
 		glBegin(GL_LINE_STRIP);
+		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
+			glVertex3f(obj->bez_curves[i].vec[j].x,
+				obj->bez_curves[i].vec[j].y,
+				obj->bez_curves[i].vec[j].z);
+		}
+		glEnd();
+		i++;
+	}
+
+	i = 0;
+	while (i < obj->bzc) {
+		glBegin(GL_POINTS);
 		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
 			glVertex3f(obj->bez_curves[i].vec[j].x,
 				obj->bez_curves[i].vec[j].y,
