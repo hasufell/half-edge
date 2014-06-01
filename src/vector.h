@@ -35,6 +35,18 @@
  * Fault intolerant macro. Will abort the program if the called
  * function failed.
  */
+#define VECTOR_LEN_SCAL_MUL(...) \
+{ \
+	if (!vector_len_scal_mul(__VA_ARGS__)) { \
+		fprintf(stderr, "Failure in vector_product()!\n"); \
+		abort(); \
+	} \
+}
+
+/**
+ * Fault intolerant macro. Will abort the program if the called
+ * function failed.
+ */
 #define VECTOR_PRODUCT(...) \
 { \
 	if (!vector_product(__VA_ARGS__)) { \
@@ -117,6 +129,7 @@ struct vector {
 };
 
 
+bool vector_len_scal_mul(vector *a, float scal, vector *c);
 bool vector_product(vector *a, vector *b, vector *c);
 bool add_vectors(vector *a, vector *b, vector *c);
 bool sub_vectors(vector *a, vector *b, vector *c);

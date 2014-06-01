@@ -34,6 +34,43 @@
 
 
 /**
+ * Calculate the vector which lengths is reduced by the
+ * factor scal and store it in c.
+ * This function is aliasing safe.
+ *
+ * @param a vector
+ * @param scal scalar to multiply the vector with
+ * @param c vector [out]
+ * @return true/false for success/failure
+ */
+bool vector_len_scal_mul(vector *a, float scal, vector *c)
+{
+	vector a_tmp;
+	float vector_length;
+	float factor;
+
+	if (!a || !scal || !c)
+		return false;
+
+	copy_vector(a, &a_tmp);
+
+	vector_length = sqrt((a_tmp.x * a_tmp.x) +
+			(a_tmp.y * a_tmp.y) + (a_tmp.z * a_tmp.z));
+
+	factor = vector_length * scal;
+
+	c->x = a_tmp.x / vector_length;
+	c->y = a_tmp.y / vector_length;
+	c->z = a_tmp.z / vector_length;
+
+	c->x = c->x * factor;
+	c->y = c->y * factor;
+	c->z = c->z * factor;
+
+	return true;
+}
+
+/**
  * Calculate the vector product of a and b
  * and store it in c. This function is aliasing safe.
  *

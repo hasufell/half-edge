@@ -286,6 +286,43 @@ bool normalize_object(HE_obj *obj)
 }
 
 /**
+ * Calculate a point on the bezier curve according to the
+ * bezier vertices. If section is set to 0.5 then it will
+ * return the vector to the point in the middle of the curve.
+ *
+ * @param obj the object holding the bezier vertices information
+ * @param section the section which will be applied to all
+ * lines between the bezier vertices
+ * @return the vector to the calculated point
+ */
+vector *calculate_bezier_point(bez_curv *bez, float section)
+{
+	vector vec_arr[bez->deg];
+	bez_curv new_bez;
+
+	for (uint32_t i = 0; i < bez->deg; i++) {
+		vector new_vec;
+
+		SUB_VECTORS(&(bez->vec[i + 1]), &(bez->vec[i]), &new_vec);
+		VECTOR_LEN_SCAL_MUL(&new_vec, section, &new_vec);
+		ADD_VECTORS(&new_vec, &(bez->vec[i]), &new_vec);
+
+		vec_arr[i] = new_vec;
+	}
+
+	new_bez.vec = vec_arr;
+	new_bez.deg = bez->deg - 1;
+
+	if (new_bez.deg > 0) {
+		return calculate_bezier_point(&new_bez, section);
+	} else {
+		vector *result_vector = malloc(sizeof(*result_vector));
+		*result_vector = vec_arr[0];
+		return result_vector;
+	}
+}
+
+/**
  * Free the inner structures of an object.
  *
  * @param obj the object to free

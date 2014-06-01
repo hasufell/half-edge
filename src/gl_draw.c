@@ -28,6 +28,7 @@
 #include "filereader.h"
 #include "gl_draw.h"
 #include "half_edge.h"
+#include "print.h"
 
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -66,10 +67,11 @@ bool shademodel = true;
 /*
  * static function declaration
  */
-static void draw_bez(HE_obj const * const obj);
+static void draw_bez(HE_obj const * const obj, float step_factor_inc);
 static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
-		int32_t const myzrot);
+		int32_t const myzrot,
+		float bez_inc);
 static void draw_Planet_1(void);
 static void draw_Planet_2(void);
 static void gl_destroy(void);
@@ -189,11 +191,16 @@ static void draw_vertices(HE_obj const * const obj,
 	glPopMatrix();
 }
 
-static void draw_bez(HE_obj const * const obj)
+static void draw_bez(HE_obj const * const obj, float step_factor_inc)
 {
 	uint32_t i = 0;
 	static float line_width = 2;
 	static float point_size = 10;
+	static float step_factor = 0.1;
+
+	if (step_factor + step_factor_inc > 0.002 &
+			step_factor + step_factor_inc < 0.50)
+		step_factor += step_factor_inc;
 
 	glPushMatrix();
 
@@ -201,7 +208,13 @@ static void draw_bez(HE_obj const * const obj)
 	glPointSize(point_size);
 	glColor3f(1.0, 0.0, 0.0);
 
-	while (i < obj->bzc) {
+	while (i < obj->bzc) { /* for all bezier curves */
+		vector *v1 = NULL,
+			   *v2 = NULL;
+
+		/*
+		 * draw frame
+		 */
 		glBegin(GL_LINE_STRIP);
 		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
 			glVertex3f(obj->bez_curves[i].vec[j].x,
@@ -209,11 +222,10 @@ static void draw_bez(HE_obj const * const obj)
 				obj->bez_curves[i].vec[j].z);
 		}
 		glEnd();
-		i++;
-	}
 
-	i = 0;
-	while (i < obj->bzc) {
+		/*
+		 * draw control points
+		 */
 		glBegin(GL_POINTS);
 		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
 			glVertex3f(obj->bez_curves[i].vec[j].x,
@@ -221,8 +233,57 @@ static void draw_bez(HE_obj const * const obj)
 				obj->bez_curves[i].vec[j].z);
 		}
 		glEnd();
+
+		glBegin(GL_LINES);
+
+		/*
+		 * line segments: first line
+		 */
+		v1 = calculate_bezier_point(&(obj->bez_curves[i]), step_factor);
+		glVertex3f(obj->bez_curves[i].vec[0].x,
+				obj->bez_curves[i].vec[0].y,
+				obj->bez_curves[i].vec[0].z);
+		glVertex3f(v1->x,
+				v1->y,
+				v1->z);
+
+		for (float k = step_factor; k < 1 - step_factor; k += step_factor) {
+			free(v1);
+			free(v2);
+
+			v1 = calculate_bezier_point(&(obj->bez_curves[i]), k);
+			v2 = calculate_bezier_point(&(obj->bez_curves[i]), k +
+					step_factor);
+
+			/*
+			 * line segments: middle lines
+			 */
+			glVertex3f(v1->x,
+					v1->y,
+					v1->z);
+			glVertex3f(v2->x,
+					v2->y,
+					v2->z);
+
+		}
+
+		/*
+		 * line segments: last line
+		 */
+		glVertex3f(v2->x,
+				v2->y,
+				v2->z);
+		glVertex3f(obj->bez_curves[i].vec[obj->bez_curves[i].deg].x,
+				obj->bez_curves[i].vec[obj->bez_curves[i].deg].y,
+				obj->bez_curves[i].vec[obj->bez_curves[i].deg].z);
+
+		free(v1);
+		free(v2);
+
+		glEnd();
 		i++;
 	}
+
 
 	glPopMatrix();
 }
@@ -237,7 +298,8 @@ static void draw_bez(HE_obj const * const obj)
  */
 static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
-		int32_t const myzrot)
+		int32_t const myzrot,
+		float bez_inc)
 {
 	/* rotation */
 	static int32_t xrot = 0,
@@ -279,7 +341,7 @@ static void draw_obj(int32_t const myxrot,
 	}
 
 	if (obj->bzc != 0)
-		draw_bez(obj);
+		draw_bez(obj, bez_inc);
 
 	glPopMatrix();
 }
@@ -451,7 +513,7 @@ void display(void)
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 
-	draw_obj(0, 0, 0);
+	draw_obj(0, 0, 0, 0);
 	draw_Planet_1();
 	draw_Planet_2();
 
@@ -616,27 +678,27 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		draw_obj(2, 0, 0);
+		draw_obj(2, 0, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'X':
-		draw_obj(-2, 0, 0);
+		draw_obj(-2, 0, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'y':
-		draw_obj(0, 2, 0);
+		draw_obj(0, 2, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'Y':
-		draw_obj(0, -2, 0);
+		draw_obj(0, -2, 0, 0);
 		glutPostRedisplay();
 		break;
 	case 'c':
-		draw_obj(0, 0, 2);
+		draw_obj(0, 0, 2, 0);
 		glutPostRedisplay();
 		break;
 	case 'C':
-		draw_obj(0, 0, -2);
+		draw_obj(0, 0, -2, 0);
 		glutPostRedisplay();
 		break;
 	case 'D':
@@ -654,13 +716,22 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'k':
-		draw_normals(obj, 0.01f);
+		draw_obj(0, 0, 0, 0.02);
 		glutPostRedisplay();
 		break;
-	case 'l':
-		draw_normals(obj, -0.01f);
+	case 'K':
+		draw_obj(0, 0, 0, -0.02);
 		glutPostRedisplay();
 		break;
+
+	/* case 'k': */
+		/* draw_normals(obj, 0.01f); */
+		/* glutPostRedisplay(); */
+		/* break; */
+	/* case 'l': */
+		/* draw_normals(obj, -0.01f); */
+		/* glutPostRedisplay(); */
+		/* break; */
 	case 'w':
 		glTranslatef(0.0f, 1.0f, 0.0f);
 		break;

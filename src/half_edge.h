@@ -324,6 +324,7 @@ bool vec_normal(HE_vert const * const vert, vector *vec);
 bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
 bool normalize_object(HE_obj *obj);
+vector *calculate_bezier_point(bez_curv *bez, float section);
 HE_obj *parse_obj(char const * const filename);
 void delete_object(HE_obj *obj);
 
