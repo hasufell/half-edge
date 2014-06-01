@@ -535,12 +535,11 @@ HE_obj *parse_obj(char const * const obj_string)
  */
 static void delete_accel_struct(HE_obj *he_obj)
 {
-	if (he_obj->ec == 0)
-		return; /* probably only a bezier curve */
-
 	for (uint32_t i = 0; i < he_obj->vc; i++) {
-		free(he_obj->vertices[i].acc->dummys);
-		free(he_obj->vertices[i].acc->edge_array);
+		if (he_obj->ec != 0) { /* not filles if we have only a bezier curve */
+			free(he_obj->vertices[i].acc->dummys);
+			free(he_obj->vertices[i].acc->edge_array);
+		}
 		free(he_obj->vertices[i].acc);
 	}
 }
