@@ -57,6 +57,10 @@
 #define NEAR_CLIPPING_PLANE 1.0f
 #define CAMERA_ANGLE 60.0f
 
+
+/*
+ * globals
+ */
 int year;
 int yearabs = 365;
 int day;
@@ -64,11 +68,18 @@ int dayabs = 30;
 HE_obj *obj;
 bool show_normals = false;
 bool shademodel = true;
+bool draw_frame = false;
+float ball_speed = 1.0f;
+
 
 /*
  * static function declaration
  */
-static void draw_bez(HE_obj const * const obj, float step_factor_inc);
+static void draw_bez(const bez_curv *bez, float step_factor_inc);
+static void draw_bez_frame(const bez_curv *bez,
+		float pos);
+static void draw_ball(const bez_curv *bez,
+		const float pos);
 static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
 		int32_t const myzrot,
@@ -192,9 +203,8 @@ static void draw_vertices(HE_obj const * const obj,
 	glPopMatrix();
 }
 
-static void draw_bez(HE_obj const * const obj, float step_factor_inc)
+static void draw_bez(const bez_curv *bez, float step_factor_inc)
 {
-	uint32_t i = 0;
 	static float line_width = 2;
 	static float point_size = 10;
 	static float step_factor = 0.1;
@@ -209,112 +219,137 @@ static void draw_bez(HE_obj const * const obj, float step_factor_inc)
 	glPointSize(point_size);
 	glColor3f(1.0, 0.0, 0.0);
 
-	while (i < obj->bzc) { /* for all bezier curves */
-		vector *v1 = NULL,
-			   *v2 = NULL;
+	vector *v1 = NULL,
+		   *v2 = NULL;
+
+	/*
+	 * draw frame
+	 */
+	glBegin(GL_LINE_STRIP);
+	for (uint32_t j = 0; j <= bez->deg; j++) {
+		glVertex3f(bez->vec[j].x,
+			bez->vec[j].y,
+			bez->vec[j].z);
+	}
+	glEnd();
+
+	/*
+	 * draw control points
+	 */
+	glBegin(GL_POINTS);
+	for (uint32_t j = 0; j <= bez->deg; j++) {
+		glVertex3f(bez->vec[j].x,
+			bez->vec[j].y,
+			bez->vec[j].z);
+	}
+	glEnd();
+
+	glBegin(GL_LINES);
+
+	/*
+	 * line segments: first line
+	 */
+	v1 = calculate_bezier_point(bez, step_factor);
+	glVertex3f(bez->vec[0].x,
+			bez->vec[0].y,
+			bez->vec[0].z);
+	glVertex3f(v1->x,
+			v1->y,
+			v1->z);
+
+	for (float k = step_factor; k < 1 - step_factor; k += step_factor) {
+		free(v1);
+		free(v2);
+
+		v1 = calculate_bezier_point(bez, k);
+		v2 = calculate_bezier_point(bez, k +
+				step_factor);
 
 		/*
-		 * draw frame
+		 * line segments: middle lines
 		 */
-		glBegin(GL_LINE_STRIP);
-		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
-			glVertex3f(obj->bez_curves[i].vec[j].x,
-				obj->bez_curves[i].vec[j].y,
-				obj->bez_curves[i].vec[j].z);
-		}
-		glEnd();
-
-		/*
-		 * draw control points
-		 */
-		glBegin(GL_POINTS);
-		for (uint32_t j = 0; j <= obj->bez_curves[i].deg; j++) {
-			glVertex3f(obj->bez_curves[i].vec[j].x,
-				obj->bez_curves[i].vec[j].y,
-				obj->bez_curves[i].vec[j].z);
-		}
-		glEnd();
-
-		glBegin(GL_LINES);
-
-		/*
-		 * line segments: first line
-		 */
-		v1 = calculate_bezier_point(&(obj->bez_curves[i]), step_factor);
-		glVertex3f(obj->bez_curves[i].vec[0].x,
-				obj->bez_curves[i].vec[0].y,
-				obj->bez_curves[i].vec[0].z);
 		glVertex3f(v1->x,
 				v1->y,
 				v1->z);
-
-		for (float k = step_factor; k < 1 - step_factor; k += step_factor) {
-			free(v1);
-			free(v2);
-
-			v1 = calculate_bezier_point(&(obj->bez_curves[i]), k);
-			v2 = calculate_bezier_point(&(obj->bez_curves[i]), k +
-					step_factor);
-
-			/*
-			 * line segments: middle lines
-			 */
-			glVertex3f(v1->x,
-					v1->y,
-					v1->z);
-			glVertex3f(v2->x,
-					v2->y,
-					v2->z);
-
-		}
-
-		/*
-		 * line segments: last line
-		 */
 		glVertex3f(v2->x,
 				v2->y,
 				v2->z);
-		glVertex3f(obj->bez_curves[i].vec[obj->bez_curves[i].deg].x,
-				obj->bez_curves[i].vec[obj->bez_curves[i].deg].y,
-				obj->bez_curves[i].vec[obj->bez_curves[i].deg].z);
+
+	}
+
+	/*
+	 * line segments: last line
+	 */
+	glVertex3f(v2->x,
+			v2->y,
+			v2->z);
+	glVertex3f(bez->vec[bez->deg].x,
+			bez->vec[bez->deg].y,
+			bez->vec[bez->deg].z);
 
 		free(v1);
 		free(v2);
 
 		glEnd();
 
-		{
-			const float ball_pos = 0.2;
-			bez_curv cur_bez = obj->bez_curves[i];
-			bez_curv next_bez = { NULL, 0 };
 
-			while ((get_reduced_bez_curv(&cur_bez, &next_bez, ball_pos))) {
+	glPopMatrix();
+}
 
-				glBegin(GL_LINES);
+/**
+ * Draw the bezier frame of the given bezier curve
+ * which will cut the curve at the given position.
+ *
+ * @param bez the bezier curve to draw the frame of
+ * @param pos the position where the curve and the frame
+ * will cut
+ */
+static void draw_bez_frame(const bez_curv *bez,
+		float pos)
+{
+	bez_curv cur_bez = *bez;
+	bez_curv next_bez = { NULL, 0 };
 
-				for (uint32_t j = 0; j < next_bez.deg; j++) {
-					glVertex3f(next_bez.vec[j].x,
-							next_bez.vec[j].y,
-							next_bez.vec[j].z);
-					glVertex3f(next_bez.vec[j + 1].x,
-							next_bez.vec[j + 1].y,
-							next_bez.vec[j + 1].z);
-				}
+	while ((get_reduced_bez_curv(&cur_bez, &next_bez, pos))) {
 
-				/* don't free the original one! */
-				if (cur_bez.deg < obj->bez_curves[i].deg)
-					free(cur_bez.vec);
-				cur_bez = next_bez;
+		glBegin(GL_LINES);
 
-				glEnd();
-			}
-			free(cur_bez.vec);
+		for (uint32_t j = 0; j < next_bez.deg; j++) {
+			glVertex3f(next_bez.vec[j].x,
+					next_bez.vec[j].y,
+					next_bez.vec[j].z);
+			glVertex3f(next_bez.vec[j + 1].x,
+					next_bez.vec[j + 1].y,
+					next_bez.vec[j + 1].z);
 		}
 
-		i++;
+		/* don't free the original one! */
+		if (cur_bez.deg < bez->deg)
+			free(cur_bez.vec);
+		cur_bez = next_bez;
+
+		glEnd();
 	}
+	free(cur_bez.vec);
 
+}
 
+/**
+ * Draws a ball on the bezier curve at the given position.
+ *
+ * @param bez the bezier curve to draw the ball on
+ * @param pos the position of the ball
+ */
+static void draw_ball(const bez_curv *bez,
+		const float pos)
+{
+	const float ball_pos = pos;
+
+	glPushMatrix();
+	vector *point = calculate_bezier_point(bez,
+			ball_pos);
+	glTranslatef(point->x, point->y, point->z);
+	glutWireSphere(0.02f, 100, 100);
 	glPopMatrix();
 }
 
@@ -335,6 +370,18 @@ static void draw_obj(int32_t const myxrot,
 	static int32_t xrot = 0,
 					yrot = 0,
 					zrot = 0;
+	static float ball_inc = 0;
+	static bool ball_to_right = true;
+
+	if (ball_inc > 0.98)
+		ball_to_right = false;
+	else if (ball_inc < 0.02)
+		ball_to_right = true;
+
+	if (ball_to_right)
+		ball_inc += 0.01f * ball_speed;
+	else
+		ball_inc -= 0.01f * ball_speed;
 
 	vector center_vert;
 
@@ -370,8 +417,12 @@ static void draw_obj(int32_t const myxrot,
 		draw_vertices(obj, false);
 	}
 
-	if (obj->bzc != 0)
-		draw_bez(obj, bez_inc);
+	if (obj->bzc != 0) {
+		draw_bez(&(obj->bez_curves[0]), bez_inc);
+		draw_ball(&(obj->bez_curves[0]), ball_inc);
+		if(draw_frame)
+			draw_bez_frame(&(obj->bez_curves[0]), ball_inc);
+	}
 
 	glPopMatrix();
 }
@@ -684,13 +735,13 @@ void animate()
 void keyboard(unsigned char key, int x, int y)
 {
 	switch (key) {
-	case 'b':
-		if (glIsEnabled(GL_CULL_FACE))
-			glDisable(GL_CULL_FACE);
-		else
-			glEnable(GL_CULL_FACE);
-		glutPostRedisplay();
-		break;
+	/* case 'b': */
+		/* if (glIsEnabled(GL_CULL_FACE)) */
+			/* glDisable(GL_CULL_FACE); */
+		/* else */
+			/* glEnable(GL_CULL_FACE); */
+		/* glutPostRedisplay(); */
+		/* break; */
 	case 't':
 		dayabs += 15;
 		glutPostRedisplay();
@@ -745,12 +796,24 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		glutPostRedisplay();
 		break;
-	case 'k':
+	case 'b':
 		draw_obj(0, 0, 0, 0.02);
 		glutPostRedisplay();
 		break;
-	case 'K':
+	case 'B':
 		draw_obj(0, 0, 0, -0.02);
+		glutPostRedisplay();
+		break;
+	case 'k':
+		ball_speed += 0.2f;
+		glutPostRedisplay();
+		break;
+	case 'K':
+		ball_speed -= 0.2f;
+		glutPostRedisplay();
+		break;
+	case 'f':
+		draw_frame = !draw_frame;
 		glutPostRedisplay();
 		break;
 
