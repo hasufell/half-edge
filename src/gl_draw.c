@@ -817,7 +817,8 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'K':
-		ball_speed -= 0.2f;
+		if (ball_speed - 0.2f > 0)
+			ball_speed -= 0.2f;
 		glutPostRedisplay();
 		break;
 	case 'f':
