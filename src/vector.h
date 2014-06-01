@@ -130,14 +130,14 @@ struct vector {
 };
 
 
-bool vector_len_scal_mul(vector *a, float scal, vector *c);
-bool vector_product(vector *a, vector *b, vector *c);
-bool add_vectors(vector *a, vector *b, vector *c);
-bool sub_vectors(vector *a, vector *b, vector *c);
-bool normalize_vector(vector *a, vector *b);
-bool copy_vector(vector *a, vector *b);
+bool vector_len_scal_mul(const vector *a, const float scal, vector *c);
+bool vector_product(const vector *a, const vector *b, vector *c);
+bool add_vectors(const vector *a, const vector *b, vector *c);
+bool sub_vectors(const vector *a, const vector *b, vector *c);
+bool normalize_vector(const vector *a, vector *b);
+bool copy_vector(const vector *a, vector *b);
 bool set_null_vector(vector *a);
-int is_null_vector(vector *a);
+int is_null_vector(const vector *a);
 
 
 #endif /* _DROW_ENGINE_VEC_MATH_H */

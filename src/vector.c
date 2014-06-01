@@ -43,7 +43,7 @@
  * @param c vector [out]
  * @return true/false for success/failure
  */
-bool vector_len_scal_mul(vector *a, float scal, vector *c)
+bool vector_len_scal_mul(const vector *a, const float scal, vector *c)
 {
 	vector a_tmp;
 	float vector_length;
@@ -79,7 +79,7 @@ bool vector_len_scal_mul(vector *a, float scal, vector *c)
  * @param c vector [out]
  * @return true/false for success/failure
  */
-bool vector_product(vector *a, vector *b, vector *c)
+bool vector_product(const vector *a, const vector *b, vector *c)
 {
 	vector a_tmp,
 		   b_tmp;
@@ -107,7 +107,7 @@ bool vector_product(vector *a, vector *b, vector *c)
  * @param c vector [out]
  * @return true/false for success/failure
  */
-bool add_vectors(vector *a, vector *b, vector *c)
+bool add_vectors(const vector *a, const vector *b, vector *c)
 {
 	vector a_tmp,
 		   b_tmp;
@@ -135,7 +135,7 @@ bool add_vectors(vector *a, vector *b, vector *c)
  * @param c vector [out]
  * @return true/false for success/failure
  */
-bool sub_vectors(vector *a, vector *b, vector *c)
+bool sub_vectors(const vector *a, const vector *b, vector *c)
 {
 	vector a_tmp,
 		   b_tmp;
@@ -161,7 +161,7 @@ bool sub_vectors(vector *a, vector *b, vector *c)
  * @param b vector [out]
  * @return true/false for success/failure
  */
-bool normalize_vector(vector *a, vector *b)
+bool normalize_vector(const vector *a, vector *b)
 {
 	if (!a || !b)
 		return false;
@@ -191,7 +191,7 @@ bool normalize_vector(vector *a, vector *b)
  * @param b vector [out]
  * @return true/false for success/failure
  */
-bool copy_vector(vector *a, vector *b)
+bool copy_vector(const vector *a, vector *b)
 {
 	if (!a || !b || (a == b))
 		return false;
@@ -230,7 +230,7 @@ bool set_null_vector(vector *a)
  * @return true if vector is a null vector, false
  * otherwise, -1 on failure
  */
-int is_null_vector(vector *a)
+int is_null_vector(const vector *a)
 {
 	if (!a)
 		return -1;
