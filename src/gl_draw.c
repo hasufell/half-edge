@@ -282,6 +282,35 @@ static void draw_bez(HE_obj const * const obj, float step_factor_inc)
 		free(v2);
 
 		glEnd();
+
+		{
+			const float ball_pos = 0.2;
+			bez_curv cur_bez = obj->bez_curves[i];
+			bez_curv next_bez = { NULL, 0 };
+
+			while ((get_reduced_bez_curv(&cur_bez, &next_bez, ball_pos))) {
+
+				glBegin(GL_LINES);
+
+				for (uint32_t j = 0; j < next_bez.deg; j++) {
+					glVertex3f(next_bez.vec[j].x,
+							next_bez.vec[j].y,
+							next_bez.vec[j].z);
+					glVertex3f(next_bez.vec[j + 1].x,
+							next_bez.vec[j + 1].y,
+							next_bez.vec[j + 1].z);
+				}
+
+				/* don't free the original one! */
+				if (cur_bez.deg < obj->bez_curves[i].deg)
+					free(cur_bez.vec);
+				cur_bez = next_bez;
+
+				glEnd();
+			}
+			free(cur_bez.vec);
+		}
+
 		i++;
 	}
 

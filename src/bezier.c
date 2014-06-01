@@ -31,12 +31,31 @@
 
 
 /*
- * static function declarations
+ * static function declaration
  */
-static bool get_section_vec(vector *a, vector *b, vector *c, float section);
+static bool get_section_vec(const vector *a,
+		const vector *b,
+		vector *c,
+		const float section);
+static vector *calculate_bezier_point_rec(const bez_curv *bez,
+		const float section,
+		const uint32_t deg);
 
 
-static bool get_section_vec(vector *a, vector *b, vector *c, float section)
+/**
+ * Get the vector that is in between the to control
+ * points a and b and in the specified section from 0 to 1.
+ *
+ * @param a first control point
+ * @param b second control point
+ * @param c store the result here [out]
+ * @param section the section between 0 and 1
+ * @return true/false for success/failure
+ */
+static bool get_section_vec(const vector *a,
+		const vector *b,
+		vector *c,
+		const float section)
 {
 	vector a_tmp,
 		   b_tmp;
@@ -57,6 +76,57 @@ static bool get_section_vec(vector *a, vector *b, vector *c, float section)
 }
 
 /**
+ * Calculate a point on the bezier curve according to the
+ * bezier vertices. If section is set to 0.5 then it will
+ * return the vector to the point in the middle of the curve.
+ *
+ * @param bez the bezier curve to calcluate the point from
+ * @param section the section which will be applied to all
+ * lines between the bezier vertices
+ * @param deg the degree of the bezier curve, this needs to be passed
+ * because the function is recursive
+ * @return the vector to the calculated point, newly allocated
+ */
+static vector *calculate_bezier_point_rec(const bez_curv *bez,
+		const float section,
+		const uint32_t deg)
+{
+	bez_curv new_bez = { NULL, 0 };
+
+	if (!get_reduced_bez_curv(bez, &new_bez, section))
+		return NULL;
+
+	if (bez->deg < deg)
+		free(bez->vec);
+
+	if (new_bez.deg > 0) {
+		return calculate_bezier_point_rec(&new_bez, section, deg);
+	} else {
+		vector *result_vector = malloc(sizeof(*result_vector));
+		*result_vector = new_bez.vec[0];
+		free(new_bez.vec);
+
+		return result_vector;
+	}
+}
+
+/**
+ * Calculate a point on the bezier curve according to the
+ * bezier vertices. If section is set to 0.5 then it will
+ * return the vector to the point in the middle of the curve.
+ *
+ * @param bez the bezier curve to calcluate the point from
+ * @param section the section which will be applied to all
+ * lines between the bezier vertices
+ * @return the vector to the calculated point, newly allocated
+ */
+vector *calculate_bezier_point(const bez_curv *bez,
+		const float section)
+{
+	return calculate_bezier_point_rec(bez, section, bez->deg);
+}
+
+/**
  * Get the reduced bezier curve which is of one degree less
  * and strained between the defined sections of the old curve.
  *
@@ -67,10 +137,16 @@ static bool get_section_vec(vector *a, vector *b, vector *c, float section)
  * lines between the bezier vertices
  * @return true/false for success/failure
  */
-bool get_reduced_bez_curv(bez_curv *bez, bez_curv *new_bez, float section)
+bool get_reduced_bez_curv(const bez_curv *bez,
+		bez_curv *new_bez,
+		const float section)
 {
-	vector *vec_arr = malloc(sizeof(*vec_arr) * bez->deg);
+	vector *vec_arr;
 
+	if (bez->deg < 1)
+		return false;
+
+	vec_arr = malloc(sizeof(*vec_arr) * bez->deg);
 	for (uint32_t i = 0; i < bez->deg; i++) {
 		vector new_vec;
 
@@ -85,36 +161,5 @@ bool get_reduced_bez_curv(bez_curv *bez, bez_curv *new_bez, float section)
 	new_bez->vec = vec_arr;
 	new_bez->deg = bez->deg - 1;
 
-	return new_bez;
+	return true;
 }
-
-/**
- * Calculate a point on the bezier curve according to the
- * bezier vertices. If section is set to 0.5 then it will
- * return the vector to the point in the middle of the curve.
- *
- * @param bez the bezier curve the calcluate the point from
- * @param section the section which will be applied to all
- * lines between the bezier vertices
- * @return the vector to the calculated point, newly allocated
- */
-vector *calculate_bezier_point(bez_curv *bez, float section)
-{
-	bez_curv new_bez = { NULL, 0 };
-
-	free(new_bez.vec);
-
-	if (!get_reduced_bez_curv(bez, &new_bez, section))
-		return NULL;
-
-	if (new_bez.deg > 0) {
-		return calculate_bezier_point(&new_bez, section);
-	} else {
-		vector *result_vector = malloc(sizeof(*result_vector));
-		*result_vector = new_bez.vec[0];
-
-		return result_vector;
-	}
-}
-
-
