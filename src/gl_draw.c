@@ -24,6 +24,7 @@
  * @brief OpenGL drawing
  */
 
+#include "bezier.h"
 #include "err.h"
 #include "filereader.h"
 #include "gl_draw.h"

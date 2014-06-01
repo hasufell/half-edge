@@ -29,6 +29,7 @@
 #define _DROW_ENGINE_HE_OPERATIONS_H
 
 
+#include "bezier.h"
 #include "vector.h"
 
 #include <stdbool.h>
@@ -108,7 +109,6 @@ typedef struct HE_vert_acc HE_vert_acc;
 typedef struct HE_face HE_face;
 typedef struct HE_obj HE_obj;
 typedef struct color color;
-typedef struct bez_curv bez_curv;
 
 
 /**
@@ -303,20 +303,6 @@ struct color {
 	double blue;
 };
 
-/**
- * Bezier Curve.
- */
-struct bez_curv {
-	/**
-	 * Array of vectors.
-	 */
-	vector *vec;
-	/**
-	 * Degree of the curve.
-	 */
-	uint32_t deg;
-};
-
 
 bool face_normal(HE_edge const * const edge,
 		vector *vec);
@@ -324,7 +310,6 @@ bool vec_normal(HE_vert const * const vert, vector *vec);
 bool find_center(HE_obj const * const obj, vector *vec);
 float get_normalized_scale_factor(HE_obj const * const obj);
 bool normalize_object(HE_obj *obj);
-vector *calculate_bezier_point(bez_curv *bez, float section);
 HE_obj *parse_obj(char const * const filename);
 void delete_object(HE_obj *obj);
 
