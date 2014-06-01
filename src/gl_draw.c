@@ -352,6 +352,7 @@ static void draw_ball(const bez_curv *bez,
 	const float ball_pos = pos;
 
 	glPushMatrix();
+	glColor3f(0.0, 1.0, 0.0);
 	vector *point = calculate_bezier_point(bez,
 			ball_pos);
 	glTranslatef(point->x, point->y, point->z);
