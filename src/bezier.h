@@ -49,6 +49,7 @@ struct bez_curv {
 };
 
 
+bool get_reduced_bez_curv(bez_curv *bez, bez_curv *new_bez, float section);
 vector *calculate_bezier_point(bez_curv *bez, float section);
 
 
