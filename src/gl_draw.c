@@ -203,6 +203,12 @@ static void draw_vertices(HE_obj const * const obj,
 	glPopMatrix();
 }
 
+/**
+ * Draw the bezier curve.
+ *
+ * @param bez the bezier curve to draw
+ * @param step_factor_inc the step factor between calculated control points
+ */
 static void draw_bez(const bez_curv *bez, float step_factor_inc)
 {
 	static float line_width = 2;
@@ -360,6 +366,8 @@ static void draw_ball(const bez_curv *bez,
  * @param myxrot rotation increment around x-axis
  * @param myyrot rotation increment around x-axis
  * @param myzrot rotation increment around x-axis
+ * @param bez_inc the step factor between calculated control points
+ * for the bezier curve
  */
 static void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
