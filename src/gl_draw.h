@@ -44,19 +44,17 @@
 #define TIMERMSECS 25
 
 #define XY_WIRE_COUNT 10.0f
-
 #define FPS_OUT_SIZE 17
-
 #define ROT_FACTOR_PLANET_SUN (360.0 / yearabs)
 #define ROT_FACTOR_PLANET (360.0 / 1.0)
 #define ROT_FACTOR_MOON (360.0 / dayabs)
-
 #define SYSTEM_POS_Z -15.0f
 #define SYSTEM_POS_Z_BACK 15.0f
 #define VISIBILITY_FACTOR 5.0f
 #define FAR_CLIPPING_PLANE 60.0f
 #define NEAR_CLIPPING_PLANE 1.0f
 #define CAMERA_ANGLE 60.0f
+
 
 extern int yearabs;
 extern int dayabs;
@@ -65,6 +63,7 @@ extern bool show_normals;
 extern bool shademodel;
 extern bool draw_frame;
 extern float ball_speed;
+
 
 void draw_normals(HE_obj const * const obj,
 		float const scale_inc);
