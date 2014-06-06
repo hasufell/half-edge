@@ -69,6 +69,14 @@ static void init_opengl(void)
 	glTranslatef(0.0, 0.0, -5.0);
 }
 
+/**
+ * Processes all sort of Events the SDL system catches.
+ *
+ * @param win the SDL window
+ * @param glctx the OpenGL context
+ * @return true if the app is still running, false if it should
+ * terminate
+ */
 static bool process_events(SDL_Window *win, SDL_GLContext glctx)
 {
 	SDL_Event e;
@@ -86,6 +94,12 @@ static bool process_events(SDL_Window *win, SDL_GLContext glctx)
 	return running;
 }
 
+/**
+ * Is called whenever the window size changes, so
+ * the object is reshaped into the new window size.
+ *
+ * @param win the SDL window
+ */
 static void reshape(SDL_Window *win)
 {
 	int w, h;
@@ -105,6 +119,15 @@ static void reshape(SDL_Window *win)
 	glTranslatef(0.0, 0.0, -5.0);
 }
 
+/**
+ * Processes all sort of window events the SDL system catches.
+ *
+ * @param win the SDL window
+ * @param glctx the OpenGL context
+ * @param win_event the window event to process
+ * @return true if the app is still running, false if it should
+ * terminate
+ */
 static bool process_window_events(SDL_Window *win,
 		SDL_GLContext glctx,
 		SDL_WindowEvent *win_event)
@@ -120,7 +143,7 @@ static bool process_window_events(SDL_Window *win,
 }
 
 /**
- * Keyboard callback function,
+ * Processes all sort of keyboard events the SDL system catches.
  *
  * press t to increase the day
  *
@@ -164,9 +187,9 @@ static bool process_window_events(SDL_Window *win,
  *
  * press q to quit
  *
- * @param key which was pressed
- * @param x coordinate
- * @param y coordinate
+ * @param key_event the key event to process
+ * @return true if the app is still running, false if it should
+ * terminate
  */
 static bool process_keypress(SDL_KeyboardEvent *key_event)
 {
@@ -296,6 +319,11 @@ static void gl_destroy(SDL_Window *win, SDL_GLContext glctx)
 	SDL_Quit();
 }
 
+/**
+ * Initialize the global obj object.
+ *
+ * @param filename the file to parse and build the object from
+ */
 void init_object(char const * const filename)
 {
 	obj = read_obj_file(filename);
@@ -306,6 +334,10 @@ void init_object(char const * const filename)
 	NORMALIZE_OBJECT(obj);
 }
 
+/**
+ * Starts the main SDL loop which runs until the user
+ * ends the program.
+ */
 void init_sdl_loop(void)
 {
 	SDL_Window *win;
