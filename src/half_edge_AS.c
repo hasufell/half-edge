@@ -92,6 +92,19 @@ static bool assemble_obj_arrays(char const * const obj_string,
 	V_TEXTURES obj_vt = NULL;
 	BEZIER_CURV bez = NULL;
 
+	/* allocator chunks/counts */
+	const int32_t obj_v_alloc_chunk = 200;
+	int32_t obj_v_alloc_c = 0;
+	const int32_t obj_vt_alloc_chunk = 200;
+	int32_t obj_vt_alloc_c = 0;
+	const int32_t obj_f_v_alloc_chunk = 200;
+	int32_t obj_f_v_alloc_c = 0;
+	const int32_t obj_f_vt_alloc_chunk = 200;
+	int32_t obj_f_vt_alloc_c = 0;
+	const int32_t bez_alloc_chunk = 3;
+	int32_t bez_alloc_c = 0;
+
+
 	if (!obj_string || !raw_obj)
 		return false;
 
@@ -114,14 +127,18 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			char *myint = NULL;
 			uint8_t i = 0;
 
-			REALLOC(obj_v, sizeof(*obj_v) * (vc + 2));
-			obj_v[vc] = NULL;
-			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				i++;
+			/* allocate in chunks */
+			if (!obj_v_alloc_c ||
+					(int32_t)vc > (obj_v_alloc_c - 2)) {
+				obj_v_alloc_c += obj_v_alloc_chunk;
+				REALLOC(obj_v, sizeof(*obj_v) * obj_v_alloc_c);
+			}
 
-				REALLOC(obj_v[vc],
-						sizeof(**obj_v) * (i + 1));
-				obj_v[vc][i - 1] = atof(myint);
+			obj_v[vc] = malloc(sizeof(**obj_v) * 4);
+
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				obj_v[vc][i] = atof(myint);
+				i++;
 
 				if (i > 3)
 					ABORT("Malformed vertice exceeds 3 dimensions!\n");
@@ -136,14 +153,18 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			char *myint = NULL;
 			uint8_t i = 0;
 
-			REALLOC(obj_vt, sizeof(*obj_vt) * (vtc + 2));
-			obj_vt[vtc] = NULL;
-			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				i++;
+			/* allocate in chunks */
+			if (!obj_vt_alloc_c ||
+					(int32_t)vtc > (obj_vt_alloc_c - 2)) {
+				obj_vt_alloc_c += obj_vt_alloc_chunk;
+				REALLOC(obj_vt, sizeof(*obj_vt) * obj_vt_alloc_c);
+			}
 
-				REALLOC(obj_vt[vtc],
-						sizeof(**obj_vt) * (i + 1));
-				obj_vt[vtc][i - 1] = atof(myint);
+			obj_vt[vtc] = malloc(sizeof(**obj_vt) * 4);
+
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				obj_vt[vtc][i] = atof(myint);
+				i++;
 
 				if (i > 3)
 					ABORT("Malformed vertice texture exceeds 3 dimensions!\n");
@@ -158,11 +179,27 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			char *myint_v = NULL,
 				 *myint_vt = NULL;
 			uint8_t i = 0;
+			const int32_t obj_f_v_arr_chunk = 5;
+			int32_t obj_f_v_arr_c = 0;
+			const int32_t obj_f_vt_arr_chunk = 5;
+			int32_t obj_f_vt_arr_c = 0;
 
-			REALLOC(obj_f_v, sizeof(*obj_f_v) * (fc + 2));
+			/* allocate in chunks */
+			if (!obj_f_v_alloc_c ||
+					(int32_t)fc > (obj_f_v_alloc_c - 2)) {
+				obj_f_v_alloc_c += obj_f_v_alloc_chunk;
+				REALLOC(obj_f_v, sizeof(*obj_f_v) * obj_f_v_alloc_c);
+			}
+
 			obj_f_v[fc] = NULL;
 
-			REALLOC(obj_f_vt, sizeof(*obj_f_vt) * (fc + 2));
+			/* allocate in chunks */
+			if (!obj_f_vt_alloc_c ||
+					(int32_t)fc > (obj_f_vt_alloc_c - 2)) {
+				obj_f_vt_alloc_c += obj_f_vt_alloc_chunk;
+				REALLOC(obj_f_vt, sizeof(*obj_f_vt) * obj_f_vt_alloc_c);
+			}
+
 			obj_f_vt[fc] = NULL;
 
 			while ((myint_v = strtok_r(NULL, " ", &str_ptr_space))) {
@@ -172,19 +209,34 @@ static bool assemble_obj_arrays(char const * const obj_string,
 				else
 					free(obj_f_vt); /* seems there is no vt, free the array */
 
-				i++;
 				ec++;
 
-				REALLOC(obj_f_v[fc],
-						sizeof(**obj_f_v) * (i + 1));
-				obj_f_v[fc][i - 1] = atoi(myint_v);
+				/* allocate in chunks */
+				if (!obj_f_v_arr_c ||
+						(int32_t)i > obj_f_v_arr_c - 2) {
+					obj_f_v_arr_c += obj_f_v_arr_chunk;
+					REALLOC(obj_f_v[fc],
+							sizeof(**obj_f_v) * obj_f_v_arr_c);
+				}
+
+				obj_f_v[fc][i] = atoi(myint_v);
+
+				i++;
+
 				/* so we can iterate over it more easily */
 				obj_f_v[fc][i] = 0;
 
 				/* parse x from "0.3/x" */
 				if ((myint_vt = strtok_r(NULL, "/", &str_ptr_slash))) {
-					REALLOC(obj_f_vt[fc],
-							sizeof(**obj_f_vt) * (i + 1));
+
+					/* allocate in chunks */
+					if (!obj_f_vt_arr_c ||
+							(int32_t)i > obj_f_vt_arr_c - 2) {
+						obj_f_vt_arr_c += obj_f_vt_arr_chunk;
+						REALLOC(obj_f_vt[fc],
+								sizeof(**obj_f_vt) * obj_f_vt_arr_c);
+					}
+
 					obj_f_vt[fc][i - 1] = atoi(myint_vt);
 					/* so we can iterate over it more easily */
 					obj_f_vt[fc][i] = 0;
@@ -199,15 +251,27 @@ static bool assemble_obj_arrays(char const * const obj_string,
 		} else if (!strcmp(str_tmp_ptr, "curv")) {
 			char *myint = NULL;
 			uint8_t i = 0;
+			const int32_t bez_arr_alloc_chunk = 5;
+			int32_t bez_arr_alloc_c = 0;
 
-			REALLOC(bez, sizeof(*bez) * (bzc + 2));
+			/* allocate in chunks */
+			if (!bez_alloc_c ||
+					(int32_t)bzc > bez_alloc_c - 2) {
+				bez_alloc_c += bez_alloc_chunk;
+				REALLOC(bez, sizeof(*bez) * bez_alloc_c);
+			}
 			bez[bzc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
-				i++;
 
-				REALLOC(bez[bzc],
-						sizeof(**bez) * (i + 1));
-				bez[bzc][i - 1] = atoi(myint);
+				/* allocate in chunks */
+				if (!bez_arr_alloc_c ||
+						(int32_t)bzc > bez_arr_alloc_c - 2) {
+					bez_arr_alloc_c += bez_arr_alloc_chunk;
+					REALLOC(bez[bzc], sizeof(**bez) * bez_arr_alloc_c);
+				}
+
+				bez[bzc][i] = atoi(myint);
+				i++;
 				bez[bzc][i] = 0;
 			}
 			bzc++;
