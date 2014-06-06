@@ -1,12 +1,31 @@
 include ../common.mk
 
 TARGET = drow-engine
-HEADERS = err.h common.h print.h filereader.h gl_draw.h vector.h half_edge.h bezier.h
-OBJECTS = print.o filereader.o gl_draw.o vector.o half_edge.o half_edge_AS.o bezier.o
+HEADERS = \
+		  err.h \
+		  common.h \
+		  print.h \
+		  filereader.h \
+		  gl_draw.h \
+		  vector.h \
+		  half_edge.h \
+		  bezier.h \
+		  gl_setup.h
+
+OBJECTS = \
+		  print.o \
+		  filereader.o \
+		  gl_draw.o \
+		  vector.o \
+		  half_edge.o \
+		  half_edge_AS.o \
+		  bezier.o \
+		  gl_setup.o
+
 INCS = -I.
 
-CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0)
-LIBS = $(shell $(PKG_CONFIG) --libs gl glu glib-2.0) -lglut -lm
+CFLAGS += $(shell $(PKG_CONFIG) --cflags gl glu glib-2.0 sdl2)
+LIBS = $(shell $(PKG_CONFIG) --libs gl glu glib-2.0 sdl2) -lglut -lm
 CPPFLAGS += -D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED -D_GNU_SOURCE
 
 %.o: %.c

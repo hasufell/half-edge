@@ -26,9 +26,16 @@
 #define _DROW_ENGINE_DRAW_H
 
 
+#include "bezier.h"
+#include "half_edge.h"
+
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+#include <SDL.h>
+
+#include <stdbool.h>
 
 
 /**
@@ -36,12 +43,45 @@
  */
 #define TIMERMSECS 25
 
+#define XY_WIRE_COUNT 10.0f
 
-void init(char const * const filename);
-void display(void);
-void reshape(GLsizei w, GLsizei h);
-void animate();
-void keyboard(unsigned char key, int x, int y);
+#define FPS_OUT_SIZE 17
+
+#define ROT_FACTOR_PLANET_SUN (360.0 / yearabs)
+#define ROT_FACTOR_PLANET (360.0 / 1.0)
+#define ROT_FACTOR_MOON (360.0 / dayabs)
+
+#define SYSTEM_POS_Z -15.0f
+#define SYSTEM_POS_Z_BACK 15.0f
+#define VISIBILITY_FACTOR 5.0f
+#define FAR_CLIPPING_PLANE 60.0f
+#define NEAR_CLIPPING_PLANE 1.0f
+#define CAMERA_ANGLE 60.0f
+
+extern int yearabs;
+extern int dayabs;
+extern HE_obj *obj;
+extern bool show_normals;
+extern bool shademodel;
+extern bool draw_frame;
+extern float ball_speed;
+
+void draw_normals(HE_obj const * const obj,
+		float const scale_inc);
+void draw_vertices(HE_obj const * const obj,
+		bool disco_set);
+void draw_bez(const bez_curv *bez, float step_factor_inc);
+void draw_bez_frame(const bez_curv *bez,
+		float pos);
+void draw_ball(const bez_curv *bez,
+		const float pos);
+void draw_obj(int32_t const myxrot,
+		int32_t const myyrot,
+		int32_t const myzrot,
+		float bez_inc);
+void draw_Planet_1(void);
+void draw_Planet_2(void);
+void draw_scene(void);
 
 
 #endif /* _DROW_ENGINE_DRAW_H */

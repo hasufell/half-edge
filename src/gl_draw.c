@@ -35,35 +35,23 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <SDL.h>
+
 #include <math.h>
 #include <limits.h>
 #include <unistd.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-
-#define XY_WIRE_COUNT 10.0f
-
-#define FPS_OUT_SIZE 17
-
-#define ROT_FACTOR_PLANET_SUN (360.0 / yearabs)
-#define ROT_FACTOR_PLANET (360.0 / 1.0)
-#define ROT_FACTOR_MOON (360.0 / dayabs)
-
-#define SYSTEM_POS_Z -15.0f
-#define SYSTEM_POS_Z_BACK 15.0f
-#define VISIBILITY_FACTOR 5.0f
-#define FAR_CLIPPING_PLANE 60.0f
-#define NEAR_CLIPPING_PLANE 1.0f
-#define CAMERA_ANGLE 60.0f
 
 
 /*
  * globals
  */
-int year;
+int year = 0;
 int yearabs = 365;
-int day;
+int day = 0;
 int dayabs = 30;
 HE_obj *obj;
 bool show_normals = false;
@@ -72,27 +60,6 @@ bool draw_frame = false;
 float ball_speed = 1.0f;
 
 
-/*
- * static function declaration
- */
-static void draw_bez(const bez_curv *bez, float step_factor_inc);
-static void draw_bez_frame(const bez_curv *bez,
-		float pos);
-static void draw_ball(const bez_curv *bez,
-		const float pos);
-static void draw_obj(int32_t const myxrot,
-		int32_t const myyrot,
-		int32_t const myzrot,
-		float bez_inc);
-static void draw_Planet_1(void);
-static void draw_Planet_2(void);
-static void gl_destroy(void);
-static void draw_normals(HE_obj const * const obj,
-		float const scale_inc);
-static void draw_vertices(HE_obj const * const obj,
-		bool disco);
-static float calculateFPS();
-
 
 /**
  * Draws the vertex normals of the object.
@@ -100,7 +67,7 @@ static float calculateFPS();
  * @param obj the object to draw the vertex normals of
  * @param scale_inc the incrementor for scaling the normals
  */
-static void draw_normals(HE_obj const * const obj,
+void draw_normals(HE_obj const * const obj,
 		float const scale_inc)
 {
 	static float normals_scale_factor = 0.1f;
@@ -139,7 +106,7 @@ static void draw_normals(HE_obj const * const obj,
  * @param obj the object of which we will draw the vertices
  * @param disco_set determines whether we are in disco mode
  */
-static void draw_vertices(HE_obj const * const obj,
+void draw_vertices(HE_obj const * const obj,
 		bool disco_set)
 {
 	/* color */
@@ -209,7 +176,7 @@ static void draw_vertices(HE_obj const * const obj,
  * @param bez the bezier curve to draw
  * @param step_factor_inc the step factor between calculated control points
  */
-static void draw_bez(const bez_curv *bez, float step_factor_inc)
+void draw_bez(const bez_curv *bez, float step_factor_inc)
 {
 	static float line_width = 2;
 	static float point_size = 10;
@@ -310,7 +277,7 @@ static void draw_bez(const bez_curv *bez, float step_factor_inc)
  * @param pos the position where the curve and the frame
  * will cut
  */
-static void draw_bez_frame(const bez_curv *bez,
+void draw_bez_frame(const bez_curv *bez,
 		float pos)
 {
 	bez_curv cur_bez = *bez;
@@ -346,18 +313,21 @@ static void draw_bez_frame(const bez_curv *bez,
  * @param bez the bezier curve to draw the ball on
  * @param pos the position of the ball
  */
-static void draw_ball(const bez_curv *bez,
+void draw_ball(const bez_curv *bez,
 		const float pos)
 {
 	const float ball_pos = pos;
+	vector *point;
 
 	glPushMatrix();
 	glColor3f(0.0, 1.0, 0.0);
-	vector *point = calculate_bezier_point(bez,
+	point = calculate_bezier_point(bez,
 			ball_pos);
 	glTranslatef(point->x, point->y, point->z);
 	glutWireSphere(0.02f, 100, 100);
 	glPopMatrix();
+
+	free(point);
 }
 
 
@@ -370,7 +340,7 @@ static void draw_ball(const bez_curv *bez,
  * @param bez_inc the step factor between calculated control points
  * for the bezier curve
  */
-static void draw_obj(int32_t const myxrot,
+void draw_obj(int32_t const myxrot,
 		int32_t const myyrot,
 		int32_t const myzrot,
 		float bez_inc)
@@ -440,7 +410,7 @@ static void draw_obj(int32_t const myxrot,
  * Rotates the planet around the sun, the moons around the planet
  * and the planet around its axis.
  */
-static void draw_Planet_1(void)
+void draw_Planet_1(void)
 {
 	GLUquadric* quadric = NULL;
 	quadric = gluNewQuadric();
@@ -515,7 +485,7 @@ static void draw_Planet_1(void)
  * The planet rotates around the sun and the moons around the planet
  * and the planet around its axis.
  */
-static void draw_Planet_2(void)
+void draw_Planet_2(void)
 {
 	glPushMatrix();
 	const float moon_pos_fac = 2.5;
@@ -566,38 +536,22 @@ static void draw_Planet_2(void)
 }
 
 /**
- * Calculates the frames per second rate.
- *
- * @return the actual frames per second rate
- */
-static float calculateFPS(void)
-{
-	static int frameCount = 0;
-	static int currentTime = 0;
-	static int previousTime = 0;
-	static float fps = 0;
-
-	frameCount++;
-	currentTime = glutGet(GLUT_ELAPSED_TIME);
-	int timeInterval = currentTime - previousTime;
-	if (timeInterval > 1000) {
-		fps = frameCount / (timeInterval / 1000.0f);
-		previousTime = currentTime;
-		frameCount = 0;
-	}
-	return fps;
-}
-
-/**
  * Displays the whole setup with the sun, planet one,
  * planet two and the frame rate
  */
-void display(void)
+void draw_scene(void)
 {
-	char fps_out[FPS_OUT_SIZE];
-	char *tmp_ptr = fps_out;
-	float fps = calculateFPS();
-	int i;
+	day++;
+	if (day >= yearabs) {
+		day = 0;
+		year++;
+	}
+	if (year >= (INT_MAX - 1000) || year < 0) {
+		year = 0;
+	}
+	if (day < 0) {
+		day = 0;
+	}
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -617,256 +571,10 @@ void display(void)
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glRasterPos2i(5, 10);
 
-	sprintf(fps_out, "FPS: %f", fps);
-
-	for (i = 0; i < FPS_OUT_SIZE; ++i)
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *tmp_ptr++);
-
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glutSwapBuffers();
 }
 
-/**
- * Sets the initial values to start the program.
- */
-void init(char const * const filename)
-{
-	obj = read_obj_file(filename);
-	if (!obj)
-		ABORT("Failed to read object file \"%s\"!", filename);
-
-	NORMALIZE_OBJECT(obj);
-
-	day = 0;
-	year = 0;
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
-}
-
-/**
- * Is called when the window size changes.
- * Fits the viewport to the new dimension.
- *
- * @param w the new width of the window
- * @param h the new height of the window
- */
-void reshape(GLsizei w, GLsizei h)
-{
-	glViewport(0, 0, w, h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(CAMERA_ANGLE,
-			(GLfloat) w / (GLfloat) h,
-			NEAR_CLIPPING_PLANE,
-			FAR_CLIPPING_PLANE);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.0, 0.0, -5.0);
-}
-
-/**
- * Is called over and over again.
- * Counts the years and days.
- */
-void animate()
-{
-	day++;
-	if (day >= yearabs) {
-		day = 0;
-		year++;
-	}
-	if (year >= (INT_MAX - 1000) || year < 0) {
-		year = 0;
-	}
-	if (day < 0) {
-		day = 0;
-	}
-
-	glutTimerFunc(TIMERMSECS, animate, 0);
-	glutPostRedisplay();
-}
-
-/**
- * Keyboard callback function,
- *
- * press t to increase the day
- *
- * press T to decrease the day
- *
- * press j to increase the year
- *
- * press J to decrease the year
- *
- * press b to toggle GL_CULL_FACE
- *
- * press D to toggle disco mode
- *
- * press S to toggle shade model between GL_SMOOTH and GL_FLAT
- *
- * press n to toggle normals
- *
- * press k to increase length of normals
- *
- * press l to decrease length of normals
- *
- * press x to rotate the middle object in x direction
- *
- * press X to rotate the middle object in -x direction
- *
- * press y to rotate the middle object in y direction
- *
- * press Y to rotate the middle object in -y direction
- *
- * press c to rotate the middle object in z direction
- *
- * press C to rotate the middle object in -z direction
- *
- * press w to translate the whole scene in y direction
- *
- * press s to translate the whole scene in -y direction
- *
- * press a to translate the whole scene in -x direction
- *
- * press d to translate the whole scene in x direction
- *
- * press q to quit
- *
- * @param key which was pressed
- * @param x coordinate
- * @param y coordinate
- */
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key) {
-	/* case 'b': */
-		/* if (glIsEnabled(GL_CULL_FACE)) */
-			/* glDisable(GL_CULL_FACE); */
-		/* else */
-			/* glEnable(GL_CULL_FACE); */
-		/* glutPostRedisplay(); */
-		/* break; */
-	case 't':
-		dayabs += 15;
-		glutPostRedisplay();
-		break;
-	case 'j':
-		yearabs += 50;
-		glutPostRedisplay();
-		break;
-	case 'T':
-		dayabs -= 15;
-		glutPostRedisplay();
-		break;
-	case 'J':
-		yearabs -= 50;
-		glutPostRedisplay();
-		break;
-	case 'x':
-		draw_obj(2, 0, 0, 0);
-		glutPostRedisplay();
-		break;
-	case 'X':
-		draw_obj(-2, 0, 0, 0);
-		glutPostRedisplay();
-		break;
-	case 'y':
-		draw_obj(0, 2, 0, 0);
-		glutPostRedisplay();
-		break;
-	case 'Y':
-		draw_obj(0, -2, 0, 0);
-		glutPostRedisplay();
-		break;
-	case 'c':
-		draw_obj(0, 0, 2, 0);
-		glutPostRedisplay();
-		break;
-	case 'C':
-		draw_obj(0, 0, -2, 0);
-		glutPostRedisplay();
-		break;
-	case 'D':
-		draw_vertices(obj, true);
-		glutPostRedisplay();
-		break;
-	case 'S':
-		if (shademodel) {
-			glShadeModel(GL_FLAT);
-			shademodel = false;
-		} else {
-			glShadeModel(GL_SMOOTH);
-			shademodel = true;
-		}
-		glutPostRedisplay();
-		break;
-	case 'b':
-		draw_obj(0, 0, 0, 0.02);
-		glutPostRedisplay();
-		break;
-	case 'B':
-		draw_obj(0, 0, 0, -0.02);
-		glutPostRedisplay();
-		break;
-	case 'k':
-		ball_speed += 0.2f;
-		glutPostRedisplay();
-		break;
-	case 'K':
-		if (ball_speed - 0.2f > 0)
-			ball_speed -= 0.2f;
-		glutPostRedisplay();
-		break;
-	case 'f':
-		draw_frame = !draw_frame;
-		glutPostRedisplay();
-		break;
-
-	/* case 'k': */
-		/* draw_normals(obj, 0.01f); */
-		/* glutPostRedisplay(); */
-		/* break; */
-	/* case 'l': */
-		/* draw_normals(obj, -0.01f); */
-		/* glutPostRedisplay(); */
-		/* break; */
-	case 'w':
-		glTranslatef(0.0f, 1.0f, 0.0f);
-		break;
-	case 'a':
-		glTranslatef(-1.0f, 0.0f, 0.0f);
-		break;
-	case 's':
-		glTranslatef(0.0f, -1.0f, 0.0f);
-		break;
-	case 'd':
-		glTranslatef(1.0f, 0.0f, 0.0f);
-		break;
-	case 'n':
-		show_normals = !show_normals;
-		break;
-	case '+':
-		glTranslatef(0.0f, 0.0f, 1.0f);
-		break;
-	case '-':
-		glTranslatef(0.0f, 0.0f, -1.0f);
-		break;
-	case 'q':
-		gl_destroy();
-		break;
-	}
-}
-
-/**
- * Destroy the gl session/window.
- */
-static void gl_destroy(void)
-{
-	delete_object(obj);
-	free(obj);
-	glutDestroyWindow(glutGetWindow());
-}

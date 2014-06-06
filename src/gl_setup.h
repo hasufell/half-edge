@@ -17,43 +17,17 @@
  */
 
 /**
- * @file main.c
- * Takes argv[1] as parameter and passes
- * it to the glut functions for drawing the file
- * in a predefined scene.
- * @brief program entry point
+ * @file gl_setup.h
+ * Header for the external API of gl_setup.c
+ * @brief header of gl_setup.c
  */
 
-#include "gl_setup.h"
-#include "half_edge.h"
-#include "print.h"
-#include "vector.h"
-
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <stdio.h>
-
-#include <SDL.h>
+#ifndef _DROW_ENGINE_SETUP_H
+#define _DROW_ENGINE_SETUP_H
 
 
-/**
- * Program help text.
- */
-char const * const helptext = "Usage: drow-engine <file.obj>\n";
+void init_object(char const * const filename);
+void init_sdl_loop(void);
 
 
-int main(int argc, char *argv[])
-{
-	if (argc == 1) {
-		printf("%s", helptext);
-		return 1;
-	}
-
-	glutInit(&argc, argv);
-
-	init_object(argv[1]);
-	init_sdl_loop();
-
-	return 0;
-}
+#endif /* _DROW_ENGINE_SETUP_H */
