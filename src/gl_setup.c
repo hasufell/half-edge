@@ -277,12 +277,13 @@ static bool process_keypress(SDL_KeyboardEvent *key_event)
 	case 'f':
 		draw_frame = !draw_frame;
 		break;
-	/* case 'k': */
-		/* draw_normals(obj, 0.01f); */
-		/* break; */
-	/* case 'l': */
-		/* draw_normals(obj, -0.01f); */
-		/* break; */
+	case 'l':
+		if (mod & KMOD_SHIFT) {
+			draw_normals(obj, 0.01f);
+		} else {
+			draw_normals(obj, -0.01f);
+		}
+		break;
 	case 'w':
 		glTranslatef(0.0f, 1.0f, 0.0f);
 		break;
