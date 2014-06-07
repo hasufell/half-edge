@@ -5,6 +5,8 @@
 # doxygen
 html/
 latex/
+doxygen/DoxygenLayout.xml
+doxygen/customdoxygen.css
 
 # objects, targets, etc
 *.o
@@ -20,3 +22,9 @@ core
 .cproject#
 vgcore*
 *.plist
+tags
+*.orig
+*.new
+jedi_remote_1_*
+*.png
+*.7z
