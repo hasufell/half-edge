@@ -128,8 +128,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			uint8_t i = 0;
 
 			/* allocate in chunks */
-			if (!obj_v_alloc_c ||
-					(int32_t)vc > (obj_v_alloc_c - 2)) {
+			if ((int32_t)vc > (obj_v_alloc_c - 2)) {
 				obj_v_alloc_c += obj_v_alloc_chunk;
 				REALLOC(obj_v, sizeof(*obj_v) * obj_v_alloc_c);
 			}
@@ -154,8 +153,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			uint8_t i = 0;
 
 			/* allocate in chunks */
-			if (!obj_vt_alloc_c ||
-					(int32_t)vtc > (obj_vt_alloc_c - 2)) {
+			if ((int32_t)vtc > (obj_vt_alloc_c - 2)) {
 				obj_vt_alloc_c += obj_vt_alloc_chunk;
 				REALLOC(obj_vt, sizeof(*obj_vt) * obj_vt_alloc_c);
 			}
@@ -185,8 +183,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			int32_t obj_f_vt_arr_c = 0;
 
 			/* allocate in chunks */
-			if (!obj_f_v_alloc_c ||
-					(int32_t)fc > (obj_f_v_alloc_c - 2)) {
+			if ((int32_t)fc > (obj_f_v_alloc_c - 2)) {
 				obj_f_v_alloc_c += obj_f_v_alloc_chunk;
 				REALLOC(obj_f_v, sizeof(*obj_f_v) * obj_f_v_alloc_c);
 			}
@@ -194,8 +191,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			obj_f_v[fc] = NULL;
 
 			/* allocate in chunks */
-			if (!obj_f_vt_alloc_c ||
-					(int32_t)fc > (obj_f_vt_alloc_c - 2)) {
+			if ((int32_t)fc > (obj_f_vt_alloc_c - 2)) {
 				obj_f_vt_alloc_c += obj_f_vt_alloc_chunk;
 				REALLOC(obj_f_vt, sizeof(*obj_f_vt) * obj_f_vt_alloc_c);
 			}
@@ -212,8 +208,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 				ec++;
 
 				/* allocate in chunks */
-				if (!obj_f_v_arr_c ||
-						(int32_t)i > obj_f_v_arr_c - 2) {
+				if ((int32_t)i > obj_f_v_arr_c - 2) {
 					obj_f_v_arr_c += obj_f_v_arr_chunk;
 					REALLOC(obj_f_v[fc],
 							sizeof(**obj_f_v) * obj_f_v_arr_c);
@@ -230,8 +225,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 				if ((myint_vt = strtok_r(NULL, "/", &str_ptr_slash))) {
 
 					/* allocate in chunks */
-					if (!obj_f_vt_arr_c ||
-							(int32_t)i > obj_f_vt_arr_c - 2) {
+					if ((int32_t)i > obj_f_vt_arr_c - 2) {
 						obj_f_vt_arr_c += obj_f_vt_arr_chunk;
 						REALLOC(obj_f_vt[fc],
 								sizeof(**obj_f_vt) * obj_f_vt_arr_c);
@@ -255,8 +249,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			int32_t bez_arr_alloc_c = 0;
 
 			/* allocate in chunks */
-			if (!bez_alloc_c ||
-					(int32_t)bzc > bez_alloc_c - 2) {
+			if ((int32_t)bzc > bez_alloc_c - 2) {
 				bez_alloc_c += bez_alloc_chunk;
 				REALLOC(bez, sizeof(*bez) * bez_alloc_c);
 			}
@@ -264,8 +257,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
 
 				/* allocate in chunks */
-				if (!bez_arr_alloc_c ||
-						(int32_t)bzc > bez_arr_alloc_c - 2) {
+				if ((int32_t)bzc > bez_arr_alloc_c - 2) {
 					bez_arr_alloc_c += bez_arr_alloc_chunk;
 					REALLOC(bez[bzc], sizeof(**bez) * bez_arr_alloc_c);
 				}
