@@ -27,6 +27,7 @@
 #define _DROW_ENGINE_TYPES_H
 
 
+#include <stdio.h>
 #include <stdint.h>
 
 
