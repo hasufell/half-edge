@@ -182,8 +182,8 @@ void draw_bez(const bez_curv *bez, float step_factor_inc)
 	static float point_size = 10;
 	static float step_factor = 0.1;
 
-	if (step_factor + step_factor_inc > 0.002 &
-			step_factor + step_factor_inc < 0.50)
+	if ((step_factor + step_factor_inc) > 0.002 &&
+			(step_factor + step_factor_inc) < 0.50)
 		step_factor += step_factor_inc;
 
 	glPushMatrix();
