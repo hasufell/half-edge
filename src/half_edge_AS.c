@@ -127,11 +127,11 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			char *myint = NULL;
 			uint8_t i = 0;
 
-			/* allocate in chunks */
-			if ((int32_t)vc > (obj_v_alloc_c - 2)) {
-				obj_v_alloc_c += obj_v_alloc_chunk;
-				REALLOC(obj_v, sizeof(*obj_v) * obj_v_alloc_c);
-			}
+			MAYBE_REALLOC(obj_v,
+					sizeof(*obj_v),
+					(int32_t)vc > (obj_v_alloc_c - 2),
+					obj_v_alloc_c,
+					obj_v_alloc_chunk);
 
 			obj_v[vc] = malloc(sizeof(**obj_v) * 4);
 
@@ -152,11 +152,11 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			char *myint = NULL;
 			uint8_t i = 0;
 
-			/* allocate in chunks */
-			if ((int32_t)vtc > (obj_vt_alloc_c - 2)) {
-				obj_vt_alloc_c += obj_vt_alloc_chunk;
-				REALLOC(obj_vt, sizeof(*obj_vt) * obj_vt_alloc_c);
-			}
+			MAYBE_REALLOC(obj_vt,
+					sizeof(*obj_vt),
+					(int32_t)vtc > (obj_vt_alloc_c - 2),
+					obj_vt_alloc_c,
+					obj_vt_alloc_chunk);
 
 			obj_vt[vtc] = malloc(sizeof(**obj_vt) * 4);
 
@@ -182,19 +182,19 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			const int32_t obj_f_vt_arr_chunk = 5;
 			int32_t obj_f_vt_arr_c = 0;
 
-			/* allocate in chunks */
-			if ((int32_t)fc > (obj_f_v_alloc_c - 2)) {
-				obj_f_v_alloc_c += obj_f_v_alloc_chunk;
-				REALLOC(obj_f_v, sizeof(*obj_f_v) * obj_f_v_alloc_c);
-			}
+			MAYBE_REALLOC(obj_f_v,
+					sizeof(*obj_f_v),
+					(int32_t)fc > (obj_f_v_alloc_c - 2),
+					obj_f_v_alloc_c,
+					obj_f_v_alloc_chunk);
 
 			obj_f_v[fc] = NULL;
 
-			/* allocate in chunks */
-			if ((int32_t)fc > (obj_f_vt_alloc_c - 2)) {
-				obj_f_vt_alloc_c += obj_f_vt_alloc_chunk;
-				REALLOC(obj_f_vt, sizeof(*obj_f_vt) * obj_f_vt_alloc_c);
-			}
+			MAYBE_REALLOC(obj_f_vt,
+					sizeof(*obj_f_vt),
+					(int32_t)fc > (obj_f_vt_alloc_c - 2),
+					obj_f_vt_alloc_c,
+					obj_f_vt_alloc_chunk);
 
 			obj_f_vt[fc] = NULL;
 
@@ -207,12 +207,11 @@ static bool assemble_obj_arrays(char const * const obj_string,
 
 				ec++;
 
-				/* allocate in chunks */
-				if ((int32_t)i > obj_f_v_arr_c - 2) {
-					obj_f_v_arr_c += obj_f_v_arr_chunk;
-					REALLOC(obj_f_v[fc],
-							sizeof(**obj_f_v) * obj_f_v_arr_c);
-				}
+				MAYBE_REALLOC(obj_f_v[fc],
+						sizeof(**obj_f_v),
+						(int32_t)i > obj_f_v_arr_c - 2,
+						obj_f_v_arr_c,
+						obj_f_v_arr_chunk);
 
 				obj_f_v[fc][i] = atoi(myint_v);
 
@@ -224,12 +223,11 @@ static bool assemble_obj_arrays(char const * const obj_string,
 				/* parse x from "0.3/x" */
 				if ((myint_vt = strtok_r(NULL, "/", &str_ptr_slash))) {
 
-					/* allocate in chunks */
-					if ((int32_t)i > obj_f_vt_arr_c - 2) {
-						obj_f_vt_arr_c += obj_f_vt_arr_chunk;
-						REALLOC(obj_f_vt[fc],
-								sizeof(**obj_f_vt) * obj_f_vt_arr_c);
-					}
+					MAYBE_REALLOC(obj_f_vt[fc],
+							sizeof(**obj_f_vt),
+							(int32_t)i > obj_f_vt_arr_c - 2,
+							obj_f_vt_arr_c,
+							obj_f_vt_arr_chunk);
 
 					obj_f_vt[fc][i - 1] = atoi(myint_vt);
 					/* so we can iterate over it more easily */
@@ -248,19 +246,20 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			const int32_t bez_arr_alloc_chunk = 5;
 			int32_t bez_arr_alloc_c = 0;
 
-			/* allocate in chunks */
-			if ((int32_t)bzc > bez_alloc_c - 2) {
-				bez_alloc_c += bez_alloc_chunk;
-				REALLOC(bez, sizeof(*bez) * bez_alloc_c);
-			}
+			MAYBE_REALLOC(bez,
+					sizeof(*bez),
+					(int32_t)bzc > bez_alloc_c - 2,
+					bez_alloc_c,
+					bez_alloc_chunk);
+
 			bez[bzc] = NULL;
 			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
 
-				/* allocate in chunks */
-				if ((int32_t)bzc > bez_arr_alloc_c - 2) {
-					bez_arr_alloc_c += bez_arr_alloc_chunk;
-					REALLOC(bez[bzc], sizeof(**bez) * bez_arr_alloc_c);
-				}
+				MAYBE_REALLOC(bez[bzc],
+						sizeof(**bez),
+						(int32_t)bzc > bez_arr_alloc_c - 2,
+						bez_arr_alloc_c,
+						bez_arr_alloc_chunk);
 
 				bez[bzc][i] = atoi(myint);
 				i++;
@@ -317,6 +316,10 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 	HE_vert *vertices = he_obj->vertices;
 	bez_curv *bez_curves = NULL;
 
+	/* allocator chunks/counts */
+	const int32_t bez_curves_alloc_chunk = 3;
+	int32_t bez_curves_alloc_c = 0;
+
 	while (raw_obj->v[vc]) {
 		vector *tmp_vec;
 
@@ -340,7 +343,9 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 		/* set acc structure */
 		vertices[vc].acc = malloc(sizeof(HE_vert_acc));
 		vertices[vc].acc->edge_array = NULL;
+		vertices[vc].acc->eac_alloc = 0;
 		vertices[vc].acc->eac = 0;
+		vertices[vc].acc->dc_alloc = 0;
 		vertices[vc].acc->dc = 0;
 
 		vc++;
@@ -348,12 +353,23 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 
 	while (raw_obj->bez && raw_obj->bez[bzc]) {
 		uint32_t i = 0;
+		const int32_t bez_vec_alloc_chunk = 5;
+		int32_t bez_vec_alloc_c = 0;
 		vector *bez_vec = NULL;
 
-		REALLOC(bez_curves, sizeof(*bez_curves) * (bzc + 2));
+		MAYBE_REALLOC(bez_curves,
+				sizeof(*bez_curves),
+				(int32_t)bzc > bez_curves_alloc_c - 2,
+				bez_curves_alloc_c,
+				bez_curves_alloc_chunk);
 
 		while (raw_obj->bez[bzc][i]) {
-			REALLOC(bez_vec, sizeof(vector) * (i + 1));
+			MAYBE_REALLOC(bez_vec,
+					sizeof(vector),
+					(int32_t)i > bez_vec_alloc_c - 1,
+					bez_vec_alloc_c,
+					bez_vec_alloc_chunk);
+
 			bez_vec[i] = *(vertices[raw_obj->bez[bzc][i] - 1].vec);
 			i++;
 		}
@@ -393,10 +409,12 @@ static void assemble_HE_stage2(obj_items const * const raw_obj,
 
 	uint32_t ec = 0,
 			 fc = he_obj->fc;
+	const int32_t edge_array_alloc_chunk = 5;
 
 	/* create HE_edges and real HE_faces */
 	for (uint32_t i = 0; i < fc; i++) { /* for all faces */
 		uint32_t j = 0;
+
 		/* for all vertices of the face */
 		while (obj_f->v[i][j]) {
 			uint32_t fv_arr_id =
@@ -413,27 +431,38 @@ static void assemble_HE_stage2(obj_items const * const raw_obj,
 			 * element is taken care of below as well. */
 			if (j > 0) {
 				uint32_t *eac = &(edges[ec].vert->acc->eac);
+				int32_t *edge_array_alloc_c = &(edges[ec].vert->acc->eac_alloc);
 
 				/* connect previous edge to current edge */
 				edges[ec - 1].next = &(edges[ec]);
 
 				/* Acceleration struct:
 				 * add previous edge to edge_array of current vertice */
-				REALLOC(edges[ec].vert->acc->edge_array,
-						sizeof(HE_edge*) * (*eac + 1));
+				MAYBE_REALLOC(edges[ec].vert->acc->edge_array,
+						sizeof(HE_edge*),
+						(int32_t)(*eac) > (*edge_array_alloc_c) - 1,
+						(*edge_array_alloc_c),
+						(*eac) + edge_array_alloc_chunk);
+
 				edges[ec].vert->acc->edge_array[*eac] = &(edges[ec - 1]);
 				(*eac)++;
 
 				if (!obj_f->v[i][j + 1]) { /* no vertice left */
 					uint32_t *eac;
+					int32_t *edge_array_alloc_c;
+
 					/* connect last edge to first edge */
 					edges[ec].next = &(edges[ec - j]);
 					eac = &(edges[ec].next->vert->acc->eac);
+					edge_array_alloc_c = &(edges[ec].next->vert->acc->eac_alloc);
 
 					/* Acceleration struct:
 					 * add last edge to edge_array element of first vertice */
-					REALLOC(edges[ec].next->vert->acc->edge_array,
-							sizeof(HE_edge*) * (*eac + 1));
+					MAYBE_REALLOC(edges[ec].next->vert->acc->edge_array,
+							sizeof(HE_edge*),
+							(int32_t)(*eac) > (*edge_array_alloc_c) - 1,
+							(*edge_array_alloc_c),
+							(*eac) + edge_array_alloc_chunk);
 					edges[ec].next->vert->acc->edge_array[*eac] = &(edges[ec]);
 					(*eac)++;
 				}
@@ -465,6 +494,7 @@ static void assemble_HE_stage3(HE_obj *he_obj)
 	HE_edge *edges = he_obj->edges;
 	uint32_t ec = he_obj->ec;
 	uint32_t dec = 0;
+	const int32_t edge_array_alloc_chunk = 5;
 
 	/* find pairs */
 	for (uint32_t i = 0; i < ec; i++) { /* for all edges */
@@ -486,9 +516,13 @@ static void assemble_HE_stage3(HE_obj *he_obj)
 		/* create dummy pair edge if we have a border edge */
 		if (!pair_found) {
 			uint32_t *vert_dc = &(edges[i].next->vert->acc->dc);
+			int32_t *dumme_array_alloc_c = &(edges[i].next->vert->acc->dc_alloc);
 
-			REALLOC(edges[i].next->vert->acc->dummys,
-					sizeof(HE_edge*) * (*vert_dc + 1));
+			MAYBE_REALLOC(edges[i].next->vert->acc->dummys,
+					sizeof(HE_edge*),
+					(int32_t)(*vert_dc) > (*dumme_array_alloc_c) - 1,
+					(*dumme_array_alloc_c),
+					(*vert_dc) + edge_array_alloc_chunk);
 
 			/* NULL-face indicates border-edge */
 			edges[ec + dec].face = NULL;

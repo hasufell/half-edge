@@ -51,5 +51,24 @@
 	ptr = tmp_ptr; \
 }
 
+/**
+ * Realloc macro which checks if reallocation
+ * worked via a temporary pointer. Only performs
+ * reallocation if it is actually necessary.
+ */
+#define MAYBE_REALLOC(ptr, elem_size, condition, alloc_c, alloc_chunk) \
+{ \
+	if (condition) { \
+		alloc_c += alloc_chunk; \
+		void *tmp_ptr = NULL; \
+		tmp_ptr = realloc(ptr, elem_size * alloc_c); \
+		if (tmp_ptr == NULL) { \
+			fprintf(stderr,"NULL Pointer in %s [%d]",__FILE__,__LINE__); \
+			abort(); \
+		} \
+		ptr = tmp_ptr; \
+	} \
+}
+
 
 #endif /* _DROW_ENGINE_TYPES_H */

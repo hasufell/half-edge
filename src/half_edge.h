@@ -231,9 +231,17 @@ struct HE_vert_acc {
 	 */
 	uint32_t eac;
 	/**
+	 * Amount of allocations for edge_array.
+	 */
+	int32_t eac_alloc;
+	/**
 	 * Element count of dummys.
 	 */
 	uint32_t dc;
+	/**
+	 * Amount of allocations for dummy edges array.
+	 */
+	int32_t dc_alloc;
 };
 
 /**
