@@ -257,7 +257,7 @@ static bool assemble_obj_arrays(char const * const obj_string,
 
 				MAYBE_REALLOC(bez[bzc],
 						sizeof(**bez),
-						(int32_t)bzc > bez_arr_alloc_c - 2,
+						(int32_t)i > bez_arr_alloc_c - 2,
 						bez_arr_alloc_c,
 						bez_arr_alloc_chunk);
 
