@@ -76,8 +76,13 @@ char *read_file(char const * const filename)
 	int fd = 0;
 	size_t str_size = 0;
 	ssize_t n;
+	size_t file_length = 0;
 
 	fd = open(filename, O_RDONLY);
+	file_length = lseek(fd, 0, SEEK_END) + 1;
+	lseek(fd, 0, SEEK_SET);
+
+	string = malloc(sizeof(char) * file_length);
 
 	if (fd != -1) {
 		/* read and copy chunks */
@@ -87,11 +92,6 @@ char *read_file(char const * const filename)
 				ABORT("Failed while reading file descriptor %d\n", fd);
 
 			str_size += n; /* count total bytes read */
-
-			REALLOC( /* allocate correct size */
-					string, /* pointer to realloc */
-					str_size /* total bytes read */
-					+ 1); /* space for trailing NULL byte */
 
 			/* append buffer to string */
 			memcpy(string + (str_size - n), buf, (size_t)n);
