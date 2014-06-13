@@ -26,7 +26,9 @@
 #define _DROW_ENGINE_SETUP_H
 
 
-void init_object(char const * const filename);
+void init_object(char const * const sun,
+		char const * const object,
+		char const * const bez);
 void init_sdl_loop(void);
 
 

@@ -40,19 +40,20 @@
 /**
  * Program help text.
  */
-char const * const helptext = "Usage: drow-engine <file.obj>\n";
+char const * const helptext = "Usage: drow-engine <center.obj>"
+" <float.obj> <bez.obj>\n";
 
 
 int main(int argc, char *argv[])
 {
-	if (argc == 1) {
+	if (argc != 4) {
 		printf("%s", helptext);
 		return 1;
 	}
 
 	glutInit(&argc, argv);
 
-	init_object(argv[1]);
+	init_object(argv[1], argv[2], argv[3]);
 	init_sdl_loop();
 
 	return 0;

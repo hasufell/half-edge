@@ -275,7 +275,11 @@ static bool process_keypress(SDL_KeyboardEvent *key_event)
 		}
 		break;
 	case 'f':
-		draw_frame = !draw_frame;
+		if (mod & KMOD_SHIFT) {
+			draw_bezier = !draw_bezier;
+		} else {
+			draw_frame = !draw_frame;
+		}
 		break;
 	case 'l':
 		if (mod & KMOD_SHIFT) {
@@ -323,16 +327,32 @@ static void gl_destroy(SDL_Window *win, SDL_GLContext glctx)
 /**
  * Initialize the global obj object.
  *
- * @param filename the file to parse and build the object from
+ * @param sun the file to parse and build the object from which
+ * will construct the sun
+ * @param object the file to parse and build the object from which
+ * will float around the sun
+ * @param bez the file to parse and build the object from which
+ * will define on which curve the object floats around the sun
  */
-void init_object(char const * const filename)
+void init_object(char const * const sun,
+		char const * const object,
+		char const * const bez)
 {
-	obj = read_obj_file(filename);
+	obj = read_obj_file(sun);
+	float_obj = read_obj_file(object);
+	bez_obj	= read_obj_file(bez);
 
-	if (!obj)
-		ABORT("Failed to read object file \"%s\"!", filename);
+	if (!obj) {
+		ABORT("Failed to read object file \"%s\"!", sun);
+	} else if (!float_obj) {
+		ABORT("Failed to read object file \"%s\"!", object);
+	} else if (!bez_obj) {
+		ABORT("Failed to read object file \"%s\"!", bez);
+	}
 
 	NORMALIZE_OBJECT(obj);
+	NORMALIZE_OBJECT(float_obj);
+	NORMALIZE_OBJECT(bez_obj);
 }
 
 /**

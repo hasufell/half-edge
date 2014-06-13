@@ -54,10 +54,13 @@ int yearabs = 365;
 int day = 0;
 int dayabs = 30;
 HE_obj *obj;
+HE_obj *float_obj;
+HE_obj *bez_obj;
 bool show_normals = false;
 bool shademodel = true;
+bool draw_bezier = true;
 bool draw_frame = false;
-float ball_speed = 1.0f;
+float ball_speed = 0.2f;
 
 
 
@@ -203,6 +206,7 @@ void draw_vertices(HE_obj const * const obj,
 		} while ((tmp_edge = tmp_edge->next) != obj->faces[i].edge);
 		glEnd();
 	}
+
 	glPopMatrix();
 }
 
@@ -319,6 +323,9 @@ void draw_bez_frame(const bez_curv *bez,
 	bez_curv cur_bez = *bez;
 	bez_curv next_bez = { NULL, 0 };
 
+	glPushMatrix();
+	glColor3f(0.0, 1.0, 0.0);
+
 	while ((get_reduced_bez_curv(&cur_bez, &next_bez, pos))) {
 
 		glBegin(GL_LINES);
@@ -341,6 +348,7 @@ void draw_bez_frame(const bez_curv *bez,
 	}
 	free(cur_bez.vec);
 
+	glPopMatrix();
 }
 
 /**
@@ -361,6 +369,37 @@ void draw_ball(const bez_curv *bez,
 			ball_pos);
 	glTranslatef(point->x, point->y, point->z);
 	glutWireSphere(0.02f, 100, 100);
+	glPopMatrix();
+
+	free(point);
+}
+
+/**
+ * Draws a ship on the bezier curve at the given position.
+ *
+ * @param bez the bezier curve to draw the ship on
+ * @param pos the position of the ship
+ * @param scale_fac the scale factor
+ */
+void draw_ship(const bez_curv *bez,
+		const float pos,
+		const float scale_fac)
+{
+	const float ship_pos = pos;
+	vector *point;
+
+
+	glPushMatrix();
+
+	glColor3f(0.0, 1.0, 0.0);
+	point = calculate_bezier_point(bez,
+			ship_pos);
+	glTranslatef(point->x, point->y, point->z);
+	glScalef(VISIBILITY_FACTOR * scale_fac,
+			VISIBILITY_FACTOR * scale_fac,
+			VISIBILITY_FACTOR * scale_fac);
+	draw_vertices(float_obj, false);
+
 	glPopMatrix();
 
 	free(point);
@@ -431,11 +470,34 @@ void draw_obj(int32_t const myxrot,
 		draw_vertices(obj, false);
 	}
 
-	if (obj->bzc != 0) {
-		draw_bez(&(obj->bez_curves[0]), bez_inc);
-		draw_ball(&(obj->bez_curves[0]), ball_inc);
+	glPopMatrix();
+
+	glPushMatrix();
+
+	FIND_CENTER(bez_obj, &center_vert);
+
+	/* rotate according to static members */
+	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z);
+	glScalef(VISIBILITY_FACTOR * 5,
+			VISIBILITY_FACTOR * 5,
+			VISIBILITY_FACTOR * 5);
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	glTranslatef(0.0f, 0.0f, SYSTEM_POS_Z_BACK);
+
+	/* pull into middle of universe */
+	glTranslatef(-center_vert.x,
+			-center_vert.y,
+			-center_vert.z + SYSTEM_POS_Z);
+
+	if (bez_obj->bzc != 0) {
+		if(draw_bezier)
+			draw_bez(&(bez_obj->bez_curves[0]), bez_inc);
 		if(draw_frame)
-			draw_bez_frame(&(obj->bez_curves[0]), ball_inc);
+			draw_bez_frame(&(bez_obj->bez_curves[0]), ball_inc);
+
+		draw_ship(&(bez_obj->bez_curves[0]), ball_inc, 0.03);
 	}
 
 	glPopMatrix();

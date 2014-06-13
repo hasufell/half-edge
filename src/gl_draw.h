@@ -59,9 +59,12 @@
 extern int yearabs;
 extern int dayabs;
 extern HE_obj *obj;
+extern HE_obj *float_obj;
+extern HE_obj *bez_obj;
 extern bool show_normals;
 extern bool shademodel;
 extern bool draw_frame;
+extern bool draw_bezier;
 extern float ball_speed;
 
 
