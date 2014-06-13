@@ -101,6 +101,11 @@ typedef double** V_TEXTURES;
  * that describe a bezier curve.
  */
 typedef int** BEZIER_CURV;
+/**
+ * 2d array which can hold the vertices normals
+ * as they are in the .obj file.
+ */
+typedef double** V_NORMALS;
 
 typedef struct FACES FACES;
 typedef struct HE_edge HE_edge;
@@ -134,6 +139,10 @@ struct obj_items {
 	 * Bezier curve
 	 */
 	BEZIER_CURV bez;
+	/**
+	 * Vertices normals
+	 */
+	V_NORMALS vn;
 };
 
 /**
@@ -277,6 +286,10 @@ struct HE_obj {
 	 */
 	bez_curv *bez_curves;
 	/**
+	 * Vertices normals
+	 */
+	vector *vn;
+	/**
 	 * Count of edges.
 	 */
 	uint32_t ec;
@@ -300,6 +313,10 @@ struct HE_obj {
 	 * Count of dummy edges.
 	 */
 	uint32_t dec;
+	/**
+	 * Count of vertice normals.
+	 */
+	uint32_t vnc;
 };
 
 /**

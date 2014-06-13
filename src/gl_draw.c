@@ -100,6 +100,42 @@ void draw_normals(HE_obj const * const obj,
 }
 
 /**
+ * Draws the vertex normals of the object, using
+ * the information given by the .obj file.
+ *
+ * @param obj the object to draw the vertex normals of
+ * @param scale_inc the incrementor for scaling the normals
+ */
+void draw_given_normals(HE_obj const * const obj,
+		float const scale_inc)
+{
+	static float normals_scale_factor = 0.1f;
+	static float line_width = 2;
+
+	normals_scale_factor += scale_inc;
+
+	glPushMatrix();
+
+	glLineWidth(line_width);
+	glColor3f(1.0, 0.0, 0.0);
+
+	glBegin(GL_LINES);
+	for (uint32_t i = 0; i < obj->vc; i++) {
+		glVertex3f(obj->vertices[i].vec->x,
+				obj->vertices[i].vec->y,
+				obj->vertices[i].vec->z);
+		glVertex3f(obj->vertices[i].vec->x +
+				(obj->vn[i].x * normals_scale_factor),
+				obj->vertices[i].vec->y +
+				(obj->vn[i].y * normals_scale_factor),
+				obj->vertices[i].vec->z +
+				(obj->vn[i].z * normals_scale_factor));
+	}
+	glEnd();
+	glPopMatrix();
+}
+
+/**
  * Draws all vertices of the object by
  * assembling a polygon for each face.
  *
@@ -390,7 +426,7 @@ void draw_obj(int32_t const myxrot,
 
 	if (obj->ec != 0) {
 		if (show_normals)
-			draw_normals(obj, 0);
+			draw_given_normals(obj, 0);
 
 		draw_vertices(obj, false);
 	}

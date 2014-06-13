@@ -306,4 +306,5 @@ void delete_object(HE_obj *obj)
 	free(obj->vertices);
 	free(obj->faces);
 	free(obj->bez_curves);
+	free(obj->vn);
 }

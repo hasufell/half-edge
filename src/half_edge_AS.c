@@ -49,8 +49,9 @@ static void delete_accel_struct(HE_obj *he_obj);
 static void delete_raw_object(obj_items *raw_obj,
 		uint32_t fc,
 		uint32_t vc,
-		uint32_t vt,
-		uint32_t bzc);
+		uint32_t vtc,
+		uint32_t bzc,
+		uint32_t vnc);
 
 
 /**
@@ -84,17 +85,20 @@ static bool assemble_obj_arrays(char const * const obj_string,
 		 *str_tmp_ptr = NULL;
 
 	/* these will be assigned later to the out structs */
-	uint32_t vc = 0, fc = 0, ec = 0, vtc = 0, bzc = 0;
+	uint32_t vc = 0, fc = 0, ec = 0, vtc = 0, bzc = 0, vnc = 0;
 	VERTICES obj_v = NULL;
 	FACES *obj_f = malloc(sizeof(*obj_f));
 	uint32_t **obj_f_v = NULL; /* tmp v member of obj_f */
 	uint32_t **obj_f_vt = NULL; /* tmp vt member of obj_f */
 	V_TEXTURES obj_vt = NULL;
 	BEZIER_CURV bez = NULL;
+	V_NORMALS obj_vn = NULL;
 
 	/* allocator chunks/counts */
 	const int32_t obj_v_alloc_chunk = 200;
 	int32_t obj_v_alloc_c = 0;
+	const int32_t obj_vn_alloc_chunk = 200;
+	int32_t obj_vn_alloc_c = 0;
 	const int32_t obj_vt_alloc_chunk = 200;
 	int32_t obj_vt_alloc_c = 0;
 	const int32_t obj_f_v_alloc_chunk = 200;
@@ -144,6 +148,31 @@ static bool assemble_obj_arrays(char const * const obj_string,
 			}
 			vc++;
 			obj_v[vc] = NULL; /* trailing NULL pointer */
+
+		/*
+		 * VERTICES NORMALS
+		 */
+		} else if (!strcmp(str_tmp_ptr, "vn")) {
+			char *myint = NULL;
+			uint8_t i = 0;
+
+			MAYBE_REALLOC(obj_vn,
+					sizeof(*obj_vn),
+					(int32_t)vnc > (obj_vn_alloc_c - 2),
+					obj_vn_alloc_c,
+					obj_vn_alloc_chunk);
+
+			obj_vn[vnc] = malloc(sizeof(**obj_vn) * 4);
+
+			while ((myint = strtok_r(NULL, " ", &str_ptr_space))) {
+				obj_vn[vnc][i] = atof(myint);
+				i++;
+
+				if (i > 3)
+					ABORT("Malformed vertice exceeds 3 dimensions!\n");
+			}
+			vnc++;
+			obj_vn[vnc] = NULL; /* trailing NULL pointer */
 
 		/*
 		 * VERTEX TEXTURES
@@ -283,6 +312,9 @@ static bool assemble_obj_arrays(char const * const obj_string,
 	raw_obj->f = obj_f;
 	raw_obj->vt = obj_vt;
 	raw_obj->bez = bez;
+	raw_obj->vn = obj_vn;
+	he_obj->vn = NULL; /* will be filled in assemble_HE_stage1() */
+	he_obj->vnc = vnc;
 
 	/* cleanup */
 	free(string);
@@ -314,11 +346,14 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 	uint8_t	const zpos = 2;
 	int8_t default_color = -1;
 	HE_vert *vertices = he_obj->vertices;
+	vector *v_normals = NULL;
 	bez_curv *bez_curves = NULL;
 
 	/* allocator chunks/counts */
 	const int32_t bez_curves_alloc_chunk = 3;
 	int32_t bez_curves_alloc_c = 0;
+	const int32_t v_normals_alloc_chunk = 200;
+	int32_t v_normals_alloc_c = 0;
 
 	while (raw_obj->v[vc]) {
 		vector *tmp_vec;
@@ -349,6 +384,18 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 		vertices[vc].acc->dc = 0;
 
 		vc++;
+	}
+
+	for (uint32_t i = 0; i < he_obj->vnc; i++) {
+		MAYBE_REALLOC(v_normals,
+				sizeof(*v_normals),
+				(int32_t)i > v_normals_alloc_c - 2,
+				v_normals_alloc_c,
+				v_normals_alloc_chunk);
+
+		v_normals[i].x = raw_obj->vn[i][xpos];
+		v_normals[i].y = raw_obj->vn[i][ypos];
+		v_normals[i].z = raw_obj->vn[i][zpos];
 	}
 
 	while (raw_obj->bez && raw_obj->bez[bzc]) {
@@ -382,6 +429,7 @@ static void assemble_HE_stage1(obj_items const * const raw_obj,
 	he_obj->bez_curves = bez_curves;
 	he_obj->bzc = bzc;
 	he_obj->vertices = vertices;
+	he_obj->vn = v_normals;
 }
 
 /**
@@ -612,7 +660,7 @@ HE_obj *parse_obj(char const * const obj_string)
 
 	/* cleanup */
 	delete_raw_object(&raw_obj, he_obj->fc,
-			he_obj->vc, he_obj->vtc, he_obj->bzc);
+			he_obj->vc, he_obj->vtc, he_obj->bzc, he_obj->vnc);
 	delete_accel_struct(he_obj);
 	free(string);
 
@@ -642,11 +690,14 @@ static void delete_raw_object(obj_items *raw_obj,
 		uint32_t fc,
 		uint32_t vc,
 		uint32_t vtc,
-		uint32_t bzc)
+		uint32_t bzc,
+		uint32_t vnc)
 {
 	if (!raw_obj)
 		return;
 
+	for (uint32_t i = 0; i < vnc; i++)
+		free(raw_obj->vn[i]);
 	for (uint32_t i = 0; i < bzc; i++)
 		free(raw_obj->bez[i]);
 	for (uint32_t i = 0; i < vtc; i++)
@@ -661,6 +712,7 @@ static void delete_raw_object(obj_items *raw_obj,
 	free(raw_obj->f->v);
 	free(raw_obj->f->vt);
 	free(raw_obj->v);
+	free(raw_obj->vn);
 	free(raw_obj->vt);
 	free(raw_obj->f);
 }
